@@ -81,3 +81,21 @@ DD_SITE=us5.datadoghq.com           # Default: us5.datadoghq.com
 ## Key Services
 
 Primary Datadog-monitored services: `us-app-prod` (Flutter RUM), `us-insight-api-prod`, `us-campus` (backend), MongoDB Atlas (`cluster0`).
+
+## SDK 사용 패턴
+
+Datadog v2 API의 aggregate 계열 도구(`aggregate-logs`, `aggregate-rum`)는 반드시 SDK 모델 클래스 인스턴스를 사용해야 합니다. plain object를 `as any`로 전달하면 `ObjectSerializer`가 `attributeTypeMap` 매핑(예: `groupBy` → `group_by`)을 제대로 수행하지 못해 API 400 에러가 발생합니다.
+
+```typescript
+// 올바른 패턴 (SDK 모델 인스턴스)
+const compute = new v2.LogsCompute();
+const body = new v2.LogsAggregateRequest();
+
+// 잘못된 패턴 (plain object + as any)
+const body = { compute: [...] } as any;  // ObjectSerializer 매핑 실패
+```
+
+### 최근 변경사항 (2026-02-26)
+
+- `aggregate-logs`, `aggregate-rum`의 groupBy 버그 수정: SDK 모델 클래스 인스턴스 사용으로 전환
+- 전체 28개 도구 동작 테스트 완료 (100% 통과)

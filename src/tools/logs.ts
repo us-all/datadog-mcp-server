@@ -1,4 +1,5 @@
 import { z } from "zod/v4";
+import { v2 } from "@datadog/datadog-api-client";
 import { logsApi, logsV1Api } from "../client.js";
 
 export const searchLogsSchema = z.object({
@@ -46,25 +47,31 @@ export const aggregateLogsSchema = z.object({
 });
 
 export async function aggregateLogs(params: z.infer<typeof aggregateLogsSchema>) {
-  const compute: Array<{ aggregation: string; metric?: string }> = [
-    { aggregation: params.aggregation, ...(params.metric ? { metric: params.metric } : {}) },
-  ];
+  const compute = new v2.LogsCompute();
+  compute.aggregation = params.aggregation as v2.LogsAggregationFunction;
+  compute.type = "total" as v2.LogsComputeType;
+  if (params.metric) {
+    compute.metric = params.metric;
+  }
 
-  const groupBy = params.groupBy
-    ? [{ facet: params.groupBy, limit: 10, sort: { aggregation: params.aggregation } as Record<string, unknown> }]
-    : undefined;
+  const filter = new v2.LogsQueryFilter();
+  filter.query = params.query;
+  filter.from = params.from;
+  filter.to = params.to;
 
-  const response = await logsApi.aggregateLogs({
-    body: {
-      compute: compute as any,
-      filter: {
-        query: params.query,
-        from: params.from,
-        to: params.to,
-      },
-      ...(groupBy ? { groupBy: groupBy as any } : {}),
-    },
-  });
+  const body = new v2.LogsAggregateRequest();
+  body.compute = [compute];
+  body.filter = filter;
+
+  if (params.groupBy) {
+    const groupBy = new v2.LogsGroupBy();
+    groupBy.facet = params.groupBy;
+    groupBy.limit = 10;
+
+    body.groupBy = [groupBy];
+  }
+
+  const response = await logsApi.aggregateLogs({ body });
 
   return {
     buckets: response.data?.buckets ?? [],

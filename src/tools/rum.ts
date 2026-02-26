@@ -1,4 +1,5 @@
 import { z } from "zod/v4";
+import { v2 } from "@datadog/datadog-api-client";
 import { rumApi } from "../client.js";
 
 export const searchRumEventsSchema = z.object({
@@ -42,25 +43,30 @@ export const aggregateRumSchema = z.object({
 });
 
 export async function aggregateRum(params: z.infer<typeof aggregateRumSchema>) {
-  const compute: Array<{ aggregation: string; metric?: string }> = [
-    { aggregation: params.aggregation, ...(params.metric ? { metric: params.metric } : {}) },
-  ];
+  const compute = new v2.RUMCompute();
+  compute.aggregation = params.aggregation as v2.RUMAggregationFunction;
+  if (params.metric) {
+    compute.metric = params.metric;
+  }
 
-  const groupBy = params.groupBy
-    ? [{ facet: params.groupBy, limit: 10, sort: { aggregation: params.aggregation } as Record<string, unknown> }]
-    : undefined;
+  const filter = new v2.RUMQueryFilter();
+  filter.query = params.query;
+  filter.from = params.from;
+  filter.to = params.to;
 
-  const response = await rumApi.aggregateRUMEvents({
-    body: {
-      compute: compute as any,
-      filter: {
-        query: params.query,
-        from: params.from,
-        to: params.to,
-      },
-      ...(groupBy ? { groupBy: groupBy as any } : {}),
-    },
-  });
+  const body = new v2.RUMAggregateRequest();
+  body.compute = [compute];
+  body.filter = filter;
+
+  if (params.groupBy) {
+    const groupBy = new v2.RUMGroupBy();
+    groupBy.facet = params.groupBy;
+    groupBy.limit = 10;
+
+    body.groupBy = [groupBy];
+  }
+
+  const response = await rumApi.aggregateRUMEvents({ body });
 
   return {
     buckets: response.data?.buckets ?? [],

@@ -3,7 +3,7 @@ import { v2 } from "@datadog/datadog-api-client";
 import { rumApi } from "../client.js";
 
 export const searchRumEventsSchema = z.object({
-  query: z.string().describe("RUM search query. Example: service:us-app-prod @type:error @session.type:user"),
+  query: z.string().describe("RUM search query. Example: service:my-app @type:error @session.type:user"),
   from: z.string().describe("Start time (ISO 8601). Example: 2026-02-26T00:00:00Z"),
   to: z.string().describe("End time (ISO 8601). Example: 2026-02-26T23:59:59Z"),
   limit: z.number().optional().default(50).describe("Max results (default 50, max 1000)"),
@@ -34,7 +34,7 @@ export async function searchRumEvents(params: z.infer<typeof searchRumEventsSche
 }
 
 export const aggregateRumSchema = z.object({
-  query: z.string().describe("RUM filter query. Example: service:us-app-prod @type:view"),
+  query: z.string().describe("RUM filter query. Example: service:my-app @type:view"),
   from: z.string().describe("Start time (ISO 8601). Example: 2026-02-26T00:00:00Z"),
   to: z.string().describe("End time (ISO 8601). Example: 2026-02-26T23:59:59Z"),
   aggregation: z.enum(["count", "cardinality", "avg", "sum", "min", "max", "pc75", "pc90", "pc95", "pc98", "pc99"]).describe("Aggregation function. Example: count or avg"),

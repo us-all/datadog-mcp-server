@@ -5,7 +5,7 @@
 
 ## 시나리오
 
-"오늘 `us-insight-api-prod`에서 에러가 많이 발생하는 것 같다" — 이 한 문장에서 시작하여 원인까지 파악합니다.
+"오늘 `payment-api-prod`에서 에러가 많이 발생하는 것 같다" — 이 한 문장에서 시작하여 원인까지 파악합니다.
 
 ## 1단계: 에러 규모 파악
 
@@ -19,33 +19,33 @@
 **결과:**
 ```
 서비스별 에러 로그:
-  us-insight-api-prod  →  13건 (가장 많음)
-  us-app-prod          →   8건
-  us-partner-api-dev   →   1건
+  payment-api-prod     →  13건 (가장 많음)
+  web-store-prod       →   8건
+  auth-service-dev     →   1건
 ```
 
-`us-insight-api-prod`에서 에러가 집중되고 있음을 확인합니다.
+`payment-api-prod`에서 에러가 집중되고 있음을 확인합니다.
 
 ## 2단계: 에러 로그 상세 확인
 
 **Claude에게 질문:**
 ```
-us-insight-api-prod의 에러 로그를 보여줘
+payment-api-prod의 에러 로그를 보여줘
 ```
 
-**사용되는 도구:** `search-logs` (query: `service:us-insight-api-prod status:error`)
+**사용되는 도구:** `search-logs` (query: `service:payment-api-prod status:error`)
 
 **결과 분석:**
 ```
 에러 메시지: TypeError: Cannot read properties of undefined (reading 'type')
-위치: product-group-main-content.item.dto.ts:32
-엔드포인트: GET /v2/product-groups/111
-요청 출처: us-plus-keytlrve7-us-all-2024.vercel.app (웹)
-요청자 IP: 221.146.217.10
+위치: order-item.dto.ts:32
+엔드포인트: GET /v2/orders/111
+요청 출처: my-app-production.vercel.app (웹)
+요청자 IP: 203.0.113.50
 시간대: 08:09 ~ 08:14 (5분간 집중 발생)
 ```
 
-모든 에러가 **동일한 엔드포인트(`/v2/product-groups/111`)**에서 발생하고 있음을 파악합니다.
+모든 에러가 **동일한 엔드포인트(`/v2/orders/111`)**에서 발생하고 있음을 파악합니다.
 
 ## 3단계: APM 트레이스로 성능 및 상세 분석
 
@@ -54,7 +54,7 @@ us-insight-api-prod의 에러 로그를 보여줘
 해당 엔드포인트의 APM 트레이스를 보여줘
 ```
 
-**사용되는 도구:** `search-spans` (query: `service:us-insight-api-prod resource_name:GET*/v2/product-groups*`)
+**사용되는 도구:** `search-spans` (query: `service:payment-api-prod resource_name:GET*/v2/orders*`)
 
 **APM에서 추가로 알 수 있는 정보:**
 ```
@@ -62,7 +62,7 @@ HTTP Status: 500
 Duration: 13~18ms (응답 자체는 빠름, DB 쿼리 후 DTO 변환에서 에러)
 Git Commit: 4b4564ae
 버전: v2.3.4 (현재) / v2.3.3 (최초 발견)
-ECS Task: us-insight-api-prod (3개 컨테이너 모두에서 발생)
+ECS Task: payment-api-prod (3개 컨테이너 모두에서 발생)
 Error Fingerprint: v10.04EF48364103F1D1DFF7423A6277749D (동일 이슈)
 ```
 
@@ -70,7 +70,7 @@ Error Fingerprint: v10.04EF48364103F1D1DFF7423A6277749D (동일 이슈)
 
 **Claude에게 질문:**
 ```
-us-insight-api 관련 모니터 상태를 확인해줘
+payment-api 관련 모니터 상태를 확인해줘
 ```
 
 **사용되는 도구:** `get-monitors` (name 필터)
@@ -79,7 +79,7 @@ us-insight-api 관련 모니터 상태를 확인해줘
 
 **Claude에게 질문:**
 ```
-오늘 us-app-prod 앱에서 에러 수를 앱별로 보여줘
+오늘 웹 앱에서 에러 수를 앱별로 보여줘
 ```
 
 **사용되는 도구:** `aggregate-rum` (groupBy: @application.id)
@@ -90,19 +90,19 @@ us-insight-api 관련 모니터 상태를 확인해줘
 
 | 항목 | 내용 |
 |------|------|
-| **서비스** | `us-insight-api-prod` (v2.3.4) |
-| **엔드포인트** | `GET /v2/product-groups/111` |
+| **서비스** | `payment-api-prod` (v2.3.4) |
+| **엔드포인트** | `GET /v2/orders/111` |
 | **에러 타입** | `TypeError: Cannot read properties of undefined (reading 'type')` |
-| **에러 위치** | `ProductGroupMainContentItemDto` 생성자 (dto.ts:32) |
+| **에러 위치** | `OrderItemDto` 생성자 (dto.ts:32) |
 | **HTTP 상태** | 500 Internal Server Error |
 | **발생 시간** | 08:09 ~ 08:14 (5분간 13건) |
 | **최초 발견** | v2.3.3 (이전 버전부터 존재하는 버그) |
-| **영향 범위** | product-group ID 111 페이지만 해당 |
+| **영향 범위** | order ID 111 페이지만 해당 |
 
 ## 권장 조치
 
-1. `ProductGroupMainContentItemDto` 생성자에서 `type` 필드 null/undefined 체크 추가
-2. product-group `111`의 DB 데이터 정합성 확인 (mainContent에 type 누락 항목)
+1. `OrderItemDto` 생성자에서 `type` 필드 null/undefined 체크 추가
+2. order `111`의 DB 데이터 정합성 확인 (item에 type 누락 항목)
 3. v2.3.3부터 존재하므로 데이터 마이그레이션 누락 가능성 검토
 
 ---

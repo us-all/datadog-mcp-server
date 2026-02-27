@@ -2,7 +2,7 @@
 
 A comprehensive [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for Datadog. Gives AI assistants like Claude direct access to your Datadog monitoring data — metrics, logs, APM traces, RUM, monitors, dashboards, and more.
 
-[한국어 README](./README_KO.md)
+[한국어](./README_KO.md)
 
 ## Why This Server?
 

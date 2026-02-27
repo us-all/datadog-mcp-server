@@ -1,12 +1,13 @@
 import { z } from "zod/v4";
 import { eventsApi } from "../client.js";
+import { assertWriteAllowed } from "./utils.js";
 
 export const getEventsSchema = z.object({
-  start: z.number().describe("Start time as Unix epoch seconds"),
-  end: z.number().describe("End time as Unix epoch seconds"),
+  start: z.number().describe("Start time as Unix epoch seconds. Example: 1740000000"),
+  end: z.number().describe("End time as Unix epoch seconds. Example: 1740003600"),
   priority: z.enum(["low", "normal"]).optional().describe("Event priority filter"),
-  sources: z.string().optional().describe("Comma-separated event sources"),
-  tags: z.string().optional().describe("Comma-separated tags to filter"),
+  sources: z.string().optional().describe("Comma-separated event sources. Example: datadog,nginx"),
+  tags: z.string().optional().describe("Comma-separated tags to filter. Example: env:prod,service:api"),
   unaggregated: z.boolean().optional().describe("Return unaggregated events"),
   page: z.number().optional().describe("Page number for pagination"),
 });
@@ -40,17 +41,18 @@ export async function getEvents(params: z.infer<typeof getEventsSchema>) {
 }
 
 export const postEventSchema = z.object({
-  title: z.string().describe("Event title"),
-  text: z.string().describe("Event body (supports markdown, max 4000 chars)"),
-  tags: z.array(z.string()).optional().describe("Tags for the event"),
+  title: z.string().describe("Event title. Example: Deployment completed"),
+  text: z.string().describe("Event body (supports markdown, max 4000 chars). Example: Deployed v1.2.3 to production"),
+  tags: z.array(z.string()).optional().describe("Tags for the event. Example: [\"env:prod\", \"deploy\"]"),
   alertType: z.enum(["error", "warning", "info", "success"]).optional().describe("Alert type"),
   priority: z.enum(["low", "normal"]).optional().describe("Event priority"),
   host: z.string().optional().describe("Associated host name"),
   aggregationKey: z.string().optional().describe("Aggregation key for grouping events"),
-  sourceTypeName: z.string().optional().describe("Source type name"),
+  sourceTypeName: z.string().optional().describe("Source type name. Example: my_app"),
 });
 
 export async function postEvent(params: z.infer<typeof postEventSchema>) {
+  assertWriteAllowed();
   const response = await eventsApi.createEvent({
     body: {
       title: params.title,

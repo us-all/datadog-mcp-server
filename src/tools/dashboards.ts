@@ -1,8 +1,9 @@
 import { z } from "zod/v4";
 import { dashboardsApi } from "../client.js";
+import { assertWriteAllowed } from "./utils.js";
 
 export const getDashboardsSchema = z.object({
-  filterShared: z.boolean().optional().describe("Filter shared dashboards"),
+  filterShared: z.boolean().optional().describe("Filter shared dashboards only"),
   count: z.number().optional().default(100).describe("Number of dashboards to return"),
   start: z.number().optional().default(0).describe("Pagination offset"),
 });
@@ -31,7 +32,7 @@ export async function getDashboards(params: z.infer<typeof getDashboardsSchema>)
 }
 
 export const getDashboardSchema = z.object({
-  dashboardId: z.string().describe("Dashboard ID"),
+  dashboardId: z.string().describe("Dashboard ID. Example: abc-def-ghi"),
 });
 
 export async function getDashboard(params: z.infer<typeof getDashboardSchema>) {
@@ -58,15 +59,16 @@ export async function getDashboard(params: z.infer<typeof getDashboardSchema>) {
 }
 
 export const createDashboardSchema = z.object({
-  title: z.string().describe("Dashboard title"),
-  layoutType: z.enum(["ordered", "free"]).describe("Layout type: ordered or free"),
+  title: z.string().describe("Dashboard title. Example: Production Overview"),
+  layoutType: z.enum(["ordered", "free"]).describe("Layout type: ordered (auto-arranged) or free (manual placement)"),
   description: z.string().optional().describe("Dashboard description"),
   widgets: z.array(z.record(z.string(), z.any())).describe("Array of widget definitions (each with a 'definition' key)"),
-  tags: z.array(z.string()).optional().describe("Tags for the dashboard"),
-  templateVariables: z.array(z.record(z.string(), z.any())).optional().describe("Template variables"),
+  tags: z.array(z.string()).optional().describe("Tags for the dashboard. Example: [\"env:prod\"]"),
+  templateVariables: z.array(z.record(z.string(), z.any())).optional().describe("Template variables for dynamic filtering"),
 });
 
 export async function createDashboard(params: z.infer<typeof createDashboardSchema>) {
+  assertWriteAllowed();
   const response = await dashboardsApi.createDashboard({
     body: {
       title: params.title,
@@ -88,7 +90,7 @@ export async function createDashboard(params: z.infer<typeof createDashboardSche
 }
 
 export const updateDashboardSchema = z.object({
-  dashboardId: z.string().describe("Dashboard ID to update"),
+  dashboardId: z.string().describe("Dashboard ID to update. Example: abc-def-ghi"),
   title: z.string().describe("Dashboard title"),
   layoutType: z.enum(["ordered", "free"]).describe("Layout type"),
   description: z.string().optional().describe("Dashboard description"),
@@ -98,6 +100,7 @@ export const updateDashboardSchema = z.object({
 });
 
 export async function updateDashboard(params: z.infer<typeof updateDashboardSchema>) {
+  assertWriteAllowed();
   const response = await dashboardsApi.updateDashboard({
     dashboardId: params.dashboardId,
     body: {
@@ -120,10 +123,11 @@ export async function updateDashboard(params: z.infer<typeof updateDashboardSche
 }
 
 export const deleteDashboardSchema = z.object({
-  dashboardId: z.string().describe("Dashboard ID to delete"),
+  dashboardId: z.string().describe("Dashboard ID to delete. Example: abc-def-ghi"),
 });
 
 export async function deleteDashboard(params: z.infer<typeof deleteDashboardSchema>) {
+  assertWriteAllowed();
   const response = await dashboardsApi.deleteDashboard({
     dashboardId: params.dashboardId,
   });

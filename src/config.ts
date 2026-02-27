@@ -6,6 +6,7 @@ export const config = {
   apiKey: process.env.DD_API_KEY ?? "",
   appKey: process.env.DD_APP_KEY ?? "",
   site: process.env.DD_SITE ?? "us5.datadoghq.com",
+  allowWrite: process.env.DD_ALLOW_WRITE === "true",
 };
 
 export function validateConfig(): void {

@@ -2,7 +2,7 @@ import { z } from "zod/v4";
 import { incidentsApi } from "../client.js";
 
 export const getIncidentsSchema = z.object({
-  pageSize: z.number().optional().default(25).describe("Number of results per page (default 25)"),
+  pageSize: z.number().optional().default(25).describe("Number of results per page (default 25, max 100)"),
   pageOffset: z.number().optional().default(0).describe("Pagination offset"),
 });
 

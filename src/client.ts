@@ -30,6 +30,7 @@ export const usageMeteringApi = new v1.UsageMeteringApi(configuration);
 export const notebooksApi = new v1.NotebooksApi(configuration);
 
 // v2 APIs
+export const metricsV2Api = new v2.MetricsApi(configuration);
 export const logsApi = new v2.LogsApi(configuration);
 export const incidentsApi = new v2.IncidentsApi(configuration);
 export const spansApi = new v2.SpansApi(configuration);
@@ -37,3 +38,4 @@ export const rumApi = new v2.RUMApi(configuration);
 export const downtimesApi = new v2.DowntimesApi(configuration);
 export const securityMonitoringApi = new v2.SecurityMonitoringApi(configuration);
 export const usersApi = new v2.UsersApi(configuration);
+export const onCallApi = new v2.OnCallApi(configuration);

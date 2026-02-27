@@ -10,8 +10,8 @@ Custom Datadog MCP (Model Context Protocol) server that gives Claude access to D
 
 - **Runtime**: Node.js 18+ with TypeScript (strict mode)
 - **Package Manager**: pnpm
-- **MCP SDK**: `@modelcontextprotocol/sdk` (^1.8.0)
-- **Datadog Client**: `@datadog/datadog-api-client` (^1.33.1)
+- **MCP SDK**: `@modelcontextprotocol/sdk` (^1.27.1)
+- **Datadog Client**: `@datadog/datadog-api-client` (^1.52.0)
 - **Validation**: zod
 - **Config**: dotenv
 
@@ -34,35 +34,40 @@ Claude AI → MCP Protocol → index.ts (server) → tools/*.ts → Datadog API 
 
 ### Key Source Files
 
-- `src/index.ts` — MCP server entry point, tool registration
+- `src/index.ts` — MCP server entry point, 46 tool registrations
 - `src/config.ts` — Environment variable loading (DD_API_KEY, DD_APP_KEY, DD_SITE)
 - `src/client.ts` — Datadog API client initialization using official SDK
-- `src/tools/` — One file per tool category, each exporting tool handlers
+- `src/tools/utils.ts` — `wrapToolHandler` error handling wrapper for all tools
+- `src/tools/` — One file per tool category, each exporting schema + handler
 
 ### Tool Pattern
 
 Each tool file follows the same pattern:
-1. Define zod input schema
+1. Define zod input schema with `.describe()` on every field
 2. Call Datadog API via official SDK client
 3. Transform response to a readable format
-4. Return as MCP ToolResult
+4. Handler is wrapped with `wrapToolHandler()` in index.ts for error handling
 
-### Tool Categories
+### Tool Categories (46 tools)
 
-| File | Tools | Phase |
-|------|-------|-------|
-| `metrics.ts` | `query-metrics`, `get-metrics`, `get-metric-metadata` | 1 (MVP) |
-| `monitors.ts` | `get-monitors`, `get-monitor` | 1 |
-| `dashboards.ts` | `get-dashboards`, `get-dashboard` | 1 |
-| `logs.ts` | `search-logs`, `aggregate-logs` | 1 |
-| `events.ts` | `get-events` | 1 |
-| `incidents.ts` | `get-incidents` | 1 |
-| `apm.ts` | `search-spans` | 2 |
-| `rum.ts` | `search-rum-events`, `aggregate-rum` | 2 |
-| `downtimes.ts` | `list-downtimes`, `create-downtime`, `cancel-downtime` | 3 |
-| `slos.ts` | `list-slos`, `get-slo`, `get-slo-history` | 3 |
-| `synthetics.ts` | `list-synthetics`, `trigger-synthetics` | 3 |
-| `hosts.ts` | `list-hosts`, `get-host-totals` | 3 |
+| File | Tools |
+|------|-------|
+| `metrics.ts` | `query-metrics`, `get-metrics`, `get-metric-metadata`, `list-active-metrics`, `list-metric-tags` |
+| `monitors.ts` | `get-monitors`, `get-monitor`, `create-monitor`, `update-monitor`, `delete-monitor`, `mute-monitor` |
+| `dashboards.ts` | `get-dashboards`, `get-dashboard`, `create-dashboard`, `update-dashboard`, `delete-dashboard` |
+| `logs.ts` | `search-logs`, `aggregate-logs`, `send-logs` |
+| `events.ts` | `get-events`, `post-event` |
+| `incidents.ts` | `get-incidents` |
+| `apm.ts` | `search-spans` |
+| `rum.ts` | `search-rum-events`, `aggregate-rum` |
+| `hosts.ts` | `list-hosts`, `get-host-totals` |
+| `slos.ts` | `list-slos`, `get-slo`, `get-slo-history` |
+| `synthetics.ts` | `list-synthetics`, `get-synthetics-result`, `trigger-synthetics`, `create-synthetics-test`, `update-synthetics-test`, `delete-synthetics-test` |
+| `downtimes.ts` | `list-downtimes`, `create-downtime`, `cancel-downtime` |
+| `security.ts` | `search-security-signals` |
+| `account.ts` | `get-usage-summary`, `list-users` |
+| `notebooks.ts` | `list-notebooks`, `get-notebook` |
+| `oncall.ts` | `get-team-oncall`, `get-oncall-schedule` |
 
 ## Environment Variables
 
@@ -70,32 +75,18 @@ Each tool file follows the same pattern:
 DD_API_KEY=<datadog-api-key>        # Required
 DD_APP_KEY=<datadog-application-key> # Required
 DD_SITE=us5.datadoghq.com           # Default: us5.datadoghq.com
+DD_ALLOW_WRITE=false                 # Default: false. Set to "true" to enable write operations.
 ```
 
-## Implementation Phases
+## SDK Usage Pattern
 
-- **Phase 1 (MVP)**: `query-metrics` (highest priority — the primary gap vs community MCP) + migrate existing tools (monitors, dashboards, logs, events, incidents, metrics catalog)
-- **Phase 2**: APM span search + RUM events/aggregation
-- **Phase 3**: Downtime management, SLOs, Synthetics, Hosts/Infra
-
-## Key Services
-
-Primary Datadog-monitored services: `us-app-prod` (Flutter RUM), `us-insight-api-prod`, `us-campus` (backend), MongoDB Atlas (`cluster0`).
-
-## SDK 사용 패턴
-
-Datadog v2 API의 aggregate 계열 도구(`aggregate-logs`, `aggregate-rum`)는 반드시 SDK 모델 클래스 인스턴스를 사용해야 합니다. plain object를 `as any`로 전달하면 `ObjectSerializer`가 `attributeTypeMap` 매핑(예: `groupBy` → `group_by`)을 제대로 수행하지 못해 API 400 에러가 발생합니다.
+Datadog v2 API aggregate tools (`aggregate-logs`, `aggregate-rum`) must use SDK model class instances. Passing plain objects with `as any` causes `ObjectSerializer` to fail field mapping (e.g., `groupBy` → `group_by`), resulting in API 400 errors.
 
 ```typescript
-// 올바른 패턴 (SDK 모델 인스턴스)
+// Correct (SDK model instances)
 const compute = new v2.LogsCompute();
 const body = new v2.LogsAggregateRequest();
 
-// 잘못된 패턴 (plain object + as any)
-const body = { compute: [...] } as any;  // ObjectSerializer 매핑 실패
+// Wrong (plain object + as any)
+const body = { compute: [...] } as any;  // ObjectSerializer mapping fails
 ```
-
-### 최근 변경사항 (2026-02-26)
-
-- `aggregate-logs`, `aggregate-rum`의 groupBy 버그 수정: SDK 모델 클래스 인스턴스 사용으로 전환
-- 전체 28개 도구 동작 테스트 완료 (100% 통과)

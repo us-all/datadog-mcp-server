@@ -3,11 +3,11 @@ import { v2 } from "@datadog/datadog-api-client";
 import { rumApi } from "../client.js";
 
 export const searchRumEventsSchema = z.object({
-  query: z.string().describe("RUM search query (e.g., service:us-app-prod @type:error)"),
-  from: z.string().describe("Start time as ISO 8601 string"),
-  to: z.string().describe("End time as ISO 8601 string"),
-  limit: z.number().optional().default(50).describe("Max results (default 50)"),
-  sort: z.enum(["timestamp", "-timestamp"]).optional().default("-timestamp").describe("Sort order"),
+  query: z.string().describe("RUM search query. Example: service:us-app-prod @type:error @session.type:user"),
+  from: z.string().describe("Start time (ISO 8601). Example: 2026-02-26T00:00:00Z"),
+  to: z.string().describe("End time (ISO 8601). Example: 2026-02-26T23:59:59Z"),
+  limit: z.number().optional().default(50).describe("Max results (default 50, max 1000)"),
+  sort: z.enum(["timestamp", "-timestamp"]).optional().default("-timestamp").describe("Sort order: -timestamp (newest first) or timestamp (oldest first)"),
 });
 
 export async function searchRumEvents(params: z.infer<typeof searchRumEventsSchema>) {
@@ -34,12 +34,12 @@ export async function searchRumEvents(params: z.infer<typeof searchRumEventsSche
 }
 
 export const aggregateRumSchema = z.object({
-  query: z.string().describe("RUM filter query"),
-  from: z.string().describe("Start time as ISO 8601 string"),
-  to: z.string().describe("End time as ISO 8601 string"),
-  aggregation: z.enum(["count", "cardinality", "avg", "sum", "min", "max", "pc75", "pc90", "pc95", "pc98", "pc99"]).describe("Aggregation type"),
-  metric: z.string().optional().describe("Metric field for non-count aggregations (e.g., @view.loading_time)"),
-  groupBy: z.string().optional().describe("Field to group by (e.g., @application.id, @view.url_path)"),
+  query: z.string().describe("RUM filter query. Example: service:us-app-prod @type:view"),
+  from: z.string().describe("Start time (ISO 8601). Example: 2026-02-26T00:00:00Z"),
+  to: z.string().describe("End time (ISO 8601). Example: 2026-02-26T23:59:59Z"),
+  aggregation: z.enum(["count", "cardinality", "avg", "sum", "min", "max", "pc75", "pc90", "pc95", "pc98", "pc99"]).describe("Aggregation function. Example: count or avg"),
+  metric: z.string().optional().describe("Metric field for non-count aggregations. Example: @view.loading_time or @action.loading_time"),
+  groupBy: z.string().optional().describe("Field to group by. Example: @application.id or @view.url_path or @geo.country"),
 });
 
 export async function aggregateRum(params: z.infer<typeof aggregateRumSchema>) {

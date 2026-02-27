@@ -2,9 +2,9 @@ import { z } from "zod/v4";
 import { slosApi } from "../client.js";
 
 export const listSlosSchema = z.object({
-  ids: z.string().optional().describe("Comma-separated list of SLO IDs to filter"),
-  query: z.string().optional().describe("Search query for SLO names"),
-  tagsQuery: z.string().optional().describe("Filter by tags (e.g., env:prod)"),
+  ids: z.string().optional().describe("Comma-separated list of SLO IDs to filter. Example: abc123,def456"),
+  query: z.string().optional().describe("Search query for SLO names. Example: api-latency"),
+  tagsQuery: z.string().optional().describe("Filter by tags. Example: env:prod,team:backend"),
   limit: z.number().optional().default(100).describe("Max results (default 100)"),
   offset: z.number().optional().default(0).describe("Pagination offset"),
 });
@@ -39,7 +39,7 @@ export async function listSlos(params: z.infer<typeof listSlosSchema>) {
 }
 
 export const getSloSchema = z.object({
-  sloId: z.string().describe("SLO ID"),
+  sloId: z.string().describe("SLO ID. Example: abc123def456abc123def456abc123de"),
 });
 
 export async function getSlo(params: z.infer<typeof getSloSchema>) {
@@ -67,10 +67,10 @@ export async function getSlo(params: z.infer<typeof getSloSchema>) {
 }
 
 export const getSloHistorySchema = z.object({
-  sloId: z.string().describe("SLO ID"),
-  fromTs: z.number().describe("Start time as Unix epoch seconds"),
-  toTs: z.number().describe("End time as Unix epoch seconds"),
-  target: z.number().optional().describe("Target SLO value (e.g., 99.9)"),
+  sloId: z.string().describe("SLO ID. Example: abc123def456abc123def456abc123de"),
+  fromTs: z.number().describe("Start time as Unix epoch seconds. Example: 1740000000"),
+  toTs: z.number().describe("End time as Unix epoch seconds. Example: 1740086400"),
+  target: z.number().optional().describe("Target SLO value. Example: 99.9"),
 });
 
 export async function getSloHistory(params: z.infer<typeof getSloHistorySchema>) {

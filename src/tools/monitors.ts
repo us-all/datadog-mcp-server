@@ -1,11 +1,12 @@
 import { z } from "zod/v4";
 import { monitorsApi } from "../client.js";
+import { assertWriteAllowed } from "./utils.js";
 
 export const getMonitorsSchema = z.object({
-  name: z.string().optional().describe("Filter monitors by name"),
-  tags: z.string().optional().describe("Comma-separated list of tags to filter"),
-  monitorTags: z.string().optional().describe("Comma-separated list of service/custom tags"),
-  groupStates: z.string().optional().describe("Filter by group states: all, alert, warn, no data"),
+  name: z.string().optional().describe("Filter monitors by name substring. Example: CPU Alert"),
+  tags: z.string().optional().describe("Comma-separated tags to filter. Example: env:prod,team:backend"),
+  monitorTags: z.string().optional().describe("Comma-separated service/custom tags. Example: service:web-app"),
+  groupStates: z.string().optional().describe("Filter by group states: all, alert, warn, no data. Example: alert"),
   pageSize: z.number().optional().default(50).describe("Number of results per page (default 50)"),
   page: z.number().optional().default(0).describe("Page number (0-based)"),
 });
@@ -35,8 +36,8 @@ export async function getMonitors(params: z.infer<typeof getMonitorsSchema>) {
 }
 
 export const getMonitorSchema = z.object({
-  monitorId: z.number().describe("Monitor ID"),
-  groupStates: z.string().optional().describe("Filter by group states"),
+  monitorId: z.number().describe("Monitor ID. Example: 12345678"),
+  groupStates: z.string().optional().describe("Filter by group states. Example: alert,warn"),
 });
 
 export async function getMonitor(params: z.infer<typeof getMonitorSchema>) {
@@ -62,16 +63,17 @@ export async function getMonitor(params: z.infer<typeof getMonitorSchema>) {
 }
 
 export const createMonitorSchema = z.object({
-  name: z.string().describe("Monitor name"),
-  type: z.string().describe("Monitor type (e.g., metric alert, log alert, query alert, service check)"),
-  query: z.string().describe("Monitor query string"),
-  message: z.string().optional().describe("Notification message (supports @mentions)"),
-  tags: z.array(z.string()).optional().describe("Tags for the monitor"),
-  priority: z.number().optional().describe("Priority 1-5 (1=highest)"),
+  name: z.string().describe("Monitor name. Example: High CPU on production"),
+  type: z.string().describe("Monitor type. Example: metric alert, log alert, query alert, service check"),
+  query: z.string().describe("Monitor query string. Example: avg(last_5m):avg:system.cpu.user{env:prod} > 90"),
+  message: z.string().optional().describe("Notification message (supports @mentions). Example: CPU is high @slack-alerts"),
+  tags: z.array(z.string()).optional().describe("Tags for the monitor. Example: [\"env:prod\", \"team:infra\"]"),
+  priority: z.number().optional().describe("Priority 1-5 (1=highest). Example: 2"),
   options: z.record(z.string(), z.any()).optional().describe("Advanced monitor options (thresholds, etc.)"),
 });
 
 export async function createMonitor(params: z.infer<typeof createMonitorSchema>) {
+  assertWriteAllowed();
   const response = await monitorsApi.createMonitor({
     body: {
       name: params.name,
@@ -95,7 +97,7 @@ export async function createMonitor(params: z.infer<typeof createMonitorSchema>)
 }
 
 export const updateMonitorSchema = z.object({
-  monitorId: z.number().describe("Monitor ID to update"),
+  monitorId: z.number().describe("Monitor ID to update. Example: 12345678"),
   name: z.string().optional().describe("New monitor name"),
   query: z.string().optional().describe("New query string"),
   message: z.string().optional().describe("New notification message"),
@@ -105,6 +107,7 @@ export const updateMonitorSchema = z.object({
 });
 
 export async function updateMonitor(params: z.infer<typeof updateMonitorSchema>) {
+  assertWriteAllowed();
   const { monitorId, ...body } = params;
   const response = await monitorsApi.updateMonitor({
     monitorId,
@@ -129,11 +132,12 @@ export async function updateMonitor(params: z.infer<typeof updateMonitorSchema>)
 }
 
 export const deleteMonitorSchema = z.object({
-  monitorId: z.number().describe("Monitor ID to delete"),
+  monitorId: z.number().describe("Monitor ID to delete. Example: 12345678"),
   force: z.boolean().optional().describe("Force delete even if referenced by other resources"),
 });
 
 export async function deleteMonitor(params: z.infer<typeof deleteMonitorSchema>) {
+  assertWriteAllowed();
   const response = await monitorsApi.deleteMonitor({
     monitorId: params.monitorId,
     force: params.force ? "true" : undefined,
@@ -145,12 +149,13 @@ export async function deleteMonitor(params: z.infer<typeof deleteMonitorSchema>)
 }
 
 export const muteMonitorSchema = z.object({
-  monitorId: z.number().describe("Monitor ID to mute"),
-  scope: z.string().optional().describe("Scope to mute (e.g., host:myhost)"),
-  end: z.number().optional().describe("Unix epoch seconds when mute should end"),
+  monitorId: z.number().describe("Monitor ID to mute. Example: 12345678"),
+  scope: z.string().optional().describe("Scope to mute. Example: host:myhost or env:staging"),
+  end: z.number().optional().describe("Unix epoch seconds when mute should end. Example: 1740003600"),
 });
 
 export async function muteMonitor(params: z.infer<typeof muteMonitorSchema>) {
+  assertWriteAllowed();
   const response = await monitorsApi.updateMonitor({
     monitorId: params.monitorId,
     body: {

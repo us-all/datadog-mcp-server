@@ -1,5 +1,6 @@
 import { z } from "zod/v4";
 import { syntheticsApi } from "../client.js";
+import { assertWriteAllowed } from "./utils.js";
 
 export const listSyntheticsSchema = z.object({
   pageSize: z.number().optional().default(100).describe("Number of tests per page"),
@@ -33,10 +34,10 @@ export async function listSynthetics(params: z.infer<typeof listSyntheticsSchema
 }
 
 export const getSyntheticsResultSchema = z.object({
-  publicId: z.string().describe("Synthetics test public ID (e.g., abc-def-ghi)"),
-  fromTs: z.number().optional().describe("Start time in milliseconds"),
-  toTs: z.number().optional().describe("End time in milliseconds"),
-  probeDc: z.array(z.string()).optional().describe("Filter by probe locations"),
+  publicId: z.string().describe("Synthetics test public ID. Example: abc-def-ghi"),
+  fromTs: z.number().optional().describe("Start time in milliseconds. Example: 1740000000000"),
+  toTs: z.number().optional().describe("End time in milliseconds. Example: 1740003600000"),
+  probeDc: z.array(z.string()).optional().describe("Filter by probe locations. Example: [\"aws:us-east-1\"]"),
 });
 
 export async function getSyntheticsResult(params: z.infer<typeof getSyntheticsResultSchema>) {
@@ -63,11 +64,12 @@ export async function getSyntheticsResult(params: z.infer<typeof getSyntheticsRe
 
 export const triggerSyntheticsSchema = z.object({
   tests: z.array(z.object({
-    publicId: z.string().describe("Synthetics test public ID"),
+    publicId: z.string().describe("Synthetics test public ID. Example: abc-def-ghi"),
   })).describe("List of tests to trigger"),
 });
 
 export async function triggerSynthetics(params: z.infer<typeof triggerSyntheticsSchema>) {
+  assertWriteAllowed();
   const response = await syntheticsApi.triggerTests({
     body: {
       tests: params.tests.map((t) => ({
@@ -88,19 +90,20 @@ export async function triggerSynthetics(params: z.infer<typeof triggerSynthetics
 }
 
 export const createSyntheticsTestSchema = z.object({
-  name: z.string().describe("Test name"),
+  name: z.string().describe("Test name. Example: API Health Check - Production"),
   type: z.enum(["api"]).describe("Test type (api)"),
-  subtype: z.enum(["http", "ssl", "tcp", "dns", "icmp", "udp", "websocket", "grpc", "multi"]).optional().default("http").describe("Test subtype"),
-  url: z.string().describe("URL to test"),
-  method: z.string().optional().default("GET").describe("HTTP method"),
-  locations: z.array(z.string()).describe("Test locations (e.g., ['aws:us-east-1'])"),
-  message: z.string().optional().default("").describe("Notification message"),
-  tags: z.array(z.string()).optional().describe("Tags for the test"),
+  subtype: z.enum(["http", "ssl", "tcp", "dns", "icmp", "udp", "websocket", "grpc", "multi"]).optional().default("http").describe("Test subtype. Example: http"),
+  url: z.string().describe("URL to test. Example: https://api.example.com/health"),
+  method: z.string().optional().default("GET").describe("HTTP method. Example: GET, POST, PUT"),
+  locations: z.array(z.string()).describe("Test locations. Example: [\"aws:us-east-1\", \"aws:eu-west-1\"]"),
+  message: z.string().optional().default("").describe("Notification message. Example: API is down @slack-alerts"),
+  tags: z.array(z.string()).optional().describe("Tags for the test. Example: [\"env:prod\", \"team:platform\"]"),
   status: z.enum(["live", "paused"]).optional().default("paused").describe("Initial test status"),
-  assertions: z.array(z.record(z.string(), z.any())).optional().describe("Response assertions"),
+  assertions: z.array(z.record(z.string(), z.any())).optional().describe("Response assertions. Example: [{\"type\":\"statusCode\",\"operator\":\"is\",\"target\":200}]"),
 });
 
 export async function createSyntheticsTest(params: z.infer<typeof createSyntheticsTestSchema>) {
+  assertWriteAllowed();
   const response = await syntheticsApi.createSyntheticsAPITest({
     body: {
       name: params.name,
@@ -136,7 +139,7 @@ export async function createSyntheticsTest(params: z.infer<typeof createSyntheti
 }
 
 export const updateSyntheticsTestSchema = z.object({
-  publicId: z.string().describe("Test public ID to update"),
+  publicId: z.string().describe("Test public ID to update. Example: abc-def-ghi"),
   name: z.string().optional().describe("New test name"),
   url: z.string().optional().describe("New URL to test"),
   method: z.string().optional().describe("New HTTP method"),
@@ -148,6 +151,7 @@ export const updateSyntheticsTestSchema = z.object({
 });
 
 export async function updateSyntheticsTest(params: z.infer<typeof updateSyntheticsTestSchema>) {
+  assertWriteAllowed();
   const current = await syntheticsApi.getAPITest({ publicId: params.publicId });
 
   const response = await syntheticsApi.updateAPITest({
@@ -180,11 +184,12 @@ export async function updateSyntheticsTest(params: z.infer<typeof updateSyntheti
 }
 
 export const deleteSyntheticsTestSchema = z.object({
-  publicIds: z.array(z.string()).describe("Array of test public IDs to delete"),
+  publicIds: z.array(z.string()).describe("Array of test public IDs to delete. Example: [\"abc-def-ghi\"]"),
   forceDeleteDependencies: z.boolean().optional().describe("Force delete even if referenced by other resources"),
 });
 
 export async function deleteSyntheticsTest(params: z.infer<typeof deleteSyntheticsTestSchema>) {
+  assertWriteAllowed();
   const response = await syntheticsApi.deleteTests({
     body: {
       publicIds: params.publicIds,

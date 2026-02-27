@@ -26,7 +26,7 @@ The existing community MCP server only covers basic operations. This project pro
 ### Option 1: npx (Recommended)
 
 ```bash
-npx @anthropic-ai/datadog-mcp \
+npx @us-all/datadog-mcp \
   --env DD_API_KEY=<your-key> \
   --env DD_APP_KEY=<your-key> \
   --env DD_SITE=us5.datadoghq.com
@@ -87,7 +87,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
   "mcpServers": {
     "datadog": {
       "command": "npx",
-      "args": ["-y", "@anthropic-ai/datadog-mcp"],
+      "args": ["-y", "@us-all/datadog-mcp"],
       "env": {
         "DD_API_KEY": "<your-api-key>",
         "DD_APP_KEY": "<your-app-key>",
@@ -104,12 +104,12 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 # Global (all projects)
 claude mcp add datadog -s user \
   -e DD_API_KEY=<key> -e DD_APP_KEY=<key> -e DD_SITE=us5.datadoghq.com \
-  -- npx -y @anthropic-ai/datadog-mcp
+  -- npx -y @us-all/datadog-mcp
 
 # Project-only
 claude mcp add datadog -s project \
   -e DD_API_KEY=<key> -e DD_APP_KEY=<key> -e DD_SITE=us5.datadoghq.com \
-  -- npx -y @anthropic-ai/datadog-mcp
+  -- npx -y @us-all/datadog-mcp
 ```
 
 ## Tools (46)

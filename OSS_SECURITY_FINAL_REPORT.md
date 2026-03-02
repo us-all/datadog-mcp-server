@@ -165,9 +165,9 @@ drwxr-xr-x  /app/node_modules/  — production dependencies
 
 ```
 $ docker run --rm --entrypoint sh mcp-audit:local -c 'env | sort'
-HOME=/root
+HOME=/home/node
 HOSTNAME=<container-id>
-NODE_VERSION=18.20.8
+NODE_VERSION=22.22.0
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 PWD=/app
 SHLVL=1
@@ -206,23 +206,28 @@ All matches are env var **name references** (read from `process.env`, validation
 
 ```dockerfile
 # Stage 1 — Builder (discarded in final image)
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 COPY package.json pnpm-lock.yaml ./    # only package metadata
 COPY tsconfig.json ./                  # build config only
 COPY src ./src                         # source (discarded)
 RUN pnpm run build
+RUN pnpm prune --prod                  # remove devDependencies
 
 # Stage 2 — Production (final image)
-FROM node:18-alpine
-COPY --from=builder /app/dist ./dist           # compiled output only
-COPY --from=builder /app/node_modules ./node_modules  # dependencies
-COPY package.json ./                           # metadata only
+FROM node:22-alpine
+COPY --from=builder /app/node_modules ./node_modules  # prod deps only
+COPY --from=builder /app/dist ./dist                  # compiled output only
+COPY package.json ./                                  # metadata only
+RUN chown -R node:node /app
+USER node                                             # non-root execution
 ENTRYPOINT ["node", "dist/index.js"]
 ```
 
 - Multi-stage build: builder stage (containing source and build tools) is discarded
+- `pnpm prune --prod` removes devDependencies before copying to final stage
 - No `COPY . .` in final stage — only explicit selective copies
 - No `ARG` or `ENV` directives with secrets
+- Runs as non-root `node` user (UID 1000)
 - `.dockerignore` excludes: `.env`, `.env.*`, `.git`, `.github`, `docs`, `*.md` (except README)
 
 **Verdict: PASS** — Docker image is clean. No secrets, source files, or development artifacts present.

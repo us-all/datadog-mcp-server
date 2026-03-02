@@ -439,6 +439,7 @@ Result: CLEAN — zero matches (all company service names removed in commit 95b0
 | OIDC Trusted Publishing | **Implemented** | No stored `NPM_TOKEN`. Short-lived OIDC tokens issued per workflow run. Configured via npmjs.com package settings with GitHub Actions identity provider. |
 | No long-lived tokens | **Implemented** | `NPM_TOKEN` eliminated. Legacy token should be revoked from npm and removed from GitHub Secrets. |
 | npm provenance | **Implemented** | `--provenance` flag enabled in publish step. Sigstore-signed attestation links each package version to the exact source commit and workflow run. |
+| Publish dry-run preflight | **Implemented** | `npm publish --dry-run` runs before the real publish to validate package contents and detect packaging errors before they reach the registry. |
 
 ### 9.2 GitHub Repository Security
 
@@ -473,14 +474,18 @@ Result: CLEAN — zero matches (all company service names removed in commit 95b0
       - name: Install gitleaks
         env:
           GITLEAKS_VERSION: "v8.30.0"
+          GITLEAKS_SHA256: "79a3ab579b53f71efd634f3aaf7e04a0fa0cf206b7ed434638d1547a2470a66e"
         run: |
-          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION#v}_linux_x64.tar.gz" | tar xz
+          TARBALL="gitleaks_${GITLEAKS_VERSION#v}_linux_x64.tar.gz"
+          curl -sSfL ".../${TARBALL}" -o "${TARBALL}"
+          echo "${GITLEAKS_SHA256}  ${TARBALL}" | sha256sum -c -
+          tar xzf "${TARBALL}"
           sudo mv gitleaks /usr/local/bin/
       - name: Run gitleaks
         run: gitleaks detect --source . --verbose --redact
 ```
 
-This runs on every push to master and PR, scanning full git history (`fetch-depth: 0`). Fails the build if any secret pattern is detected. Secrets in output are redacted.
+This runs on every push to master and PR, scanning full git history (`fetch-depth: 0`). Fails the build if any secret pattern is detected. Secrets in output are redacted. Binary integrity is verified via pinned SHA256 checksum before execution.
 
 **Status: Implemented** — Provides ongoing protection against accidental secret commits.
 

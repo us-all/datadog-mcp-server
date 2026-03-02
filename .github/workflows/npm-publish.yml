@@ -38,7 +38,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
       - name: Preflight dry-run
-        run: npm publish --access public --dry-run
+        run: npm publish --access public --provenance --dry-run
       - name: Publish to npm with provenance
         run: npm publish --access public --provenance
 

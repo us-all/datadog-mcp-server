@@ -466,8 +466,9 @@ Result: CLEAN — zero matches (all company service names removed in commit 95b0
         with:
           fetch-depth: 0
       - name: Install gitleaks
+        env:
+          GITLEAKS_VERSION: "v8.30.0"
         run: |
-          GITLEAKS_VERSION=$(curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest | grep tag_name | cut -d '"' -f 4)
           curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION#v}_linux_x64.tar.gz" | tar xz
           sudo mv gitleaks /usr/local/bin/
       - name: Run gitleaks

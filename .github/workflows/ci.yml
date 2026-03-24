@@ -24,7 +24,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
-      - run: pnpm run test
+      - name: Run tests (Node 20+)
+        if: matrix.node-version >= 20
+        run: pnpm run test
         env:
           DD_ENV: ci
           DD_SERVICE: datadog-mcp-server

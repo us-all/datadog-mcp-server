@@ -6,8 +6,8 @@ export const sendDoraDeploymentSchema = z.object({
   service: z.string().describe("Service name for the deployment. Example: my-api-service"),
   version: z.string().optional().describe("Version or git SHA of the deployment. Example: v1.2.3 or abc123"),
   environment: z.string().optional().describe("Environment name. Example: production, staging"),
-  startedAt: z.number().describe("Unix timestamp (seconds) when deployment started"),
-  finishedAt: z.number().describe("Unix timestamp (seconds) when deployment finished"),
+  startedAt: z.coerce.number().describe("Unix timestamp (seconds) when deployment started"),
+  finishedAt: z.coerce.number().describe("Unix timestamp (seconds) when deployment finished"),
 });
 
 export async function sendDoraDeployment(params: z.infer<typeof sendDoraDeploymentSchema>) {
@@ -38,8 +38,8 @@ export const sendDoraIncidentSchema = z.object({
   name: z.string().optional().describe("Incident name or title"),
   severity: z.string().optional().describe("Incident severity. Example: SEV-1, SEV-2"),
   environment: z.string().optional().describe("Environment name. Example: production"),
-  startedAt: z.number().describe("Unix timestamp (seconds) when incident started"),
-  finishedAt: z.number().optional().describe("Unix timestamp (seconds) when incident was resolved"),
+  startedAt: z.coerce.number().describe("Unix timestamp (seconds) when incident started"),
+  finishedAt: z.coerce.number().optional().describe("Unix timestamp (seconds) when incident was resolved"),
   version: z.string().optional().describe("Version that caused the incident"),
 });
 

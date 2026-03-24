@@ -4,8 +4,8 @@ import { notebooksApi } from "../client.js";
 export const listNotebooksSchema = z.object({
   query: z.string().optional().describe("Search query to filter notebooks by name. Example: incident postmortem"),
   authorHandle: z.string().optional().describe("Filter by author handle (email). Example: user@example.com"),
-  count: z.number().optional().default(50).describe("Number of results to return (default 50)"),
-  start: z.number().optional().default(0).describe("Pagination offset"),
+  count: z.coerce.number().optional().default(50).describe("Number of results to return (default 50)"),
+  start: z.coerce.number().optional().default(0).describe("Pagination offset"),
   sortField: z.string().optional().default("modified").describe("Sort field: modified, name, created"),
   sortDir: z.string().optional().default("desc").describe("Sort direction: asc or desc"),
   includeCells: z.boolean().optional().default(false).describe("Include notebook cell contents in response"),
@@ -39,7 +39,7 @@ export async function listNotebooks(params: z.infer<typeof listNotebooksSchema>)
 }
 
 export const getNotebookSchema = z.object({
-  notebookId: z.number().describe("Notebook ID. Example: 1234567"),
+  notebookId: z.coerce.number().describe("Notebook ID. Example: 1234567"),
 });
 
 export async function getNotebook(params: z.infer<typeof getNotebookSchema>) {

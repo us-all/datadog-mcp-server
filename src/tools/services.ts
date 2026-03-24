@@ -2,8 +2,8 @@ import { z } from "zod/v4";
 import { softwareCatalogApi } from "../client.js";
 
 export const listServicesSchema = z.object({
-  pageSize: z.number().optional().default(20).describe("Number of results per page (default 20, max 100)"),
-  pageNumber: z.number().optional().default(0).describe("Page number (0-based)"),
+  pageSize: z.coerce.number().optional().default(20).describe("Number of results per page (default 20, max 100)"),
+  pageNumber: z.coerce.number().optional().default(0).describe("Page number (0-based)"),
   filterName: z.string().optional().describe("Filter by entity name. Example: my-service"),
   filterKind: z.string().optional().describe("Filter by entity kind. Example: service, datastore, queue"),
   filterOwner: z.string().optional().describe("Filter by owner. Example: team-backend"),

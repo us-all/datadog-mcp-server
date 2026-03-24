@@ -3,13 +3,13 @@ import { eventsApi } from "../client.js";
 import { assertWriteAllowed } from "./utils.js";
 
 export const getEventsSchema = z.object({
-  start: z.number().describe("Start time as Unix epoch seconds. Example: 1740000000"),
-  end: z.number().describe("End time as Unix epoch seconds. Example: 1740003600"),
+  start: z.coerce.number().describe("Start time as Unix epoch seconds. Example: 1740000000"),
+  end: z.coerce.number().describe("End time as Unix epoch seconds. Example: 1740003600"),
   priority: z.enum(["low", "normal"]).optional().describe("Event priority filter"),
   sources: z.string().optional().describe("Comma-separated event sources. Example: datadog,nginx"),
   tags: z.string().optional().describe("Comma-separated tags to filter. Example: env:prod,service:api"),
   unaggregated: z.boolean().optional().describe("Return unaggregated events"),
-  page: z.number().optional().describe("Page number for pagination"),
+  page: z.coerce.number().optional().describe("Page number for pagination"),
 });
 
 export async function getEvents(params: z.infer<typeof getEventsSchema>) {

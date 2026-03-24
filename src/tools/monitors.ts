@@ -7,8 +7,8 @@ export const getMonitorsSchema = z.object({
   tags: z.string().optional().describe("Comma-separated tags to filter. Example: env:prod,team:backend"),
   monitorTags: z.string().optional().describe("Comma-separated service/custom tags. Example: service:web-app"),
   groupStates: z.string().optional().describe("Filter by group states: all, alert, warn, no data. Example: alert"),
-  pageSize: z.number().optional().default(50).describe("Number of results per page (default 50)"),
-  page: z.number().optional().default(0).describe("Page number (0-based)"),
+  pageSize: z.coerce.number().optional().default(50).describe("Number of results per page (default 50)"),
+  page: z.coerce.number().optional().default(0).describe("Page number (0-based)"),
 });
 
 export async function getMonitors(params: z.infer<typeof getMonitorsSchema>) {
@@ -36,7 +36,7 @@ export async function getMonitors(params: z.infer<typeof getMonitorsSchema>) {
 }
 
 export const getMonitorSchema = z.object({
-  monitorId: z.number().describe("Monitor ID. Example: 12345678"),
+  monitorId: z.coerce.number().describe("Monitor ID. Example: 12345678"),
   groupStates: z.string().optional().describe("Filter by group states. Example: alert,warn"),
 });
 
@@ -68,7 +68,7 @@ export const createMonitorSchema = z.object({
   query: z.string().describe("Monitor query string. Example: avg(last_5m):avg:system.cpu.user{env:prod} > 90"),
   message: z.string().optional().describe("Notification message (supports @mentions). Example: CPU is high @slack-alerts"),
   tags: z.array(z.string()).optional().describe("Tags for the monitor. Example: [\"env:prod\", \"team:infra\"]"),
-  priority: z.number().optional().describe("Priority 1-5 (1=highest). Example: 2"),
+  priority: z.coerce.number().optional().describe("Priority 1-5 (1=highest). Example: 2"),
   options: z.record(z.string(), z.any()).optional().describe("Advanced monitor options (thresholds, etc.)"),
 });
 
@@ -97,12 +97,12 @@ export async function createMonitor(params: z.infer<typeof createMonitorSchema>)
 }
 
 export const updateMonitorSchema = z.object({
-  monitorId: z.number().describe("Monitor ID to update. Example: 12345678"),
+  monitorId: z.coerce.number().describe("Monitor ID to update. Example: 12345678"),
   name: z.string().optional().describe("New monitor name"),
   query: z.string().optional().describe("New query string"),
   message: z.string().optional().describe("New notification message"),
   tags: z.array(z.string()).optional().describe("New tags"),
-  priority: z.number().optional().describe("New priority 1-5"),
+  priority: z.coerce.number().optional().describe("New priority 1-5"),
   options: z.record(z.string(), z.any()).optional().describe("New monitor options"),
 });
 
@@ -132,7 +132,7 @@ export async function updateMonitor(params: z.infer<typeof updateMonitorSchema>)
 }
 
 export const deleteMonitorSchema = z.object({
-  monitorId: z.number().describe("Monitor ID to delete. Example: 12345678"),
+  monitorId: z.coerce.number().describe("Monitor ID to delete. Example: 12345678"),
   force: z.boolean().optional().describe("Force delete even if referenced by other resources"),
 });
 
@@ -154,7 +154,7 @@ export const validateMonitorSchema = z.object({
   query: z.string().describe("Monitor query string to validate. Example: avg(last_5m):avg:system.cpu.user{env:prod} > 90"),
   message: z.string().optional().describe("Notification message"),
   tags: z.array(z.string()).optional().describe("Tags for the monitor"),
-  priority: z.number().optional().describe("Priority 1-5"),
+  priority: z.coerce.number().optional().describe("Priority 1-5"),
   options: z.record(z.string(), z.any()).optional().describe("Monitor options (thresholds, etc.)"),
 });
 
@@ -181,9 +181,9 @@ export async function validateMonitor(params: z.infer<typeof validateMonitorSche
 }
 
 export const muteMonitorSchema = z.object({
-  monitorId: z.number().describe("Monitor ID to mute. Example: 12345678"),
+  monitorId: z.coerce.number().describe("Monitor ID to mute. Example: 12345678"),
   scope: z.string().optional().describe("Scope to mute. Example: host:myhost or env:staging"),
-  end: z.number().optional().describe("Unix epoch seconds when mute should end. Example: 1740003600"),
+  end: z.coerce.number().optional().describe("Unix epoch seconds when mute should end. Example: 1740003600"),
 });
 
 export async function muteMonitor(params: z.infer<typeof muteMonitorSchema>) {

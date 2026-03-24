@@ -7,7 +7,7 @@ export const listErrorTrackingIssuesSchema = z.object({
   from: z.string().describe("Start time (ISO 8601 or relative). Example: 2026-03-01T00:00:00Z or now-1h"),
   to: z.string().describe("End time (ISO 8601 or relative). Example: 2026-03-02T00:00:00Z or now"),
   track: z.enum(["trace", "logs", "rum"]).optional().default("trace").describe("Track to search errors in: trace (APM), logs, or rum"),
-  pageSize: z.number().optional().default(25).describe("Number of results per page (default 25, max 100)"),
+  pageSize: z.coerce.number().optional().default(25).describe("Number of results per page (default 25, max 100)"),
 });
 
 function resolveTime(input: string): number {

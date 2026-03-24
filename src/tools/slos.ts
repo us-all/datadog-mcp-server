@@ -5,8 +5,8 @@ export const listSlosSchema = z.object({
   ids: z.string().optional().describe("Comma-separated list of SLO IDs to filter. Example: abc123,def456"),
   query: z.string().optional().describe("Search query for SLO names. Example: api-latency"),
   tagsQuery: z.string().optional().describe("Filter by tags. Example: env:prod,team:backend"),
-  limit: z.number().optional().default(100).describe("Max results (default 100)"),
-  offset: z.number().optional().default(0).describe("Pagination offset"),
+  limit: z.coerce.number().optional().default(100).describe("Max results (default 100)"),
+  offset: z.coerce.number().optional().default(0).describe("Pagination offset"),
 });
 
 export async function listSlos(params: z.infer<typeof listSlosSchema>) {
@@ -68,9 +68,9 @@ export async function getSlo(params: z.infer<typeof getSloSchema>) {
 
 export const getSloHistorySchema = z.object({
   sloId: z.string().describe("SLO ID. Example: abc123def456abc123def456abc123de"),
-  fromTs: z.number().describe("Start time as Unix epoch seconds. Example: 1740000000"),
-  toTs: z.number().describe("End time as Unix epoch seconds. Example: 1740086400"),
-  target: z.number().optional().describe("Target SLO value. Example: 99.9"),
+  fromTs: z.coerce.number().describe("Start time as Unix epoch seconds. Example: 1740000000"),
+  toTs: z.coerce.number().describe("End time as Unix epoch seconds. Example: 1740086400"),
+  target: z.coerce.number().optional().describe("Target SLO value. Example: 99.9"),
 });
 
 export async function getSloHistory(params: z.infer<typeof getSloHistorySchema>) {

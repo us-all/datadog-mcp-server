@@ -4,8 +4,8 @@ import { networkDevicesApi } from "../client.js";
 export const listNetworkDevicesSchema = z.object({
   filterTag: z.string().optional().describe("Filter devices by tag. Example: env:production, datacenter:us-east"),
   sort: z.string().optional().describe("Sort field. Example: name, -name, model"),
-  pageSize: z.number().optional().default(25).describe("Number of results per page (default 25, max 100)"),
-  pageNumber: z.number().optional().default(0).describe("Page number (0-based)"),
+  pageSize: z.coerce.number().optional().default(25).describe("Number of results per page (default 25, max 100)"),
+  pageNumber: z.coerce.number().optional().default(0).describe("Page number (0-based)"),
 });
 
 export async function listNetworkDevices(params: z.infer<typeof listNetworkDevicesSchema>) {

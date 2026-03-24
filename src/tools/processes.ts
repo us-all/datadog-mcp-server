@@ -4,9 +4,9 @@ import { processesApi } from "../client.js";
 export const listProcessesSchema = z.object({
   search: z.string().optional().describe("Search query string to filter processes. Example: nginx, python"),
   tags: z.string().optional().describe("Comma-separated list of tags to filter by. Example: env:production,service:api"),
-  from: z.number().optional().describe("Unix timestamp (seconds) for start of data collection window"),
-  to: z.number().optional().describe("Unix timestamp (seconds) for end of data collection window"),
-  pageSize: z.number().optional().default(50).describe("Number of results per page (default 50, max 1000)"),
+  from: z.coerce.number().optional().describe("Unix timestamp (seconds) for start of data collection window"),
+  to: z.coerce.number().optional().describe("Unix timestamp (seconds) for end of data collection window"),
+  pageSize: z.coerce.number().optional().default(50).describe("Number of results per page (default 50, max 1000)"),
   pageCursor: z.string().optional().describe("Pagination cursor from previous response"),
 });
 

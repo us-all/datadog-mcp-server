@@ -5,7 +5,7 @@ export const searchAuditLogsSchema = z.object({
   query: z.string().optional().default("*").describe("Audit log search query. Example: @action:created @resource_type:dashboard"),
   from: z.string().describe("Start time (ISO 8601 or relative). Example: 2026-03-01T00:00:00Z or now-24h"),
   to: z.string().describe("End time (ISO 8601 or relative). Example: 2026-03-02T00:00:00Z or now"),
-  limit: z.number().optional().default(50).describe("Max results (default 50, max 1000)"),
+  limit: z.coerce.number().optional().default(50).describe("Max results (default 50, max 1000)"),
   sort: z.enum(["timestamp", "-timestamp"]).optional().default("-timestamp").describe("Sort order: -timestamp (newest first) or timestamp (oldest first)"),
 });
 

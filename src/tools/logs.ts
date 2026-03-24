@@ -7,7 +7,7 @@ export const searchLogsSchema = z.object({
   query: z.string().describe("Datadog log query. Example: service:web-api status:error @http.status_code:[500 TO 599]"),
   from: z.string().describe("Start time (ISO 8601). Example: 2026-02-26T00:00:00Z"),
   to: z.string().describe("End time (ISO 8601). Example: 2026-02-26T23:59:59Z"),
-  limit: z.number().optional().default(50).describe("Max results (default 50, max 1000)"),
+  limit: z.coerce.number().optional().default(50).describe("Max results (default 50, max 1000)"),
   sort: z.enum(["timestamp", "-timestamp"]).optional().default("-timestamp").describe("Sort order: -timestamp (newest first) or timestamp (oldest first)"),
   indexes: z.array(z.string()).optional().describe("Log indexes to search. Example: [\"main\"]"),
 });

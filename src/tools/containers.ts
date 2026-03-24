@@ -5,7 +5,7 @@ export const listContainersSchema = z.object({
   filterTags: z.string().optional().describe("Comma-separated tags to filter. Example: short_image:nginx,env:production"),
   groupBy: z.string().optional().describe("Group containers by attribute. Example: short_image, container_name"),
   sort: z.string().optional().describe("Sort field. Example: container_name, -cpu_percent"),
-  pageSize: z.number().optional().default(20).describe("Number of results per page (default 20, max 1000)"),
+  pageSize: z.coerce.number().optional().default(20).describe("Number of results per page (default 20, max 1000)"),
   pageCursor: z.string().optional().describe("Pagination cursor from previous response"),
 });
 

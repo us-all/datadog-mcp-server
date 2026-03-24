@@ -3,8 +3,8 @@ import { metricsApi, metricsV2Api } from "../client.js";
 
 export const queryMetricsSchema = z.object({
   query: z.string().describe("Datadog metric query string. Example: avg:system.cpu.user{host:myhost} by {env}"),
-  from: z.number().describe("Start time as Unix epoch seconds. Example: 1740000000"),
-  to: z.number().describe("End time as Unix epoch seconds. Example: 1740003600"),
+  from: z.coerce.number().describe("Start time as Unix epoch seconds. Example: 1740000000"),
+  to: z.coerce.number().describe("End time as Unix epoch seconds. Example: 1740003600"),
 });
 
 export async function queryMetrics(params: z.infer<typeof queryMetricsSchema>) {
@@ -73,7 +73,7 @@ export async function getMetricMetadata(params: z.infer<typeof getMetricMetadata
 }
 
 export const listActiveMetricsSchema = z.object({
-  from: z.number().describe("Unix epoch seconds — metrics active since this time. Example: 1740000000"),
+  from: z.coerce.number().describe("Unix epoch seconds — metrics active since this time. Example: 1740000000"),
   host: z.string().optional().describe("Filter by hostname. Example: i-0123456789abcdef0"),
   tagFilter: z.string().optional().describe("Filter by tag. Example: env:prod"),
 });
@@ -93,7 +93,7 @@ export async function listActiveMetrics(params: z.infer<typeof listActiveMetrics
 
 export const listMetricTagsSchema = z.object({
   metricName: z.string().describe("Full metric name. Example: system.cpu.user"),
-  windowSeconds: z.number().optional().describe("Look-back window in seconds (default: 14400 = 4h, min: 14400). Example: 86400"),
+  windowSeconds: z.coerce.number().optional().describe("Look-back window in seconds (default: 14400 = 4h, min: 14400). Example: 86400"),
 });
 
 export async function listMetricTags(params: z.infer<typeof listMetricTagsSchema>) {

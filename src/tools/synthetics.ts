@@ -3,8 +3,8 @@ import { syntheticsApi } from "../client.js";
 import { assertWriteAllowed } from "./utils.js";
 
 export const listSyntheticsSchema = z.object({
-  pageSize: z.number().optional().default(100).describe("Number of tests per page"),
-  pageNumber: z.number().optional().default(0).describe("Page number (0-based)"),
+  pageSize: z.coerce.number().optional().default(100).describe("Number of tests per page"),
+  pageNumber: z.coerce.number().optional().default(0).describe("Page number (0-based)"),
 });
 
 export async function listSynthetics(params: z.infer<typeof listSyntheticsSchema>) {
@@ -35,8 +35,8 @@ export async function listSynthetics(params: z.infer<typeof listSyntheticsSchema
 
 export const getSyntheticsResultSchema = z.object({
   publicId: z.string().describe("Synthetics test public ID. Example: abc-def-ghi"),
-  fromTs: z.number().optional().describe("Start time in milliseconds. Example: 1740000000000"),
-  toTs: z.number().optional().describe("End time in milliseconds. Example: 1740003600000"),
+  fromTs: z.coerce.number().optional().describe("Start time in milliseconds. Example: 1740000000000"),
+  toTs: z.coerce.number().optional().describe("End time in milliseconds. Example: 1740003600000"),
   probeDc: z.array(z.string()).optional().describe("Filter by probe locations. Example: [\"aws:us-east-1\"]"),
 });
 

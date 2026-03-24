@@ -4,8 +4,8 @@ import { assertWriteAllowed } from "./utils.js";
 
 export const getDashboardsSchema = z.object({
   filterShared: z.boolean().optional().describe("Filter shared dashboards only"),
-  count: z.number().optional().default(100).describe("Number of dashboards to return"),
-  start: z.number().optional().default(0).describe("Pagination offset"),
+  count: z.coerce.number().optional().default(100).describe("Number of dashboards to return"),
+  start: z.coerce.number().optional().default(0).describe("Pagination offset"),
 });
 
 export async function getDashboards(params: z.infer<typeof getDashboardsSchema>) {

@@ -32,8 +32,8 @@ export async function getUsageSummary(params: z.infer<typeof getUsageSummarySche
 }
 
 export const listUsersSchema = z.object({
-  pageSize: z.number().optional().default(50).describe("Number of results per page (default 50)"),
-  pageNumber: z.number().optional().default(0).describe("Page number (0-based)"),
+  pageSize: z.coerce.number().optional().default(50).describe("Number of results per page (default 50)"),
+  pageNumber: z.coerce.number().optional().default(0).describe("Page number (0-based)"),
   filter: z.string().optional().describe("Search filter string. Example: john"),
   filterStatus: z.string().optional().describe("Filter by user status. Example: Active, Pending, Disabled"),
   sort: z.string().optional().describe("Sort field. Example: name, email, created_at"),

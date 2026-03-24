@@ -8,7 +8,7 @@ export const searchCiPipelinesSchema = z.object({
   query: z.string().optional().default("*").describe("CI pipeline search query. Example: @ci.pipeline.name:deploy @ci.status:error"),
   from: z.string().describe("Start time (ISO 8601 or relative). Example: 2026-03-01T00:00:00Z or now-24h"),
   to: z.string().describe("End time (ISO 8601 or relative). Example: 2026-03-02T00:00:00Z or now"),
-  limit: z.number().optional().default(50).describe("Max results (default 50, max 1000)"),
+  limit: z.coerce.number().optional().default(50).describe("Max results (default 50, max 1000)"),
   sort: z.enum(["timestamp", "-timestamp"]).optional().default("-timestamp").describe("Sort order"),
 });
 
@@ -85,7 +85,7 @@ export const searchCiTestsSchema = z.object({
   query: z.string().optional().default("*").describe("CI test search query. Example: @test.service:my-app @test.status:fail"),
   from: z.string().describe("Start time (ISO 8601 or relative). Example: now-24h"),
   to: z.string().describe("End time (ISO 8601 or relative). Example: now"),
-  limit: z.number().optional().default(50).describe("Max results (default 50, max 1000)"),
+  limit: z.coerce.number().optional().default(50).describe("Max results (default 50, max 1000)"),
   sort: z.enum(["timestamp", "-timestamp"]).optional().default("-timestamp").describe("Sort order"),
 });
 

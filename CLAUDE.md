@@ -34,7 +34,7 @@ Claude AI → MCP Protocol → index.ts (server) → tools/*.ts → Datadog API 
 
 ### Key Source Files
 
-- `src/index.ts` — MCP server entry point, 46 tool registrations
+- `src/index.ts` — MCP server entry point, 66 tool registrations
 - `src/config.ts` — Environment variable loading (DD_API_KEY, DD_APP_KEY, DD_SITE)
 - `src/client.ts` — Datadog API client initialization using official SDK
 - `src/tools/utils.ts` — `wrapToolHandler` error handling wrapper for all tools
@@ -48,12 +48,12 @@ Each tool file follows the same pattern:
 3. Transform response to a readable format
 4. Handler is wrapped with `wrapToolHandler()` in index.ts for error handling
 
-### Tool Categories (46 tools)
+### Tool Categories (66 tools)
 
 | File | Tools |
 |------|-------|
 | `metrics.ts` | `query-metrics`, `get-metrics`, `get-metric-metadata`, `list-active-metrics`, `list-metric-tags` |
-| `monitors.ts` | `get-monitors`, `get-monitor`, `create-monitor`, `update-monitor`, `delete-monitor`, `mute-monitor` |
+| `monitors.ts` | `get-monitors`, `get-monitor`, `create-monitor`, `update-monitor`, `delete-monitor`, `mute-monitor`, `validate-monitor` |
 | `dashboards.ts` | `get-dashboards`, `get-dashboard`, `create-dashboard`, `update-dashboard`, `delete-dashboard` |
 | `logs.ts` | `search-logs`, `aggregate-logs`, `send-logs` |
 | `events.ts` | `get-events`, `post-event` |
@@ -68,6 +68,15 @@ Each tool file follows the same pattern:
 | `account.ts` | `get-usage-summary`, `list-users` |
 | `notebooks.ts` | `list-notebooks`, `get-notebook` |
 | `oncall.ts` | `get-team-oncall`, `get-oncall-schedule` |
+| `services.ts` | `list-services`, `get-service-definition` |
+| `containers.ts` | `list-containers` |
+| `processes.ts` | `list-processes` |
+| `audit.ts` | `search-audit-logs` |
+| `cases.ts` | `list-cases`, `get-case`, `create-case`, `update-case-status` |
+| `errors.ts` | `list-error-tracking-issues`, `get-error-tracking-issue` |
+| `ci.ts` | `search-ci-pipelines`, `aggregate-ci-pipelines`, `search-ci-tests`, `aggregate-ci-tests` |
+| `networks.ts` | `list-network-devices`, `get-network-device` |
+| `dora.ts` | `send-dora-deployment`, `send-dora-incident` |
 
 ## Environment Variables
 

@@ -39,3 +39,15 @@ export const downtimesApi = new v2.DowntimesApi(configuration);
 export const securityMonitoringApi = new v2.SecurityMonitoringApi(configuration);
 export const usersApi = new v2.UsersApi(configuration);
 export const onCallApi = new v2.OnCallApi(configuration);
+
+// v2 APIs — added in v1.1.0
+export const softwareCatalogApi = new v2.SoftwareCatalogApi(configuration);
+export const containersApi = new v2.ContainersApi(configuration);
+export const processesApi = new v2.ProcessesApi(configuration);
+export const auditApi = new v2.AuditApi(configuration);
+export const caseManagementApi = new v2.CaseManagementApi(configuration);
+export const errorTrackingApi = new v2.ErrorTrackingApi(configuration);
+export const ciPipelinesApi = new v2.CIVisibilityPipelinesApi(configuration);
+export const ciTestsApi = new v2.CIVisibilityTestsApi(configuration);
+export const networkDevicesApi = new v2.NetworkDeviceMonitoringApi(configuration);
+export const doraMetricsApi = new v2.DORAMetricsApi(configuration);

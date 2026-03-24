@@ -40,12 +40,22 @@ import { searchSecuritySignalsSchema, searchSecuritySignals } from "./tools/secu
 import { getUsageSummarySchema, getUsageSummary, listUsersSchema, listUsers } from "./tools/account.js";
 import { listNotebooksSchema, listNotebooks, getNotebookSchema, getNotebook } from "./tools/notebooks.js";
 import { getTeamOnCallSchema, getTeamOnCall, getOnCallScheduleSchema, getOnCallSchedule } from "./tools/oncall.js";
+import { listServicesSchema, listServices, getServiceDefinitionSchema, getServiceDefinition } from "./tools/services.js";
+import { listContainersSchema, listContainers } from "./tools/containers.js";
+import { listProcessesSchema, listProcesses } from "./tools/processes.js";
+import { searchAuditLogsSchema, searchAuditLogs } from "./tools/audit.js";
+import { listCasesSchema, listCases, getCaseSchema, getCase, createCaseSchema, createCase, updateCaseStatusSchema, updateCaseStatus } from "./tools/cases.js";
+import { listErrorTrackingIssuesSchema, listErrorTrackingIssues, getErrorTrackingIssueSchema, getErrorTrackingIssue } from "./tools/errors.js";
+import { searchCiPipelinesSchema, searchCiPipelines, aggregateCiPipelinesSchema, aggregateCiPipelines, searchCiTestsSchema, searchCiTests, aggregateCiTestsSchema, aggregateCiTests } from "./tools/ci.js";
+import { listNetworkDevicesSchema, listNetworkDevices, getNetworkDeviceSchema, getNetworkDevice } from "./tools/networks.js";
+import { sendDoraDeploymentSchema, sendDoraDeployment, sendDoraIncidentSchema, sendDoraIncident } from "./tools/dora.js";
+import { validateMonitorSchema, validateMonitor } from "./tools/monitors.js";
 
 validateConfig();
 
 const server = new McpServer({
   name: "datadog",
-  version: "1.0.0",
+  version: "1.1.0",
 });
 
 // --- Metrics ---
@@ -400,6 +410,166 @@ server.tool(
   "Get an on-call schedule by ID with layers and team information",
   getOnCallScheduleSchema.shape,
   wrapToolHandler(getOnCallSchedule),
+);
+
+// --- Services (Software Catalog) ---
+
+server.tool(
+  "list-services",
+  "List services from Datadog Software Catalog with filtering",
+  listServicesSchema.shape,
+  wrapToolHandler(listServices),
+);
+
+server.tool(
+  "get-service-definition",
+  "Get a service definition from Datadog Software Catalog by entity ID",
+  getServiceDefinitionSchema.shape,
+  wrapToolHandler(getServiceDefinition),
+);
+
+// --- Containers ---
+
+server.tool(
+  "list-containers",
+  "List infrastructure containers with filtering and pagination",
+  listContainersSchema.shape,
+  wrapToolHandler(listContainers),
+);
+
+// --- Processes ---
+
+server.tool(
+  "list-processes",
+  "List running processes across infrastructure with search and tag filtering",
+  listProcessesSchema.shape,
+  wrapToolHandler(listProcesses),
+);
+
+// --- Audit Logs ---
+
+server.tool(
+  "search-audit-logs",
+  "Search Datadog audit logs for organization activity tracking (user actions, resource changes)",
+  searchAuditLogsSchema.shape,
+  wrapToolHandler(searchAuditLogs),
+);
+
+// --- Cases ---
+
+server.tool(
+  "list-cases",
+  "List Datadog Case Management cases with search and filtering",
+  listCasesSchema.shape,
+  wrapToolHandler(listCases),
+);
+
+server.tool(
+  "get-case",
+  "Get detailed information about a specific case by ID",
+  getCaseSchema.shape,
+  wrapToolHandler(getCase),
+);
+
+server.tool(
+  "create-case",
+  "Create a new case in Datadog Case Management",
+  createCaseSchema.shape,
+  wrapToolHandler(createCase),
+);
+
+server.tool(
+  "update-case-status",
+  "Update the status of a Datadog case (OPEN, IN_PROGRESS, CLOSED)",
+  updateCaseStatusSchema.shape,
+  wrapToolHandler(updateCaseStatus),
+);
+
+// --- Error Tracking ---
+
+server.tool(
+  "list-error-tracking-issues",
+  "List error tracking issues with search, filtering, and sorting",
+  listErrorTrackingIssuesSchema.shape,
+  wrapToolHandler(listErrorTrackingIssues),
+);
+
+server.tool(
+  "get-error-tracking-issue",
+  "Get detailed information about a specific error tracking issue",
+  getErrorTrackingIssueSchema.shape,
+  wrapToolHandler(getErrorTrackingIssue),
+);
+
+// --- CI/CD Visibility ---
+
+server.tool(
+  "search-ci-pipelines",
+  "Search CI/CD pipeline events (builds, deploys) with query filtering",
+  searchCiPipelinesSchema.shape,
+  wrapToolHandler(searchCiPipelines),
+);
+
+server.tool(
+  "aggregate-ci-pipelines",
+  "Aggregate CI/CD pipeline data with statistical computations and grouping",
+  aggregateCiPipelinesSchema.shape,
+  wrapToolHandler(aggregateCiPipelines),
+);
+
+server.tool(
+  "search-ci-tests",
+  "Search CI test events (unit tests, integration tests) with query filtering",
+  searchCiTestsSchema.shape,
+  wrapToolHandler(searchCiTests),
+);
+
+server.tool(
+  "aggregate-ci-tests",
+  "Aggregate CI test data with statistical computations and grouping",
+  aggregateCiTestsSchema.shape,
+  wrapToolHandler(aggregateCiTests),
+);
+
+// --- Network Devices ---
+
+server.tool(
+  "list-network-devices",
+  "List network devices (routers, switches, firewalls) monitored by Datadog NDM",
+  listNetworkDevicesSchema.shape,
+  wrapToolHandler(listNetworkDevices),
+);
+
+server.tool(
+  "get-network-device",
+  "Get detailed information about a specific network device by ID",
+  getNetworkDeviceSchema.shape,
+  wrapToolHandler(getNetworkDevice),
+);
+
+// --- DORA Metrics ---
+
+server.tool(
+  "send-dora-deployment",
+  "Send a DORA deployment event for tracking deployment frequency and lead time",
+  sendDoraDeploymentSchema.shape,
+  wrapToolHandler(sendDoraDeployment),
+);
+
+server.tool(
+  "send-dora-incident",
+  "Send a DORA incident event for tracking change failure rate and MTTR",
+  sendDoraIncidentSchema.shape,
+  wrapToolHandler(sendDoraIncident),
+);
+
+// --- Monitor Validation ---
+
+server.tool(
+  "validate-monitor",
+  "Validate a monitor definition without creating it (check query syntax, thresholds, etc.)",
+  validateMonitorSchema.shape,
+  wrapToolHandler(validateMonitor),
 );
 
 // Start server

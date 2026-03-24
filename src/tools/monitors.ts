@@ -148,6 +148,38 @@ export async function deleteMonitor(params: z.infer<typeof deleteMonitorSchema>)
   };
 }
 
+export const validateMonitorSchema = z.object({
+  name: z.string().describe("Monitor name to validate"),
+  type: z.string().describe("Monitor type. Example: metric alert, log alert, query alert"),
+  query: z.string().describe("Monitor query string to validate. Example: avg(last_5m):avg:system.cpu.user{env:prod} > 90"),
+  message: z.string().optional().describe("Notification message"),
+  tags: z.array(z.string()).optional().describe("Tags for the monitor"),
+  priority: z.number().optional().describe("Priority 1-5"),
+  options: z.record(z.string(), z.any()).optional().describe("Monitor options (thresholds, etc.)"),
+});
+
+export async function validateMonitor(params: z.infer<typeof validateMonitorSchema>) {
+  const response = await monitorsApi.validateMonitor({
+    body: {
+      name: params.name,
+      type: params.type as any,
+      query: params.query,
+      message: params.message,
+      tags: params.tags,
+      priority: params.priority != null ? (params.priority as any) : undefined,
+      options: params.options as any,
+    },
+  });
+
+  return {
+    valid: true,
+    id: response.id,
+    name: response.name,
+    type: response.type,
+    query: response.query,
+  };
+}
+
 export const muteMonitorSchema = z.object({
   monitorId: z.number().describe("Monitor ID to mute. Example: 12345678"),
   scope: z.string().optional().describe("Scope to mute. Example: host:myhost or env:staging"),

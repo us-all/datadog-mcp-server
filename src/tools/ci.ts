@@ -1,4 +1,5 @@
 import { z } from "zod/v4";
+import { v2 } from "@datadog/datadog-api-client";
 import { ciPipelinesApi, ciTestsApi } from "../client.js";
 
 // --- CI Pipelines ---
@@ -47,28 +48,30 @@ export const aggregateCiPipelinesSchema = z.object({
 });
 
 export async function aggregateCiPipelines(params: z.infer<typeof aggregateCiPipelinesSchema>) {
-  const compute: any[] = [{
-    aggregation: params.aggregation,
-    ...(params.metric ? { metric: params.metric } : {}),
-  }];
+  const compute = new v2.CIAppCompute();
+  compute.aggregation = params.aggregation as any;
+  compute.type = "total" as any;
+  if (params.metric) {
+    compute.metric = params.metric;
+  }
 
-  const groupBy = params.groupBy ? [{
-    facet: params.groupBy,
-    limit: 25,
-    sort: { aggregation: params.aggregation as any },
-  }] : undefined;
+  const filter = new v2.CIAppPipelinesQueryFilter();
+  filter.query = params.query;
+  filter.from = params.from;
+  filter.to = params.to;
 
-  const response = await ciPipelinesApi.aggregateCIAppPipelineEvents({
-    body: {
-      compute,
-      filter: {
-        query: params.query,
-        from: params.from,
-        to: params.to,
-      },
-      ...(groupBy ? { groupBy } : {}),
-    },
-  });
+  const body = new v2.CIAppPipelinesAggregateRequest();
+  body.compute = [compute];
+  body.filter = filter;
+
+  if (params.groupBy) {
+    const groupBy = new v2.CIAppPipelinesGroupBy();
+    groupBy.facet = params.groupBy;
+    groupBy.limit = 25;
+    body.groupBy = [groupBy];
+  }
+
+  const response = await ciPipelinesApi.aggregateCIAppPipelineEvents({ body });
 
   return {
     buckets: response.data?.buckets ?? [],
@@ -122,28 +125,30 @@ export const aggregateCiTestsSchema = z.object({
 });
 
 export async function aggregateCiTests(params: z.infer<typeof aggregateCiTestsSchema>) {
-  const compute: any[] = [{
-    aggregation: params.aggregation,
-    ...(params.metric ? { metric: params.metric } : {}),
-  }];
+  const compute = new v2.CIAppCompute();
+  compute.aggregation = params.aggregation as any;
+  compute.type = "total" as any;
+  if (params.metric) {
+    compute.metric = params.metric;
+  }
 
-  const groupBy = params.groupBy ? [{
-    facet: params.groupBy,
-    limit: 25,
-    sort: { aggregation: params.aggregation as any },
-  }] : undefined;
+  const filter = new v2.CIAppTestsQueryFilter();
+  filter.query = params.query;
+  filter.from = params.from;
+  filter.to = params.to;
 
-  const response = await ciTestsApi.aggregateCIAppTestEvents({
-    body: {
-      compute,
-      filter: {
-        query: params.query,
-        from: params.from,
-        to: params.to,
-      },
-      ...(groupBy ? { groupBy } : {}),
-    },
-  });
+  const body = new v2.CIAppTestsAggregateRequest();
+  body.compute = [compute];
+  body.filter = filter;
+
+  if (params.groupBy) {
+    const groupBy = new v2.CIAppTestsGroupBy();
+    groupBy.facet = params.groupBy;
+    groupBy.limit = 25;
+    body.groupBy = [groupBy];
+  }
+
+  const response = await ciTestsApi.aggregateCIAppTestEvents({ body });
 
   return {
     buckets: response.data?.buckets ?? [],

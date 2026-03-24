@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1] - 2026-03-24
+
+### Fixed
+
+- All `z.number()` schemas changed to `z.coerce.number()` to handle MCP clients sending number parameters as strings. Fixes `list-active-metrics`, `get-dashboards`, `search-security-signals`, `search-ci-tests` and other tools failing with "expected number, received string" validation errors.
+
 ## [1.1.0] - 2026-03-24
 
 ### Added

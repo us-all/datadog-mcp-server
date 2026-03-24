@@ -1,21 +1,42 @@
 import { z } from "zod/v4";
+import { client, v2 } from "@datadog/datadog-api-client";
 import { errorTrackingApi } from "../client.js";
 
 export const listErrorTrackingIssuesSchema = z.object({
   query: z.string().optional().default("*").describe("Search query to filter error tracking issues. Example: service:api-server error_type:TypeError"),
-  sort: z.string().optional().default("-last_seen").describe("Sort order. Example: first_seen, -first_seen, last_seen, -last_seen"),
+  from: z.string().describe("Start time (ISO 8601 or relative). Example: 2026-03-01T00:00:00Z or now-1h"),
+  to: z.string().describe("End time (ISO 8601 or relative). Example: 2026-03-02T00:00:00Z or now"),
+  track: z.enum(["trace", "logs", "rum"]).optional().default("trace").describe("Track to search errors in: trace (APM), logs, or rum"),
   pageSize: z.number().optional().default(25).describe("Number of results per page (default 25, max 100)"),
-  pageCursor: z.string().optional().describe("Pagination cursor from previous response"),
 });
 
+function resolveTime(input: string): number {
+  const relativeMatch = input.match(/^now-(\d+)([smhd])$/);
+  if (relativeMatch) {
+    const value = parseInt(relativeMatch[1], 10);
+    const unit = relativeMatch[2];
+    const multiplier = { s: 1000, m: 60000, h: 3600000, d: 86400000 }[unit] ?? 1000;
+    return Date.now() - value * multiplier;
+  }
+  if (input === "now") return Date.now();
+  return new Date(input).getTime();
+}
+
 export async function listErrorTrackingIssues(params: z.infer<typeof listErrorTrackingIssuesSchema>) {
-  const response = await errorTrackingApi.searchIssues({
-    body: {
-      data: {
-        type: "issues_search_request",
-      } as any,
-    },
-  });
+  const attrs = new v2.IssuesSearchRequestDataAttributes();
+  attrs.query = params.query ?? "*";
+  attrs.from = resolveTime(params.from);
+  attrs.to = resolveTime(params.to);
+  attrs.track = params.track as any;
+
+  const data = new v2.IssuesSearchRequestData();
+  data.attributes = attrs;
+  data.type = "search_request";
+
+  const body = new v2.IssuesSearchRequest();
+  body.data = data;
+
+  const response = await errorTrackingApi.searchIssues({ body });
 
   const issues = response.data ?? [];
   return {

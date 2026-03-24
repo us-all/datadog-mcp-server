@@ -5,7 +5,7 @@ import { assertWriteAllowed } from "./utils.js";
 export const listCasesSchema = z.object({
   query: z.string().optional().describe("Search query to filter cases. Example: status:open priority:P1"),
   pageSize: z.number().optional().default(25).describe("Number of results per page (default 25)"),
-  pageNumber: z.number().optional().default(0).describe("Page number (0-based)"),
+  pageNumber: z.number().optional().default(1).describe("Page number (1-based, minimum 1)"),
   sortField: z.enum(["created_at", "priority", "status"]).optional().default("created_at").describe("Field to sort by"),
 });
 

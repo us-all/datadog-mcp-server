@@ -28,11 +28,11 @@ jobs:
         if: matrix.node-version >= 20
         run: pnpm run test
         env:
-          DD_ENV: ci
-          DD_SERVICE: datadog-mcp-server
           DD_CIVISIBILITY_AGENTLESS_ENABLED: "true"
           DD_API_KEY: ${{ secrets.DD_API_KEY }}
-          NODE_OPTIONS: "--import dd-trace/initialize.mjs"
+          DD_SITE: us5.datadoghq.com
+          JOB_ID: ${{ job.check_run_id }}
+          NODE_OPTIONS: "--import dd-trace/register.js -r dd-trace/ci/init"
 
   secret-scan:
     runs-on: ubuntu-latest

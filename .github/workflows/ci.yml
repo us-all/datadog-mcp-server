@@ -24,6 +24,13 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
+      - run: pnpm run test
+        env:
+          DD_ENV: ci
+          DD_SERVICE: datadog-mcp-server
+          DD_CIVISIBILITY_AGENTLESS_ENABLED: "true"
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+          NODE_OPTIONS: "--import dd-trace/initialize.mjs"
 
   secret-scan:
     runs-on: ubuntu-latest

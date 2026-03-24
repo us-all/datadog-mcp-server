@@ -19,7 +19,15 @@ The existing community MCP server only covers basic operations. This project pro
 | Security signals | - | ✓ |
 | On-Call schedules | - | ✓ |
 | Usage / Account management | - | ✓ |
-| **Total tools** | **6** | **46** |
+| CI/CD Visibility | - | ✓ |
+| Error Tracking | - | ✓ |
+| Case Management | - | ✓ |
+| Network Device Monitoring | - | ✓ |
+| DORA Metrics | - | ✓ |
+| Software Catalog | - | ✓ |
+| Containers & Processes | - | ✓ |
+| Audit Logs | - | ✓ |
+| **Total tools** | **6** | **66** |
 
 ## Quick Start
 
@@ -27,15 +35,15 @@ The existing community MCP server only covers basic operations. This project pro
 
 ```bash
 npx @us-all/datadog-mcp \
-  --env DD_API_KEY=<your-key> \
-  --env DD_APP_KEY=<your-key> \
-  --env DD_SITE=us5.datadoghq.com
+  --env DD_API_KEY=<your-api-key> \
+  --env DD_APP_KEY=<your-app-key> \
+  --env DD_SITE=datadoghq.com
 ```
 
 ### Option 2: Docker
 
 ```bash
-docker run -e DD_API_KEY=<key> -e DD_APP_KEY=<key> -e DD_SITE=us5.datadoghq.com \
+docker run -e DD_API_KEY=<your-api-key> -e DD_APP_KEY=<your-app-key> -e DD_SITE=datadoghq.com \
   ghcr.io/us-all/datadog-mcp-server:latest
 ```
 
@@ -76,7 +84,7 @@ If `DD_SITE` is not set, it defaults to `us5.datadoghq.com`. Set this to match y
 
 By default, all write operations are blocked to prevent accidental changes by AI agents. The following tools require `DD_ALLOW_WRITE=true`:
 
-`create-monitor`, `update-monitor`, `delete-monitor`, `mute-monitor`, `create-dashboard`, `update-dashboard`, `delete-dashboard`, `send-logs`, `post-event`, `trigger-synthetics`, `create-synthetics-test`, `update-synthetics-test`, `delete-synthetics-test`, `create-downtime`, `cancel-downtime`
+`create-monitor`, `update-monitor`, `delete-monitor`, `mute-monitor`, `create-dashboard`, `update-dashboard`, `delete-dashboard`, `send-logs`, `post-event`, `trigger-synthetics`, `create-synthetics-test`, `update-synthetics-test`, `delete-synthetics-test`, `create-downtime`, `cancel-downtime`, `create-case`, `update-case-status`, `send-dora-deployment`, `send-dora-incident`
 
 ### Claude Desktop
 
@@ -91,7 +99,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
       "env": {
         "DD_API_KEY": "<your-api-key>",
         "DD_APP_KEY": "<your-app-key>",
-        "DD_SITE": "us5.datadoghq.com"
+        "DD_SITE": "datadoghq.com"
       }
     }
   }
@@ -103,16 +111,16 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 ```bash
 # Global (all projects)
 claude mcp add datadog -s user \
-  -e DD_API_KEY=<key> -e DD_APP_KEY=<key> -e DD_SITE=us5.datadoghq.com \
+  -e DD_API_KEY=<your-api-key> -e DD_APP_KEY=<your-app-key> -e DD_SITE=datadoghq.com \
   -- npx -y @us-all/datadog-mcp
 
 # Project-only
 claude mcp add datadog -s project \
-  -e DD_API_KEY=<key> -e DD_APP_KEY=<key> -e DD_SITE=us5.datadoghq.com \
+  -e DD_API_KEY=<your-api-key> -e DD_APP_KEY=<your-app-key> -e DD_SITE=datadoghq.com \
   -- npx -y @us-all/datadog-mcp
 ```
 
-## Tools (46)
+## Tools (66)
 
 ### Metrics (5)
 | Tool | Description |
@@ -123,7 +131,7 @@ claude mcp add datadog -s project \
 | `list-active-metrics` | List active metrics, optionally filtered by host or tag |
 | `list-metric-tags` | List tags for a specific metric |
 
-### Monitors (6)
+### Monitors (7)
 | Tool | Description |
 |------|-------------|
 | `get-monitors` | List monitors with filtering by name, tags, or state |
@@ -132,6 +140,7 @@ claude mcp add datadog -s project \
 | `update-monitor` | Update a monitor's configuration |
 | `delete-monitor` | Delete a monitor |
 | `mute-monitor` | Mute a monitor for a scope and optional duration |
+| `validate-monitor` | Validate a monitor definition without creating it |
 
 ### Dashboards (5)
 | Tool | Description |
@@ -224,6 +233,61 @@ claude mcp add datadog -s project \
 | `get-team-oncall` | Get current on-call responders for a team |
 | `get-oncall-schedule` | Get an on-call schedule with layers and team info |
 
+### Services (2)
+| Tool | Description |
+|------|-------------|
+| `list-services` | List services from Software Catalog with filtering |
+| `get-service-definition` | Get a service definition by entity ID |
+
+### Containers (1)
+| Tool | Description |
+|------|-------------|
+| `list-containers` | List infrastructure containers with filtering |
+
+### Processes (1)
+| Tool | Description |
+|------|-------------|
+| `list-processes` | List running processes with search and tag filtering |
+
+### Audit Logs (1)
+| Tool | Description |
+|------|-------------|
+| `search-audit-logs` | Search audit logs for organization activity tracking |
+
+### Cases (4)
+| Tool | Description |
+|------|-------------|
+| `list-cases` | List Case Management cases with search |
+| `get-case` | Get case details by ID |
+| `create-case` | Create a new case |
+| `update-case-status` | Update case status (OPEN, IN_PROGRESS, CLOSED) |
+
+### Error Tracking (2)
+| Tool | Description |
+|------|-------------|
+| `list-error-tracking-issues` | List error tracking issues with filtering |
+| `get-error-tracking-issue` | Get error tracking issue details |
+
+### CI/CD Visibility (4)
+| Tool | Description |
+|------|-------------|
+| `search-ci-pipelines` | Search CI/CD pipeline events |
+| `aggregate-ci-pipelines` | Aggregate CI/CD pipeline data with computations |
+| `search-ci-tests` | Search CI test events |
+| `aggregate-ci-tests` | Aggregate CI test data with computations |
+
+### Network Devices (2)
+| Tool | Description |
+|------|-------------|
+| `list-network-devices` | List network devices monitored by NDM |
+| `get-network-device` | Get network device details |
+
+### DORA Metrics (2)
+| Tool | Description |
+|------|-------------|
+| `send-dora-deployment` | Send a DORA deployment event |
+| `send-dora-incident` | Send a DORA incident event |
+
 ## Architecture
 
 ```
@@ -234,7 +298,7 @@ Claude AI → MCP Protocol (stdio) → index.ts → tools/*.ts → Datadog SDK �
 
 ```
 src/
-├── index.ts          # MCP server entry point, 46 tools registered
+├── index.ts          # MCP server entry point, 66 tools registered
 ├── config.ts         # Environment variable loading
 ├── client.ts         # Datadog API client initialization
 └── tools/
@@ -254,7 +318,16 @@ src/
     ├── security.ts   # Security signal search
     ├── account.ts    # Usage summary and user management
     ├── notebooks.ts  # Notebook listing
-    └── oncall.ts     # On-call schedule and responders
+    ├── oncall.ts     # On-call schedule and responders
+    ├── services.ts   # Software Catalog
+    ├── containers.ts # Container monitoring
+    ├── processes.ts  # Process monitoring
+    ├── audit.ts      # Audit log search
+    ├── cases.ts      # Case Management CRUD
+    ├── errors.ts     # Error Tracking
+    ├── ci.ts         # CI/CD Visibility (pipelines + tests)
+    ├── networks.ts   # Network Device Monitoring
+    └── dora.ts       # DORA metrics (deployments + incidents)
 ```
 
 ## Tech Stack
@@ -265,6 +338,7 @@ src/
 - **Datadog Client**: `@datadog/datadog-api-client` (official SDK)
 - **Validation**: zod
 - **Config**: dotenv
+- **Testing**: vitest + dd-trace (Test Visibility)
 
 ## Contributing
 

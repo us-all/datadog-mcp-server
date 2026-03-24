@@ -23,6 +23,7 @@ pnpm run build
 ```bash
 pnpm run dev    # Watch mode — auto-rebuilds on changes
 pnpm run build  # One-time build
+pnpm run test   # Run tests (vitest)
 pnpm run start  # Run the server
 ```
 
@@ -33,7 +34,7 @@ Create a `.env` file for local testing:
 ```bash
 DD_API_KEY=<your-api-key>
 DD_APP_KEY=<your-app-key>
-DD_SITE=us5.datadoghq.com
+DD_SITE=datadoghq.com
 ```
 
 ## Adding a New Tool
@@ -88,7 +89,7 @@ server.tool(
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/my-tool`)
 3. Make your changes
-4. Ensure `pnpm run build` succeeds
+4. Ensure `pnpm run build` and `pnpm run test` succeed
 5. Submit a pull request
 
 ### PR Guidelines

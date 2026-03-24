@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2026-03-24
+
+### Added
+
+- **20 new tools** (46 → 66 total), closing feature gaps with the official Datadog MCP server
+- **Services**: `list-services`, `get-service-definition` — Software Catalog (SoftwareCatalogApi)
+- **Containers**: `list-containers` — infrastructure container monitoring (ContainersApi)
+- **Processes**: `list-processes` — process monitoring (ProcessesApi)
+- **Audit Logs**: `search-audit-logs` — organization activity tracking (AuditApi)
+- **Cases**: `list-cases`, `get-case`, `create-case`, `update-case-status` — Case Management (CaseManagementApi)
+- **Error Tracking**: `list-error-tracking-issues`, `get-error-tracking-issue` — error tracking issues (ErrorTrackingApi)
+- **CI/CD Visibility**: `search-ci-pipelines`, `aggregate-ci-pipelines`, `search-ci-tests`, `aggregate-ci-tests` — CI pipeline and test visibility (CIVisibilityPipelinesApi, CIVisibilityTestsApi)
+- **Network Devices**: `list-network-devices`, `get-network-device` — network device monitoring (NetworkDeviceMonitoringApi)
+- **DORA Metrics**: `send-dora-deployment`, `send-dora-incident` — DevOps performance metrics (DORAMetricsApi)
+- **Monitor Validation**: `validate-monitor` — validate monitor definitions without creating them
+- **Test infrastructure**: vitest with 18 tests across 4 test files (config, utils, schemas, tool registration)
+- **Test Visibility**: dd-trace integration for Datadog CI Test Visibility in GitHub Actions
+- CI workflow now runs tests on Node 20+ with dd-trace reporting
+
+### Fixed
+
+- Cases API `pageNumber` changed from 0-based to 1-based (Datadog API requires `> 0`)
+- Error Tracking `searchIssues` uses SDK model class instances (ObjectSerializer compatibility)
+- CI aggregate tools (`aggregate-ci-pipelines`, `aggregate-ci-tests`) use SDK model class instances for `groupBy` serialization
+
 ## [1.0.0] - 2026-02-27
 
 ### Added

@@ -27,7 +27,8 @@ The existing community MCP server only covers basic operations. This project pro
 | Software Catalog | - | ✓ |
 | Containers & Processes | - | ✓ |
 | Audit Logs | - | ✓ |
-| **Total tools** | **6** | **66** |
+| RUM Application / Metrics / Retention management | - | ✓ |
+| **Total tools** | **6** | **81** |
 
 ## Quick Start
 
@@ -120,7 +121,7 @@ claude mcp add datadog -s project \
   -- npx -y @us-all/datadog-mcp
 ```
 
-## Tools (66)
+## Tools (81)
 
 ### Metrics (5)
 | Tool | Description |
@@ -174,11 +175,26 @@ claude mcp add datadog -s project \
 |------|-------------|
 | `search-spans` | Search APM spans/traces by service, resource, status, duration |
 
-### RUM (2)
+### RUM (17)
 | Tool | Description |
 |------|-------------|
 | `search-rum-events` | Search RUM events (sessions, views, errors, actions) |
 | `aggregate-rum` | Aggregate RUM data with computations and grouping |
+| `list-rum-applications` | List all RUM applications |
+| `get-rum-application` | Get RUM application details by ID |
+| `create-rum-application` | Create a new RUM application (browser, ios, android, etc.) |
+| `update-rum-application` | Update a RUM application's name or type |
+| `delete-rum-application` | Delete a RUM application |
+| `list-rum-metrics` | List configured rum-based metrics |
+| `get-rum-metric` | Get a rum-based metric definition |
+| `create-rum-metric` | Create a metric based on RUM data |
+| `update-rum-metric` | Update a rum-based metric |
+| `delete-rum-metric` | Delete a rum-based metric |
+| `list-rum-retention-filters` | List RUM retention filters for an application |
+| `get-rum-retention-filter` | Get a RUM retention filter by ID |
+| `create-rum-retention-filter` | Create a RUM retention filter |
+| `update-rum-retention-filter` | Update a RUM retention filter |
+| `delete-rum-retention-filter` | Delete a RUM retention filter |
 
 ### Hosts (2)
 | Tool | Description |
@@ -298,7 +314,7 @@ Claude AI → MCP Protocol (stdio) → index.ts → tools/*.ts → Datadog SDK �
 
 ```
 src/
-├── index.ts          # MCP server entry point, 66 tools registered
+├── index.ts          # MCP server entry point, 81 tools registered
 ├── config.ts         # Environment variable loading
 ├── client.ts         # Datadog API client initialization
 └── tools/
@@ -310,7 +326,9 @@ src/
     ├── events.ts     # Event listing and creation
     ├── incidents.ts  # Incident listing
     ├── apm.ts        # APM span/trace search
-    ├── rum.ts        # RUM event search and aggregation
+    ├── rum.ts        # RUM event search, aggregation, and application CRUD
+    ├── rum-metrics.ts # RUM-based metrics CRUD
+    ├── rum-retention-filters.ts # RUM retention filter management
     ├── hosts.ts      # Infrastructure host management
     ├── slos.ts       # SLO queries and history
     ├── synthetics.ts # Synthetics test CRUD + triggering

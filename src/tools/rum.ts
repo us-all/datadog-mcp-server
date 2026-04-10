@@ -1,6 +1,7 @@
 import { z } from "zod/v4";
 import { v2 } from "@datadog/datadog-api-client";
 import { rumApi } from "../client.js";
+import { assertWriteAllowed } from "./utils.js";
 
 export const searchRumEventsSchema = z.object({
   query: z.string().describe("RUM search query. Example: service:my-app @type:error @session.type:user"),
@@ -72,4 +73,129 @@ export async function aggregateRum(params: z.infer<typeof aggregateRumSchema>) {
     buckets: response.data?.buckets ?? [],
     meta: response.meta,
   };
+}
+
+// --- RUM Applications ---
+
+export const listRumApplicationsSchema = z.object({});
+
+export async function listRumApplications() {
+  const response = await rumApi.getRUMApplications();
+  const apps = response.data ?? [];
+  return {
+    count: apps.length,
+    applications: apps.map((app) => ({
+      id: app.id,
+      type: app.type,
+      name: app.attributes?.name,
+      applicationId: app.attributes?.applicationId,
+      applicationType: app.attributes?.type,
+      createdAt: app.attributes?.createdAt,
+      createdByHandle: app.attributes?.createdByHandle,
+      orgId: app.attributes?.orgId,
+      isActive: app.attributes?.isActive,
+    })),
+  };
+}
+
+export const getRumApplicationSchema = z.object({
+  id: z.string().describe("RUM application ID. Example: abc123def456"),
+});
+
+export async function getRumApplication(params: z.infer<typeof getRumApplicationSchema>) {
+  const response = await rumApi.getRUMApplication({ id: params.id });
+  const app = response.data;
+  return {
+    id: app?.id,
+    type: app?.type,
+    name: app?.attributes?.name,
+    clientToken: app?.attributes?.clientToken,
+    applicationId: app?.attributes?.applicationId,
+    applicationType: app?.attributes?.type,
+    createdAt: app?.attributes?.createdAt,
+    updatedAt: app?.attributes?.updatedAt,
+    createdByHandle: app?.attributes?.createdByHandle,
+    orgId: app?.attributes?.orgId,
+    isActive: app?.attributes?.isActive,
+    hash: app?.attributes?.hash,
+  };
+}
+
+export const createRumApplicationSchema = z.object({
+  name: z.string().describe("Name of the RUM application. Example: My Web App"),
+  type: z.enum(["browser", "ios", "android", "react-native", "flutter", "roku", "electron", "unity", "kotlin-multiplatform"])
+    .optional().default("browser")
+    .describe("Type of the RUM application. Default: browser"),
+});
+
+export async function createRumApplication(params: z.infer<typeof createRumApplicationSchema>) {
+  assertWriteAllowed();
+
+  const attrs = new v2.RUMApplicationCreateAttributes();
+  attrs.name = params.name;
+  attrs.type = params.type;
+
+  const appData = new v2.RUMApplicationCreate();
+  appData.attributes = attrs;
+  appData.type = "rum_application_create";
+
+  const body = new v2.RUMApplicationCreateRequest();
+  body.data = appData;
+
+  const response = await rumApi.createRUMApplication({ body });
+  const app = response.data;
+  return {
+    id: app?.id,
+    type: app?.type,
+    name: app?.attributes?.name,
+    clientToken: app?.attributes?.clientToken,
+    applicationId: app?.attributes?.applicationId,
+    applicationType: app?.attributes?.type,
+    createdAt: app?.attributes?.createdAt,
+  };
+}
+
+export const updateRumApplicationSchema = z.object({
+  id: z.string().describe("RUM application ID to update"),
+  name: z.string().optional().describe("New name for the RUM application"),
+  type: z.enum(["browser", "ios", "android", "react-native", "flutter", "roku", "electron", "unity", "kotlin-multiplatform"])
+    .optional().describe("New type for the RUM application"),
+});
+
+export async function updateRumApplication(params: z.infer<typeof updateRumApplicationSchema>) {
+  assertWriteAllowed();
+
+  const attrs = new v2.RUMApplicationUpdateAttributes();
+  if (params.name) attrs.name = params.name;
+  if (params.type) attrs.type = params.type;
+
+  const appData = new v2.RUMApplicationUpdate();
+  appData.id = params.id;
+  appData.attributes = attrs;
+  appData.type = "rum_application_update";
+
+  const body = new v2.RUMApplicationUpdateRequest();
+  body.data = appData;
+
+  const response = await rumApi.updateRUMApplication({ id: params.id, body });
+  const app = response.data;
+  return {
+    id: app?.id,
+    type: app?.type,
+    name: app?.attributes?.name,
+    clientToken: app?.attributes?.clientToken,
+    applicationId: app?.attributes?.applicationId,
+    applicationType: app?.attributes?.type,
+    updatedAt: app?.attributes?.updatedAt,
+  };
+}
+
+export const deleteRumApplicationSchema = z.object({
+  id: z.string().describe("RUM application ID to delete"),
+});
+
+export async function deleteRumApplication(params: z.infer<typeof deleteRumApplicationSchema>) {
+  assertWriteAllowed();
+  await rumApi.deleteRUMApplication({ id: params.id });
+  return { deleted: true, id: params.id };
 }

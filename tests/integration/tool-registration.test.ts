@@ -34,8 +34,11 @@ const EXPECTED_TOOLS = [
   "get-incidents",
   // APM (1)
   "search-spans",
-  // RUM (2)
+  // RUM (17)
   "search-rum-events", "aggregate-rum",
+  "list-rum-applications", "get-rum-application", "create-rum-application", "update-rum-application", "delete-rum-application",
+  "list-rum-metrics", "get-rum-metric", "create-rum-metric", "update-rum-metric", "delete-rum-metric",
+  "list-rum-retention-filters", "get-rum-retention-filter", "create-rum-retention-filter", "update-rum-retention-filter", "delete-rum-retention-filter",
   // Hosts (2)
   "list-hosts", "get-host-totals",
   // SLOs (3)
@@ -79,8 +82,8 @@ describe("tool registration", () => {
     await import("../../src/index.js");
   });
 
-  it("registers exactly 66 tools", () => {
-    expect(toolCalls).toHaveLength(66);
+  it("registers exactly 81 tools", () => {
+    expect(toolCalls).toHaveLength(81);
   });
 
   it("registers all expected tool names", () => {

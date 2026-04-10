@@ -27,7 +27,12 @@ import { searchLogsSchema, searchLogs, aggregateLogsSchema, aggregateLogs, sendL
 import { getEventsSchema, getEvents, postEventSchema, postEvent } from "./tools/events.js";
 import { getIncidentsSchema, getIncidents } from "./tools/incidents.js";
 import { searchSpansSchema, searchSpans } from "./tools/apm.js";
-import { searchRumEventsSchema, searchRumEvents, aggregateRumSchema, aggregateRum } from "./tools/rum.js";
+import {
+  searchRumEventsSchema, searchRumEvents, aggregateRumSchema, aggregateRum,
+  listRumApplicationsSchema, listRumApplications, getRumApplicationSchema, getRumApplication,
+  createRumApplicationSchema, createRumApplication, updateRumApplicationSchema, updateRumApplication,
+  deleteRumApplicationSchema, deleteRumApplication,
+} from "./tools/rum.js";
 import { listHostsSchema, listHosts, getHostTotalsSchema, getHostTotals } from "./tools/hosts.js";
 import { listSlosSchema, listSlos, getSloSchema, getSlo, getSloHistorySchema, getSloHistory } from "./tools/slos.js";
 import {
@@ -49,6 +54,16 @@ import { listErrorTrackingIssuesSchema, listErrorTrackingIssues, getErrorTrackin
 import { searchCiPipelinesSchema, searchCiPipelines, aggregateCiPipelinesSchema, aggregateCiPipelines, searchCiTestsSchema, searchCiTests, aggregateCiTestsSchema, aggregateCiTests } from "./tools/ci.js";
 import { listNetworkDevicesSchema, listNetworkDevices, getNetworkDeviceSchema, getNetworkDevice } from "./tools/networks.js";
 import { sendDoraDeploymentSchema, sendDoraDeployment, sendDoraIncidentSchema, sendDoraIncident } from "./tools/dora.js";
+import {
+  listRumMetricsSchema, listRumMetrics, getRumMetricSchema, getRumMetric,
+  createRumMetricSchema, createRumMetric, updateRumMetricSchema, updateRumMetric,
+  deleteRumMetricSchema, deleteRumMetric,
+} from "./tools/rum-metrics.js";
+import {
+  listRumRetentionFiltersSchema, listRumRetentionFilters, getRumRetentionFilterSchema, getRumRetentionFilter,
+  createRumRetentionFilterSchema, createRumRetentionFilter, updateRumRetentionFilterSchema, updateRumRetentionFilter,
+  deleteRumRetentionFilterSchema, deleteRumRetentionFilter,
+} from "./tools/rum-retention-filters.js";
 import { validateMonitorSchema, validateMonitor } from "./tools/monitors.js";
 
 validateConfig();
@@ -247,6 +262,41 @@ server.tool(
   "Aggregate RUM data with statistical computations (count, avg, percentiles) and grouping by fields",
   aggregateRumSchema.shape,
   wrapToolHandler(aggregateRum),
+);
+
+server.tool(
+  "list-rum-applications",
+  "List all RUM applications in your Datadog organization",
+  listRumApplicationsSchema.shape,
+  wrapToolHandler(listRumApplications),
+);
+
+server.tool(
+  "get-rum-application",
+  "Get detailed information about a specific RUM application by ID",
+  getRumApplicationSchema.shape,
+  wrapToolHandler(getRumApplication),
+);
+
+server.tool(
+  "create-rum-application",
+  "Create a new RUM application (browser, ios, android, react-native, flutter, etc.)",
+  createRumApplicationSchema.shape,
+  wrapToolHandler(createRumApplication),
+);
+
+server.tool(
+  "update-rum-application",
+  "Update an existing RUM application's name or type",
+  updateRumApplicationSchema.shape,
+  wrapToolHandler(updateRumApplication),
+);
+
+server.tool(
+  "delete-rum-application",
+  "Delete a RUM application by ID",
+  deleteRumApplicationSchema.shape,
+  wrapToolHandler(deleteRumApplication),
 );
 
 // --- Hosts ---
@@ -561,6 +611,80 @@ server.tool(
   "Send a DORA incident event for tracking change failure rate and MTTR",
   sendDoraIncidentSchema.shape,
   wrapToolHandler(sendDoraIncident),
+);
+
+// --- RUM Metrics ---
+
+server.tool(
+  "list-rum-metrics",
+  "List all configured rum-based metrics with their definitions",
+  listRumMetricsSchema.shape,
+  wrapToolHandler(listRumMetrics),
+);
+
+server.tool(
+  "get-rum-metric",
+  "Get a specific rum-based metric definition by name",
+  getRumMetricSchema.shape,
+  wrapToolHandler(getRumMetric),
+);
+
+server.tool(
+  "create-rum-metric",
+  "Create a metric based on RUM data (count or distribution, with filters and group-by)",
+  createRumMetricSchema.shape,
+  wrapToolHandler(createRumMetric),
+);
+
+server.tool(
+  "update-rum-metric",
+  "Update a rum-based metric's filter, group-by, or percentile settings",
+  updateRumMetricSchema.shape,
+  wrapToolHandler(updateRumMetric),
+);
+
+server.tool(
+  "delete-rum-metric",
+  "Delete a rum-based metric by name",
+  deleteRumMetricSchema.shape,
+  wrapToolHandler(deleteRumMetric),
+);
+
+// --- RUM Retention Filters ---
+
+server.tool(
+  "list-rum-retention-filters",
+  "List RUM retention filters for a RUM application",
+  listRumRetentionFiltersSchema.shape,
+  wrapToolHandler(listRumRetentionFilters),
+);
+
+server.tool(
+  "get-rum-retention-filter",
+  "Get a specific RUM retention filter by ID",
+  getRumRetentionFilterSchema.shape,
+  wrapToolHandler(getRumRetentionFilter),
+);
+
+server.tool(
+  "create-rum-retention-filter",
+  "Create a RUM retention filter with event type, sample rate, and query",
+  createRumRetentionFilterSchema.shape,
+  wrapToolHandler(createRumRetentionFilter),
+);
+
+server.tool(
+  "update-rum-retention-filter",
+  "Update a RUM retention filter's name, event type, sample rate, or query",
+  updateRumRetentionFilterSchema.shape,
+  wrapToolHandler(updateRumRetentionFilter),
+);
+
+server.tool(
+  "delete-rum-retention-filter",
+  "Delete a RUM retention filter by ID",
+  deleteRumRetentionFilterSchema.shape,
+  wrapToolHandler(deleteRumRetentionFilter),
 );
 
 // --- Monitor Validation ---

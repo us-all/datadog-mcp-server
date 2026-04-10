@@ -51,3 +51,5 @@ export const ciPipelinesApi = new v2.CIVisibilityPipelinesApi(configuration);
 export const ciTestsApi = new v2.CIVisibilityTestsApi(configuration);
 export const networkDevicesApi = new v2.NetworkDeviceMonitoringApi(configuration);
 export const doraMetricsApi = new v2.DORAMetricsApi(configuration);
+export const rumMetricsApi = new v2.RumMetricsApi(configuration);
+export const rumRetentionFiltersApi = new v2.RumRetentionFiltersApi(configuration);

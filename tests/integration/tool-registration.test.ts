@@ -78,6 +78,10 @@ const EXPECTED_TOOLS = [
   "send-dora-deployment", "send-dora-incident",
   // Teams (6)
   "list-teams", "get-team", "create-team", "update-team", "delete-team", "get-team-members",
+  // Logs Metrics (5)
+  "list-logs-metrics", "get-logs-metric", "create-logs-metric", "update-logs-metric", "delete-logs-metric",
+  // Spans Metrics (5)
+  "list-spans-metrics", "get-spans-metric", "create-spans-metric", "update-spans-metric", "delete-spans-metric",
 ];
 
 describe("tool registration", () => {
@@ -86,8 +90,8 @@ describe("tool registration", () => {
     await import("../../src/index.js");
   });
 
-  it("registers exactly 100 tools", () => {
-    expect(toolCalls).toHaveLength(100);
+  it("registers exactly 110 tools", () => {
+    expect(toolCalls).toHaveLength(110);
   });
 
   it("registers all expected tool names", () => {

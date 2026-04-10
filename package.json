@@ -1,7 +1,7 @@
 {
   "name": "@us-all/datadog-mcp",
-  "version": "1.5.0",
-  "description": "Datadog MCP server - 100 tools for metrics, monitors, logs, APM, RUM, incidents, CI/CD, and more",
+  "version": "1.6.0",
+  "description": "Datadog MCP server - 110 tools for metrics, monitors, logs, APM, RUM, incidents, CI/CD, and more",
   "type": "module",
   "main": "dist/index.js",
   "bin": {

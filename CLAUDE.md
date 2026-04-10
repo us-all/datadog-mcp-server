@@ -34,7 +34,7 @@ Claude AI → MCP Protocol → index.ts (server) → tools/*.ts → Datadog API 
 
 ### Key Source Files
 
-- `src/index.ts` — MCP server entry point, 100 tool registrations
+- `src/index.ts` — MCP server entry point, 110 tool registrations
 - `src/config.ts` — Environment variable loading (DD_API_KEY, DD_APP_KEY, DD_SITE)
 - `src/client.ts` — Datadog API client initialization using official SDK
 - `src/tools/utils.ts` — `wrapToolHandler` error handling wrapper for all tools
@@ -48,7 +48,7 @@ Each tool file follows the same pattern:
 3. Transform response to a readable format
 4. Handler is wrapped with `wrapToolHandler()` in index.ts for error handling
 
-### Tool Categories (100 tools)
+### Tool Categories (110 tools)
 
 | File | Tools |
 |------|-------|
@@ -80,6 +80,8 @@ Each tool file follows the same pattern:
 | `networks.ts` | `list-network-devices`, `get-network-device` |
 | `dora.ts` | `send-dora-deployment`, `send-dora-incident` |
 | `teams.ts` | `list-teams`, `get-team`, `create-team`, `update-team`, `delete-team`, `get-team-members` |
+| `logs-metrics.ts` | `list-logs-metrics`, `get-logs-metric`, `create-logs-metric`, `update-logs-metric`, `delete-logs-metric` |
+| `spans-metrics.ts` | `list-spans-metrics`, `get-spans-metric`, `create-spans-metric`, `update-spans-metric`, `delete-spans-metric` |
 
 ## Environment Variables
 

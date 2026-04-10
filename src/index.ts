@@ -83,13 +83,23 @@ import {
   createRumRetentionFilterSchema, createRumRetentionFilter, updateRumRetentionFilterSchema, updateRumRetentionFilter,
   deleteRumRetentionFilterSchema, deleteRumRetentionFilter,
 } from "./tools/rum-retention-filters.js";
+import {
+  listLogsMetricsSchema, listLogsMetrics, getLogsMetricSchema, getLogsMetric,
+  createLogsMetricSchema, createLogsMetric, updateLogsMetricSchema, updateLogsMetric,
+  deleteLogsMetricSchema, deleteLogsMetric,
+} from "./tools/logs-metrics.js";
+import {
+  listSpansMetricsSchema, listSpansMetrics, getSpansMetricSchema, getSpansMetric,
+  createSpansMetricSchema, createSpansMetric, updateSpansMetricSchema, updateSpansMetric,
+  deleteSpansMetricSchema, deleteSpansMetric,
+} from "./tools/spans-metrics.js";
 import { validateMonitorSchema, validateMonitor } from "./tools/monitors.js";
 
 validateConfig();
 
 const server = new McpServer({
   name: "datadog",
-  version: "1.5.0",
+  version: "1.6.0",
 });
 
 // --- Metrics ---
@@ -839,6 +849,80 @@ server.tool(
   "Get members of a Datadog team with their roles",
   getTeamMembersSchema.shape,
   wrapToolHandler(getTeamMembers),
+);
+
+// --- Logs Metrics ---
+
+server.tool(
+  "list-logs-metrics",
+  "List all configured log-based metrics with their definitions",
+  listLogsMetricsSchema.shape,
+  wrapToolHandler(listLogsMetrics),
+);
+
+server.tool(
+  "get-logs-metric",
+  "Get a specific log-based metric definition by name",
+  getLogsMetricSchema.shape,
+  wrapToolHandler(getLogsMetric),
+);
+
+server.tool(
+  "create-logs-metric",
+  "Create a metric based on log data (count or distribution, with filters and group-by)",
+  createLogsMetricSchema.shape,
+  wrapToolHandler(createLogsMetric),
+);
+
+server.tool(
+  "update-logs-metric",
+  "Update a log-based metric's filter, group-by, or percentile settings",
+  updateLogsMetricSchema.shape,
+  wrapToolHandler(updateLogsMetric),
+);
+
+server.tool(
+  "delete-logs-metric",
+  "Delete a log-based metric by name",
+  deleteLogsMetricSchema.shape,
+  wrapToolHandler(deleteLogsMetric),
+);
+
+// --- Spans Metrics ---
+
+server.tool(
+  "list-spans-metrics",
+  "List all configured span-based metrics with their definitions",
+  listSpansMetricsSchema.shape,
+  wrapToolHandler(listSpansMetrics),
+);
+
+server.tool(
+  "get-spans-metric",
+  "Get a specific span-based metric definition by name",
+  getSpansMetricSchema.shape,
+  wrapToolHandler(getSpansMetric),
+);
+
+server.tool(
+  "create-spans-metric",
+  "Create a metric based on APM span data (count or distribution, with filters and group-by)",
+  createSpansMetricSchema.shape,
+  wrapToolHandler(createSpansMetric),
+);
+
+server.tool(
+  "update-spans-metric",
+  "Update a span-based metric's filter, group-by, or percentile settings",
+  updateSpansMetricSchema.shape,
+  wrapToolHandler(updateSpansMetric),
+);
+
+server.tool(
+  "delete-spans-metric",
+  "Delete a span-based metric by name",
+  deleteSpansMetricSchema.shape,
+  wrapToolHandler(deleteSpansMetric),
 );
 
 // --- Monitor Validation ---

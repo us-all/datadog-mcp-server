@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.0] - 2026-04-10
+
+### Added
+
+- **10 new custom metrics tools** (100 → 110 total), log-based and span-based metrics CRUD
+- **Logs Metrics**: `list-logs-metrics`, `get-logs-metric`, `create-logs-metric`, `update-logs-metric`, `delete-logs-metric` — generate custom metrics from log data
+- **Spans Metrics**: `list-spans-metrics`, `get-spans-metric`, `create-spans-metric`, `update-spans-metric`, `delete-spans-metric` — generate custom metrics from APM span data
+- New API clients: `LogsMetricsApi`, `SpansMetricsApi`
+- All write tools gated behind `DD_ALLOW_WRITE=true`
+
 ## [1.5.0] - 2026-04-10
 
 ### Added

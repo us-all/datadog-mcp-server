@@ -51,7 +51,7 @@ describe("tool schemas", () => {
 
   it("representative schemas reject missing required fields", () => {
     // Find metrics module
-    const metricsEntry = toolEntries.find(([p]) => p.endsWith("metrics.ts"));
+    const metricsEntry = toolEntries.find(([p]) => p.endsWith("/metrics.ts"));
     expect(metricsEntry).toBeDefined();
     const { queryMetricsSchema } = metricsEntry![1] as any;
     expect(queryMetricsSchema.safeParse({}).success).toBe(false);

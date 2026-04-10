@@ -57,3 +57,5 @@ export const doraMetricsApi = new v2.DORAMetricsApi(configuration);
 export const rumMetricsApi = new v2.RumMetricsApi(configuration);
 export const rumRetentionFiltersApi = new v2.RumRetentionFiltersApi(configuration);
 export const teamsApi = new v2.TeamsApi(configuration);
+export const logsMetricsApi = new v2.LogsMetricsApi(configuration);
+export const spansMetricsApi = new v2.SpansMetricsApi(configuration);

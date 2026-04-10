@@ -31,6 +31,7 @@ export const syntheticsApi = new v1.SyntheticsApi(configuration);
 export const logsV1Api = new v1.LogsApi(configuration);
 export const usageMeteringApi = new v1.UsageMeteringApi(configuration);
 export const notebooksApi = new v1.NotebooksApi(configuration);
+export const sloCorrectionsApi = new v1.ServiceLevelObjectiveCorrectionsApi(configuration);
 
 // v2 APIs
 export const metricsV2Api = new v2.MetricsApi(configuration);
@@ -59,3 +60,4 @@ export const rumRetentionFiltersApi = new v2.RumRetentionFiltersApi(configuratio
 export const teamsApi = new v2.TeamsApi(configuration);
 export const logsMetricsApi = new v2.LogsMetricsApi(configuration);
 export const spansMetricsApi = new v2.SpansMetricsApi(configuration);
+export const apmRetentionFiltersApi = new v2.APMRetentionFiltersApi(configuration);

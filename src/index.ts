@@ -93,13 +93,23 @@ import {
   createSpansMetricSchema, createSpansMetric, updateSpansMetricSchema, updateSpansMetric,
   deleteSpansMetricSchema, deleteSpansMetric,
 } from "./tools/spans-metrics.js";
+import {
+  listSloCorrectionsSchema, listSloCorrections, getSloCorrectionsSchema, getSloCorrection,
+  createSloCorrectionSchema, createSloCorrection, updateSloCorrectionSchema, updateSloCorrection,
+  deleteSloCorrectionSchema, deleteSloCorrection,
+} from "./tools/slo-corrections.js";
+import {
+  listApmRetentionFiltersSchema, listApmRetentionFilters, getApmRetentionFilterSchema, getApmRetentionFilter,
+  createApmRetentionFilterSchema, createApmRetentionFilter, updateApmRetentionFilterSchema, updateApmRetentionFilter,
+  deleteApmRetentionFilterSchema, deleteApmRetentionFilter,
+} from "./tools/apm-retention-filters.js";
 import { validateMonitorSchema, validateMonitor } from "./tools/monitors.js";
 
 validateConfig();
 
 const server = new McpServer({
   name: "datadog",
-  version: "1.6.0",
+  version: "1.7.0",
 });
 
 // --- Metrics ---
@@ -923,6 +933,80 @@ server.tool(
   "Delete a span-based metric by name",
   deleteSpansMetricSchema.shape,
   wrapToolHandler(deleteSpansMetric),
+);
+
+// --- SLO Corrections ---
+
+server.tool(
+  "list-slo-corrections",
+  "List SLO status corrections (maintenance windows, deployments excluded from SLO calculations)",
+  listSloCorrectionsSchema.shape,
+  wrapToolHandler(listSloCorrections),
+);
+
+server.tool(
+  "get-slo-correction",
+  "Get detailed information about a specific SLO correction by ID",
+  getSloCorrectionsSchema.shape,
+  wrapToolHandler(getSloCorrection),
+);
+
+server.tool(
+  "create-slo-correction",
+  "Create an SLO correction to exclude a time period from SLO calculations (maintenance, deployments)",
+  createSloCorrectionSchema.shape,
+  wrapToolHandler(createSloCorrection),
+);
+
+server.tool(
+  "update-slo-correction",
+  "Update an existing SLO correction's category, time range, or description",
+  updateSloCorrectionSchema.shape,
+  wrapToolHandler(updateSloCorrection),
+);
+
+server.tool(
+  "delete-slo-correction",
+  "Delete an SLO correction by ID",
+  deleteSloCorrectionSchema.shape,
+  wrapToolHandler(deleteSloCorrection),
+);
+
+// --- APM Retention Filters ---
+
+server.tool(
+  "list-apm-retention-filters",
+  "List APM retention filters that control which traces are retained for search",
+  listApmRetentionFiltersSchema.shape,
+  wrapToolHandler(listApmRetentionFilters),
+);
+
+server.tool(
+  "get-apm-retention-filter",
+  "Get detailed information about a specific APM retention filter",
+  getApmRetentionFilterSchema.shape,
+  wrapToolHandler(getApmRetentionFilter),
+);
+
+server.tool(
+  "create-apm-retention-filter",
+  "Create an APM retention filter with query, sample rate, and enable/disable",
+  createApmRetentionFilterSchema.shape,
+  wrapToolHandler(createApmRetentionFilter),
+);
+
+server.tool(
+  "update-apm-retention-filter",
+  "Update an APM retention filter's name, query, rate, or enabled state",
+  updateApmRetentionFilterSchema.shape,
+  wrapToolHandler(updateApmRetentionFilter),
+);
+
+server.tool(
+  "delete-apm-retention-filter",
+  "Delete an APM retention filter by ID",
+  deleteApmRetentionFilterSchema.shape,
+  wrapToolHandler(deleteApmRetentionFilter),
 );
 
 // --- Monitor Validation ---

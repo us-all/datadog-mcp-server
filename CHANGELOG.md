@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.7.0] - 2026-04-10
+
+### Added
+
+- **10 new tools** (110 → 120 total), SLO corrections and APM retention management
+- **SLO Corrections**: `list-slo-corrections`, `get-slo-correction`, `create-slo-correction`, `update-slo-correction`, `delete-slo-correction` — exclude maintenance/deployment windows from SLO calculations
+- **APM Retention Filters**: `list-apm-retention-filters`, `get-apm-retention-filter`, `create-apm-retention-filter`, `update-apm-retention-filter`, `delete-apm-retention-filter` — control which traces are retained for search
+- New API clients: `ServiceLevelObjectiveCorrectionsApi` (v1), `APMRetentionFiltersApi` (v2)
+- All write tools gated behind `DD_ALLOW_WRITE=true`
+
 ## [1.6.0] - 2026-04-10
 
 ### Added

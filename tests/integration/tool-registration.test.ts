@@ -82,6 +82,10 @@ const EXPECTED_TOOLS = [
   "list-logs-metrics", "get-logs-metric", "create-logs-metric", "update-logs-metric", "delete-logs-metric",
   // Spans Metrics (5)
   "list-spans-metrics", "get-spans-metric", "create-spans-metric", "update-spans-metric", "delete-spans-metric",
+  // SLO Corrections (5)
+  "list-slo-corrections", "get-slo-correction", "create-slo-correction", "update-slo-correction", "delete-slo-correction",
+  // APM Retention Filters (5)
+  "list-apm-retention-filters", "get-apm-retention-filter", "create-apm-retention-filter", "update-apm-retention-filter", "delete-apm-retention-filter",
 ];
 
 describe("tool registration", () => {
@@ -90,8 +94,8 @@ describe("tool registration", () => {
     await import("../../src/index.js");
   });
 
-  it("registers exactly 110 tools", () => {
-    expect(toolCalls).toHaveLength(110);
+  it("registers exactly 120 tools", () => {
+    expect(toolCalls).toHaveLength(120);
   });
 
   it("registers all expected tool names", () => {

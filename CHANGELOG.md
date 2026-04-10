@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 2026-04-10
+
+### Added
+
+- **5 new Incidents tools** (81 → 86 total), full incident lifecycle management
+- `get-incident` — get detailed information about a specific incident by ID
+- `search-incidents` — search incidents by query (state, severity, title keywords) with sort/pagination
+- `create-incident` — create a new incident with title and customer impact info
+- `update-incident` — update incident title, customer impact, timestamps
+- `delete-incident` — delete an incident by ID
+- Enabled unstable SDK operations: `v2.createIncident`, `v2.updateIncident`, `v2.deleteIncident`
+- All incident write tools gated behind `DD_ALLOW_WRITE=true`
+
 ## [1.2.0] - 2026-04-10
 
 ### Added

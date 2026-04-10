@@ -34,7 +34,7 @@ Claude AI → MCP Protocol → index.ts (server) → tools/*.ts → Datadog API 
 
 ### Key Source Files
 
-- `src/index.ts` — MCP server entry point, 81 tool registrations
+- `src/index.ts` — MCP server entry point, 87 tool registrations
 - `src/config.ts` — Environment variable loading (DD_API_KEY, DD_APP_KEY, DD_SITE)
 - `src/client.ts` — Datadog API client initialization using official SDK
 - `src/tools/utils.ts` — `wrapToolHandler` error handling wrapper for all tools
@@ -48,7 +48,7 @@ Each tool file follows the same pattern:
 3. Transform response to a readable format
 4. Handler is wrapped with `wrapToolHandler()` in index.ts for error handling
 
-### Tool Categories (81 tools)
+### Tool Categories (87 tools)
 
 | File | Tools |
 |------|-------|
@@ -57,7 +57,7 @@ Each tool file follows the same pattern:
 | `dashboards.ts` | `get-dashboards`, `get-dashboard`, `create-dashboard`, `update-dashboard`, `delete-dashboard` |
 | `logs.ts` | `search-logs`, `aggregate-logs`, `send-logs` |
 | `events.ts` | `get-events`, `post-event` |
-| `incidents.ts` | `get-incidents` |
+| `incidents.ts` | `get-incidents`, `get-incident`, `search-incidents`, `create-incident`, `update-incident`, `delete-incident` |
 | `apm.ts` | `search-spans` |
 | `rum.ts` | `search-rum-events`, `aggregate-rum`, `list-rum-applications`, `get-rum-application`, `create-rum-application`, `update-rum-application`, `delete-rum-application` |
 | `rum-metrics.ts` | `list-rum-metrics`, `get-rum-metric`, `create-rum-metric`, `update-rum-metric`, `delete-rum-metric` |

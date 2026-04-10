@@ -25,7 +25,11 @@ import {
 } from "./tools/dashboards.js";
 import { searchLogsSchema, searchLogs, aggregateLogsSchema, aggregateLogs, sendLogsSchema, sendLogs } from "./tools/logs.js";
 import { getEventsSchema, getEvents, postEventSchema, postEvent } from "./tools/events.js";
-import { getIncidentsSchema, getIncidents } from "./tools/incidents.js";
+import {
+  getIncidentsSchema, getIncidents, getIncidentSchema, getIncident,
+  searchIncidentsSchema, searchIncidents, createIncidentSchema, createIncident,
+  updateIncidentSchema, updateIncident, deleteIncidentSchema, deleteIncident,
+} from "./tools/incidents.js";
 import { searchSpansSchema, searchSpans } from "./tools/apm.js";
 import {
   searchRumEventsSchema, searchRumEvents, aggregateRumSchema, aggregateRum,
@@ -70,7 +74,7 @@ validateConfig();
 
 const server = new McpServer({
   name: "datadog",
-  version: "1.2.0",
+  version: "1.3.0",
 });
 
 // --- Metrics ---
@@ -237,6 +241,41 @@ server.tool(
   "List Datadog incidents with pagination",
   getIncidentsSchema.shape,
   wrapToolHandler(getIncidents),
+);
+
+server.tool(
+  "get-incident",
+  "Get detailed information about a specific Datadog incident by ID",
+  getIncidentSchema.shape,
+  wrapToolHandler(getIncident),
+);
+
+server.tool(
+  "search-incidents",
+  "Search Datadog incidents by query (state, severity, title keywords)",
+  searchIncidentsSchema.shape,
+  wrapToolHandler(searchIncidents),
+);
+
+server.tool(
+  "create-incident",
+  "Create a new Datadog incident with title and customer impact info",
+  createIncidentSchema.shape,
+  wrapToolHandler(createIncident),
+);
+
+server.tool(
+  "update-incident",
+  "Update a Datadog incident's title, customer impact, or timestamps",
+  updateIncidentSchema.shape,
+  wrapToolHandler(updateIncident),
+);
+
+server.tool(
+  "delete-incident",
+  "Delete a Datadog incident by ID",
+  deleteIncidentSchema.shape,
+  wrapToolHandler(deleteIncident),
 );
 
 // --- APM ---

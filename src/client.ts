@@ -16,6 +16,9 @@ configuration.setServerVariables({
 configuration.unstableOperations["v2.listIncidents"] = true;
 configuration.unstableOperations["v2.getIncident"] = true;
 configuration.unstableOperations["v2.searchIncidents"] = true;
+configuration.unstableOperations["v2.createIncident"] = true;
+configuration.unstableOperations["v2.updateIncident"] = true;
+configuration.unstableOperations["v2.deleteIncident"] = true;
 
 // v1 APIs
 export const metricsApi = new v1.MetricsApi(configuration);

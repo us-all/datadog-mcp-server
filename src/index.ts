@@ -45,7 +45,17 @@ import {
   updateSyntheticsTestSchema, updateSyntheticsTest, deleteSyntheticsTestSchema, deleteSyntheticsTest,
 } from "./tools/synthetics.js";
 import { listDowntimesSchema, listDowntimes, createDowntimeSchema, createDowntime, cancelDowntimeSchema, cancelDowntime } from "./tools/downtimes.js";
-import { searchSecuritySignalsSchema, searchSecuritySignals } from "./tools/security.js";
+import {
+  searchSecuritySignalsSchema, searchSecuritySignals,
+  getSecuritySignalSchema, getSecuritySignal,
+  listSecurityRulesSchema, listSecurityRules,
+  getSecurityRuleSchema, getSecurityRule,
+  deleteSecurityRuleSchema, deleteSecurityRule,
+  listSecuritySuppressionsSchema, listSecuritySuppressions,
+  getSecuritySuppressionSchema, getSecuritySuppression,
+  createSecuritySuppressionSchema, createSecuritySuppression,
+  deleteSecuritySuppressionSchema, deleteSecuritySuppression,
+} from "./tools/security.js";
 import { getUsageSummarySchema, getUsageSummary, listUsersSchema, listUsers } from "./tools/account.js";
 import { listNotebooksSchema, listNotebooks, getNotebookSchema, getNotebook } from "./tools/notebooks.js";
 import { getTeamOnCallSchema, getTeamOnCall, getOnCallScheduleSchema, getOnCallSchedule } from "./tools/oncall.js";
@@ -74,7 +84,7 @@ validateConfig();
 
 const server = new McpServer({
   name: "datadog",
-  version: "1.3.0",
+  version: "1.4.0",
 });
 
 // --- Metrics ---
@@ -451,6 +461,62 @@ server.tool(
   "Search Datadog security monitoring signals with query filtering",
   searchSecuritySignalsSchema.shape,
   wrapToolHandler(searchSecuritySignals),
+);
+
+server.tool(
+  "get-security-signal",
+  "Get detailed information about a specific security signal by ID",
+  getSecuritySignalSchema.shape,
+  wrapToolHandler(getSecuritySignal),
+);
+
+server.tool(
+  "list-security-rules",
+  "List security monitoring detection rules with optional search filtering",
+  listSecurityRulesSchema.shape,
+  wrapToolHandler(listSecurityRules),
+);
+
+server.tool(
+  "get-security-rule",
+  "Get detailed information about a specific security monitoring detection rule",
+  getSecurityRuleSchema.shape,
+  wrapToolHandler(getSecurityRule),
+);
+
+server.tool(
+  "delete-security-rule",
+  "Delete a security monitoring detection rule by ID",
+  deleteSecurityRuleSchema.shape,
+  wrapToolHandler(deleteSecurityRule),
+);
+
+server.tool(
+  "list-security-suppressions",
+  "List security monitoring suppression rules",
+  listSecuritySuppressionsSchema.shape,
+  wrapToolHandler(listSecuritySuppressions),
+);
+
+server.tool(
+  "get-security-suppression",
+  "Get detailed information about a specific security monitoring suppression rule",
+  getSecuritySuppressionSchema.shape,
+  wrapToolHandler(getSecuritySuppression),
+);
+
+server.tool(
+  "create-security-suppression",
+  "Create a security monitoring suppression rule to suppress signals matching a query",
+  createSecuritySuppressionSchema.shape,
+  wrapToolHandler(createSecuritySuppression),
+);
+
+server.tool(
+  "delete-security-suppression",
+  "Delete a security monitoring suppression rule by ID",
+  deleteSecuritySuppressionSchema.shape,
+  wrapToolHandler(deleteSecuritySuppression),
 );
 
 // --- Account & Usage ---

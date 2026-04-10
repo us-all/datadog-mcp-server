@@ -48,8 +48,10 @@ const EXPECTED_TOOLS = [
   "create-synthetics-test", "update-synthetics-test", "delete-synthetics-test",
   // Downtimes (3)
   "list-downtimes", "create-downtime", "cancel-downtime",
-  // Security (1)
-  "search-security-signals",
+  // Security (9)
+  "search-security-signals", "get-security-signal",
+  "list-security-rules", "get-security-rule", "delete-security-rule",
+  "list-security-suppressions", "get-security-suppression", "create-security-suppression", "delete-security-suppression",
   // Account (2)
   "get-usage-summary", "list-users",
   // Notebooks (2)
@@ -82,8 +84,8 @@ describe("tool registration", () => {
     await import("../../src/index.js");
   });
 
-  it("registers exactly 86 tools", () => {
-    expect(toolCalls).toHaveLength(86);
+  it("registers exactly 94 tools", () => {
+    expect(toolCalls).toHaveLength(94);
   });
 
   it("registers all expected tool names", () => {

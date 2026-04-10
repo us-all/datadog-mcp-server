@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0] - 2026-04-10
+
+### Added
+
+- **8 new Security Monitoring tools** (86 → 94 total), extended security capabilities
+- `get-security-signal` — get detailed information about a specific security signal
+- `list-security-rules` — list security monitoring detection rules with search filtering
+- `get-security-rule` — get detailed info about a specific detection rule
+- `delete-security-rule` — delete a detection rule
+- `list-security-suppressions` — list suppression rules
+- `get-security-suppression` — get detailed info about a suppression rule
+- `create-security-suppression` — create a suppression rule with query, expiration, data exclusion
+- `delete-security-suppression` — delete a suppression rule
+- All security write tools gated behind `DD_ALLOW_WRITE=true`
+
 ## [1.3.0] - 2026-04-10
 
 ### Added

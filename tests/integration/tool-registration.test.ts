@@ -30,8 +30,8 @@ const EXPECTED_TOOLS = [
   "search-logs", "aggregate-logs", "send-logs",
   // Events (2)
   "get-events", "post-event",
-  // Incidents (1)
-  "get-incidents",
+  // Incidents (6)
+  "get-incidents", "get-incident", "search-incidents", "create-incident", "update-incident", "delete-incident",
   // APM (1)
   "search-spans",
   // RUM (17)
@@ -82,8 +82,8 @@ describe("tool registration", () => {
     await import("../../src/index.js");
   });
 
-  it("registers exactly 81 tools", () => {
-    expect(toolCalls).toHaveLength(81);
+  it("registers exactly 86 tools", () => {
+    expect(toolCalls).toHaveLength(86);
   });
 
   it("registers all expected tool names", () => {

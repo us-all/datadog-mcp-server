@@ -69,6 +69,11 @@ import { searchCiPipelinesSchema, searchCiPipelines, aggregateCiPipelinesSchema,
 import { listNetworkDevicesSchema, listNetworkDevices, getNetworkDeviceSchema, getNetworkDevice } from "./tools/networks.js";
 import { sendDoraDeploymentSchema, sendDoraDeployment, sendDoraIncidentSchema, sendDoraIncident } from "./tools/dora.js";
 import {
+  listTeamsSchema, listTeams, getTeamSchema, getTeam,
+  createTeamSchema, createTeam, updateTeamSchema, updateTeam,
+  deleteTeamSchema, deleteTeam, getTeamMembersSchema, getTeamMembers,
+} from "./tools/teams.js";
+import {
   listRumMetricsSchema, listRumMetrics, getRumMetricSchema, getRumMetric,
   createRumMetricSchema, createRumMetric, updateRumMetricSchema, updateRumMetric,
   deleteRumMetricSchema, deleteRumMetric,
@@ -84,7 +89,7 @@ validateConfig();
 
 const server = new McpServer({
   name: "datadog",
-  version: "1.4.0",
+  version: "1.5.0",
 });
 
 // --- Metrics ---
@@ -790,6 +795,50 @@ server.tool(
   "Delete a RUM retention filter by ID",
   deleteRumRetentionFilterSchema.shape,
   wrapToolHandler(deleteRumRetentionFilter),
+);
+
+// --- Teams ---
+
+server.tool(
+  "list-teams",
+  "List Datadog teams with optional search filtering and pagination",
+  listTeamsSchema.shape,
+  wrapToolHandler(listTeams),
+);
+
+server.tool(
+  "get-team",
+  "Get detailed information about a specific Datadog team by ID",
+  getTeamSchema.shape,
+  wrapToolHandler(getTeam),
+);
+
+server.tool(
+  "create-team",
+  "Create a new Datadog team with name, handle, and description",
+  createTeamSchema.shape,
+  wrapToolHandler(createTeam),
+);
+
+server.tool(
+  "update-team",
+  "Update a Datadog team's name, handle, or description",
+  updateTeamSchema.shape,
+  wrapToolHandler(updateTeam),
+);
+
+server.tool(
+  "delete-team",
+  "Delete a Datadog team by ID",
+  deleteTeamSchema.shape,
+  wrapToolHandler(deleteTeam),
+);
+
+server.tool(
+  "get-team-members",
+  "Get members of a Datadog team with their roles",
+  getTeamMembersSchema.shape,
+  wrapToolHandler(getTeamMembers),
 );
 
 // --- Monitor Validation ---

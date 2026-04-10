@@ -56,3 +56,4 @@ export const networkDevicesApi = new v2.NetworkDeviceMonitoringApi(configuration
 export const doraMetricsApi = new v2.DORAMetricsApi(configuration);
 export const rumMetricsApi = new v2.RumMetricsApi(configuration);
 export const rumRetentionFiltersApi = new v2.RumRetentionFiltersApi(configuration);
+export const teamsApi = new v2.TeamsApi(configuration);

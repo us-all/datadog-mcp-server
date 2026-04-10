@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.0] - 2026-04-10
+
+### Added
+
+- **6 new Teams tools** (94 → 100 total), team management and membership
+- `list-teams` — list teams with search, sort, and pagination
+- `get-team` — get detailed information about a specific team
+- `create-team` — create a new team with name, handle, and description
+- `update-team` — update a team's name, handle, or description
+- `delete-team` — delete a team
+- `get-team-members` — get team members with roles and provisioning info
+- New API client: `TeamsApi`
+- All team write tools gated behind `DD_ALLOW_WRITE=true`
+
 ## [1.4.0] - 2026-04-10
 
 ### Added

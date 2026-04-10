@@ -76,6 +76,8 @@ const EXPECTED_TOOLS = [
   "list-network-devices", "get-network-device",
   // DORA (2)
   "send-dora-deployment", "send-dora-incident",
+  // Teams (6)
+  "list-teams", "get-team", "create-team", "update-team", "delete-team", "get-team-members",
 ];
 
 describe("tool registration", () => {
@@ -84,8 +86,8 @@ describe("tool registration", () => {
     await import("../../src/index.js");
   });
 
-  it("registers exactly 94 tools", () => {
-    expect(toolCalls).toHaveLength(94);
+  it("registers exactly 100 tools", () => {
+    expect(toolCalls).toHaveLength(100);
   });
 
   it("registers all expected tool names", () => {

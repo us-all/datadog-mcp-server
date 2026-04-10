@@ -70,7 +70,7 @@ validateConfig();
 
 const server = new McpServer({
   name: "datadog",
-  version: "1.1.1",
+  version: "1.2.0",
 });
 
 // --- Metrics ---

@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2026-04-10
+
+### Added
+
+- **15 new RUM tools** (66 → 81 total), comprehensive RUM API coverage
+- **RUM Applications**: `list-rum-applications`, `get-rum-application`, `create-rum-application`, `update-rum-application`, `delete-rum-application` — RUM application CRUD
+- **RUM Metrics**: `list-rum-metrics`, `get-rum-metric`, `create-rum-metric`, `update-rum-metric`, `delete-rum-metric` — RUM-based custom metrics CRUD
+- **RUM Retention Filters**: `list-rum-retention-filters`, `get-rum-retention-filter`, `create-rum-retention-filter`, `update-rum-retention-filter`, `delete-rum-retention-filter` — RUM data retention filter management
+- New API clients: `RumMetricsApi`, `RumRetentionFiltersApi`
+- All new write tools gated behind `DD_ALLOW_WRITE=true`
+
 ## [1.1.1] - 2026-03-24
 
 ### Fixed

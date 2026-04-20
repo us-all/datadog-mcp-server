@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.8.0] - 2026-04-20
+
+### Added
+
+- **38 new tools** (120 → 158 total), Status Pages and Fleet Automation
+- **Status Pages** (21 tools):
+  - Pages: `list-status-pages`, `get-status-page`, `create-status-page`, `update-status-page`, `delete-status-page`, `publish-status-page`, `unpublish-status-page`
+  - Components: `list-status-page-components`, `get-status-page-component`, `create-status-page-component`, `update-status-page-component`, `delete-status-page-component`
+  - Degradations: `list-status-page-degradations`, `get-status-page-degradation`, `create-status-page-degradation`, `update-status-page-degradation`, `delete-status-page-degradation`
+  - Maintenances: `list-status-page-maintenances`, `get-status-page-maintenance`, `create-status-page-maintenance`, `update-status-page-maintenance`
+- **Fleet Automation** (17 tools):
+  - Agents: `list-fleet-agents`, `get-fleet-agent-info`, `list-fleet-agent-versions`
+  - Clusters: `list-fleet-clusters`
+  - Tracers: `list-fleet-tracers`
+  - Deployments: `list-fleet-deployments`, `get-fleet-deployment`, `create-fleet-deployment-configure`, `create-fleet-deployment-upgrade`, `cancel-fleet-deployment`
+  - Schedules: `list-fleet-schedules`, `get-fleet-schedule`, `create-fleet-schedule`, `update-fleet-schedule`, `delete-fleet-schedule`, `trigger-fleet-schedule`
+  - Pods: `list-fleet-instrumented-pods`
+- New API clients: `StatusPagesApi`, `FleetAutomationApi` (v2)
+- Fleet Automation unstable operations (17) enabled
+- All write tools gated behind `DD_ALLOW_WRITE=true`
+
+### Changed
+
+- Upgraded `@datadog/datadog-api-client` from ^1.52.0 to ^1.56.0
+
 ## [1.7.0] - 2026-04-10
 
 ### Added

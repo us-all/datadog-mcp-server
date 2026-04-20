@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@datadog/datadog-api-client':
-        specifier: ^1.52.0
-        version: 1.52.0
+        specifier: ^1.56.0
+        version: 1.56.0
       '@modelcontextprotocol/sdk':
         specifier: ^1.27.1
         version: 1.27.1(zod@4.3.6)
@@ -36,8 +36,8 @@ importers:
 
 packages:
 
-  '@datadog/datadog-api-client@1.52.0':
-    resolution: {integrity: sha512-CtaaA9cEB7jFebIFDqL2SlYJM1SdDVJWPExsX9aEMIjnwSR2aogL988Aouc/2WHkTXxsvvKGlT2ZpMrDq/LHdQ==}
+  '@datadog/datadog-api-client@1.56.0':
+    resolution: {integrity: sha512-Qed3uxqnp8rowrvpDFDPjrtX/ejISwx0RMBi0Na9OdlO20BkgfMzB3LokE8loIIKe3sI+W7P6Bs2cwfli5jjeA==}
     engines: {node: '>=12.0.0'}
 
   '@datadog/flagging-core@1.1.0':
@@ -1144,7 +1144,7 @@ packages:
 
 snapshots:
 
-  '@datadog/datadog-api-client@1.52.0':
+  '@datadog/datadog-api-client@1.56.0':
     dependencies:
       '@types/buffer-from': 1.1.3
       '@types/node': 25.3.1

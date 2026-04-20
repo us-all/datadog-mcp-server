@@ -104,12 +104,40 @@ import {
   deleteApmRetentionFilterSchema, deleteApmRetentionFilter,
 } from "./tools/apm-retention-filters.js";
 import { validateMonitorSchema, validateMonitor } from "./tools/monitors.js";
+import {
+  listStatusPagesSchema, listStatusPages, getStatusPageSchema, getStatusPage,
+  createStatusPageSchema, createStatusPage, updateStatusPageSchema, updateStatusPage,
+  deleteStatusPageSchema, deleteStatusPage, publishStatusPageSchema, publishStatusPage,
+  unpublishStatusPageSchema, unpublishStatusPage,
+  listStatusPageComponentsSchema, listStatusPageComponents, getStatusPageComponentSchema, getStatusPageComponent,
+  createStatusPageComponentSchema, createStatusPageComponent, updateStatusPageComponentSchema, updateStatusPageComponent,
+  deleteStatusPageComponentSchema, deleteStatusPageComponent,
+  listStatusPageDegradationsSchema, listStatusPageDegradations, getStatusPageDegradationSchema, getStatusPageDegradation,
+  createStatusPageDegradationSchema, createStatusPageDegradation, updateStatusPageDegradationSchema, updateStatusPageDegradation,
+  deleteStatusPageDegradationSchema, deleteStatusPageDegradation,
+  listStatusPageMaintenancesSchema, listStatusPageMaintenances, getStatusPageMaintenanceSchema, getStatusPageMaintenance,
+  createStatusPageMaintenanceSchema, createStatusPageMaintenance, updateStatusPageMaintenanceSchema, updateStatusPageMaintenance,
+} from "./tools/status-pages.js";
+import {
+  listFleetAgentsSchema, listFleetAgents, getFleetAgentInfoSchema, getFleetAgentInfo,
+  listFleetAgentVersionsSchema, listFleetAgentVersions,
+  listFleetClustersSchema, listFleetClusters,
+  listFleetTracersSchema, listFleetTracers,
+  listFleetDeploymentsSchema, listFleetDeployments, getFleetDeploymentSchema, getFleetDeployment,
+  createFleetDeploymentConfigureSchema, createFleetDeploymentConfigure,
+  createFleetDeploymentUpgradeSchema, createFleetDeploymentUpgrade,
+  cancelFleetDeploymentSchema, cancelFleetDeployment,
+  listFleetSchedulesSchema, listFleetSchedules, getFleetScheduleSchema, getFleetSchedule,
+  createFleetScheduleSchema, createFleetSchedule, updateFleetScheduleSchema, updateFleetSchedule,
+  deleteFleetScheduleSchema, deleteFleetSchedule, triggerFleetScheduleSchema, triggerFleetSchedule,
+  listFleetInstrumentedPodsSchema, listFleetInstrumentedPods,
+} from "./tools/fleet.js";
 
 validateConfig();
 
 const server = new McpServer({
   name: "datadog",
-  version: "1.7.0",
+  version: "1.8.0",
 });
 
 // --- Metrics ---
@@ -1016,6 +1044,292 @@ server.tool(
   "Validate a monitor definition without creating it (check query syntax, thresholds, etc.)",
   validateMonitorSchema.shape,
   wrapToolHandler(validateMonitor),
+);
+
+// --- Status Pages ---
+
+server.tool(
+  "list-status-pages",
+  "List all Datadog status pages for the organization",
+  listStatusPagesSchema.shape,
+  wrapToolHandler(listStatusPages),
+);
+
+server.tool(
+  "get-status-page",
+  "Get a specific status page by ID",
+  getStatusPageSchema.shape,
+  wrapToolHandler(getStatusPage),
+);
+
+server.tool(
+  "create-status-page",
+  "Create a new status page with name, domain prefix, and type (public/internal)",
+  createStatusPageSchema.shape,
+  wrapToolHandler(createStatusPage),
+);
+
+server.tool(
+  "update-status-page",
+  "Update a status page's name, domain prefix, or subscription settings",
+  updateStatusPageSchema.shape,
+  wrapToolHandler(updateStatusPage),
+);
+
+server.tool(
+  "delete-status-page",
+  "Delete a status page by ID",
+  deleteStatusPageSchema.shape,
+  wrapToolHandler(deleteStatusPage),
+);
+
+server.tool(
+  "publish-status-page",
+  "Publish a status page to make it accessible (public internet or internal org)",
+  publishStatusPageSchema.shape,
+  wrapToolHandler(publishStatusPage),
+);
+
+server.tool(
+  "unpublish-status-page",
+  "Unpublish a status page to remove public/internal access",
+  unpublishStatusPageSchema.shape,
+  wrapToolHandler(unpublishStatusPage),
+);
+
+// --- Status Page Components ---
+
+server.tool(
+  "list-status-page-components",
+  "List all components for a status page",
+  listStatusPageComponentsSchema.shape,
+  wrapToolHandler(listStatusPageComponents),
+);
+
+server.tool(
+  "get-status-page-component",
+  "Get a specific component by ID from a status page",
+  getStatusPageComponentSchema.shape,
+  wrapToolHandler(getStatusPageComponent),
+);
+
+server.tool(
+  "create-status-page-component",
+  "Create a component or group on a status page",
+  createStatusPageComponentSchema.shape,
+  wrapToolHandler(createStatusPageComponent),
+);
+
+server.tool(
+  "update-status-page-component",
+  "Update a status page component's name or position",
+  updateStatusPageComponentSchema.shape,
+  wrapToolHandler(updateStatusPageComponent),
+);
+
+server.tool(
+  "delete-status-page-component",
+  "Delete a component from a status page",
+  deleteStatusPageComponentSchema.shape,
+  wrapToolHandler(deleteStatusPageComponent),
+);
+
+// --- Status Page Degradations ---
+
+server.tool(
+  "list-status-page-degradations",
+  "List degradation incidents across status pages with optional status/page filtering",
+  listStatusPageDegradationsSchema.shape,
+  wrapToolHandler(listStatusPageDegradations),
+);
+
+server.tool(
+  "get-status-page-degradation",
+  "Get detailed information about a specific degradation incident",
+  getStatusPageDegradationSchema.shape,
+  wrapToolHandler(getStatusPageDegradation),
+);
+
+server.tool(
+  "create-status-page-degradation",
+  "Create a degradation incident on a status page with affected components",
+  createStatusPageDegradationSchema.shape,
+  wrapToolHandler(createStatusPageDegradation),
+);
+
+server.tool(
+  "update-status-page-degradation",
+  "Update a degradation incident's status, title, or affected components",
+  updateStatusPageDegradationSchema.shape,
+  wrapToolHandler(updateStatusPageDegradation),
+);
+
+server.tool(
+  "delete-status-page-degradation",
+  "Delete a degradation incident from a status page",
+  deleteStatusPageDegradationSchema.shape,
+  wrapToolHandler(deleteStatusPageDegradation),
+);
+
+// --- Status Page Maintenances ---
+
+server.tool(
+  "list-status-page-maintenances",
+  "List maintenance windows across status pages with optional status/page filtering",
+  listStatusPageMaintenancesSchema.shape,
+  wrapToolHandler(listStatusPageMaintenances),
+);
+
+server.tool(
+  "get-status-page-maintenance",
+  "Get detailed information about a specific maintenance window",
+  getStatusPageMaintenanceSchema.shape,
+  wrapToolHandler(getStatusPageMaintenance),
+);
+
+server.tool(
+  "create-status-page-maintenance",
+  "Schedule a maintenance window on a status page with affected components",
+  createStatusPageMaintenanceSchema.shape,
+  wrapToolHandler(createStatusPageMaintenance),
+);
+
+server.tool(
+  "update-status-page-maintenance",
+  "Update a maintenance window's status, schedule, or affected components",
+  updateStatusPageMaintenanceSchema.shape,
+  wrapToolHandler(updateStatusPageMaintenance),
+);
+
+// --- Fleet Agents ---
+
+server.tool(
+  "list-fleet-agents",
+  "List Datadog Agents in the fleet with filtering, sorting, and pagination",
+  listFleetAgentsSchema.shape,
+  wrapToolHandler(listFleetAgents),
+);
+
+server.tool(
+  "get-fleet-agent-info",
+  "Get detailed info about a specific Datadog Agent including integrations and config",
+  getFleetAgentInfoSchema.shape,
+  wrapToolHandler(getFleetAgentInfo),
+);
+
+server.tool(
+  "list-fleet-agent-versions",
+  "List all available Datadog Agent versions for deployment",
+  listFleetAgentVersionsSchema.shape,
+  wrapToolHandler(listFleetAgentVersions),
+);
+
+// --- Fleet Clusters ---
+
+server.tool(
+  "list-fleet-clusters",
+  "List Kubernetes clusters with agent versions, node counts, and enabled products",
+  listFleetClustersSchema.shape,
+  wrapToolHandler(listFleetClusters),
+);
+
+// --- Fleet Tracers ---
+
+server.tool(
+  "list-fleet-tracers",
+  "List fleet tracers (telemetry-derived service names) with filtering",
+  listFleetTracersSchema.shape,
+  wrapToolHandler(listFleetTracers),
+);
+
+// --- Fleet Deployments ---
+
+server.tool(
+  "list-fleet-deployments",
+  "List fleet automation deployments with pagination",
+  listFleetDeploymentsSchema.shape,
+  wrapToolHandler(listFleetDeployments),
+);
+
+server.tool(
+  "get-fleet-deployment",
+  "Get detailed deployment info including per-host status and package versions",
+  getFleetDeploymentSchema.shape,
+  wrapToolHandler(getFleetDeployment),
+);
+
+server.tool(
+  "create-fleet-deployment-configure",
+  "Create a deployment to apply configuration changes to hosts matching a filter",
+  createFleetDeploymentConfigureSchema.shape,
+  wrapToolHandler(createFleetDeploymentConfigure),
+);
+
+server.tool(
+  "create-fleet-deployment-upgrade",
+  "Create a deployment to upgrade Datadog Agent packages on matching hosts",
+  createFleetDeploymentUpgradeSchema.shape,
+  wrapToolHandler(createFleetDeploymentUpgrade),
+);
+
+server.tool(
+  "cancel-fleet-deployment",
+  "Cancel an active fleet deployment and stop pending operations",
+  cancelFleetDeploymentSchema.shape,
+  wrapToolHandler(cancelFleetDeployment),
+);
+
+// --- Fleet Schedules ---
+
+server.tool(
+  "list-fleet-schedules",
+  "List automated fleet upgrade schedules",
+  listFleetSchedulesSchema.shape,
+  wrapToolHandler(listFleetSchedules),
+);
+
+server.tool(
+  "get-fleet-schedule",
+  "Get detailed information about a specific fleet schedule",
+  getFleetScheduleSchema.shape,
+  wrapToolHandler(getFleetSchedule),
+);
+
+server.tool(
+  "create-fleet-schedule",
+  "Create an automated schedule for fleet agent upgrades with maintenance windows",
+  createFleetScheduleSchema.shape,
+  wrapToolHandler(createFleetSchedule),
+);
+
+server.tool(
+  "update-fleet-schedule",
+  "Update a fleet schedule's name, query, recurrence rule, or status",
+  updateFleetScheduleSchema.shape,
+  wrapToolHandler(updateFleetSchedule),
+);
+
+server.tool(
+  "delete-fleet-schedule",
+  "Delete a fleet upgrade schedule permanently",
+  deleteFleetScheduleSchema.shape,
+  wrapToolHandler(deleteFleetSchedule),
+);
+
+server.tool(
+  "trigger-fleet-schedule",
+  "Manually trigger a fleet schedule to immediately create a deployment",
+  triggerFleetScheduleSchema.shape,
+  wrapToolHandler(triggerFleetSchedule),
+);
+
+// --- Fleet Instrumented Pods ---
+
+server.tool(
+  "list-fleet-instrumented-pods",
+  "List pods targeted for Single Step Instrumentation (SSI) in a Kubernetes cluster",
+  listFleetInstrumentedPodsSchema.shape,
+  wrapToolHandler(listFleetInstrumentedPods),
 );
 
 // Start server

@@ -12,13 +12,32 @@ configuration.setServerVariables({
   site: config.site,
 });
 
-// Enable unstable operations
+// Enable unstable operations — Incidents
 configuration.unstableOperations["v2.listIncidents"] = true;
 configuration.unstableOperations["v2.getIncident"] = true;
 configuration.unstableOperations["v2.searchIncidents"] = true;
 configuration.unstableOperations["v2.createIncident"] = true;
 configuration.unstableOperations["v2.updateIncident"] = true;
 configuration.unstableOperations["v2.deleteIncident"] = true;
+
+// Enable unstable operations — Fleet Automation
+configuration.unstableOperations["v2.listFleetAgents"] = true;
+configuration.unstableOperations["v2.getFleetAgentInfo"] = true;
+configuration.unstableOperations["v2.listFleetAgentVersions"] = true;
+configuration.unstableOperations["v2.listFleetClusters"] = true;
+configuration.unstableOperations["v2.listFleetTracers"] = true;
+configuration.unstableOperations["v2.listFleetDeployments"] = true;
+configuration.unstableOperations["v2.getFleetDeployment"] = true;
+configuration.unstableOperations["v2.createFleetDeploymentConfigure"] = true;
+configuration.unstableOperations["v2.createFleetDeploymentUpgrade"] = true;
+configuration.unstableOperations["v2.cancelFleetDeployment"] = true;
+configuration.unstableOperations["v2.listFleetSchedules"] = true;
+configuration.unstableOperations["v2.getFleetSchedule"] = true;
+configuration.unstableOperations["v2.createFleetSchedule"] = true;
+configuration.unstableOperations["v2.updateFleetSchedule"] = true;
+configuration.unstableOperations["v2.deleteFleetSchedule"] = true;
+configuration.unstableOperations["v2.triggerFleetSchedule"] = true;
+configuration.unstableOperations["v2.listFleetInstrumentedPods"] = true;
 
 // v1 APIs
 export const metricsApi = new v1.MetricsApi(configuration);
@@ -61,3 +80,5 @@ export const teamsApi = new v2.TeamsApi(configuration);
 export const logsMetricsApi = new v2.LogsMetricsApi(configuration);
 export const spansMetricsApi = new v2.SpansMetricsApi(configuration);
 export const apmRetentionFiltersApi = new v2.APMRetentionFiltersApi(configuration);
+export const statusPagesApi = new v2.StatusPagesApi(configuration);
+export const fleetAutomationApi = new v2.FleetAutomationApi(configuration);

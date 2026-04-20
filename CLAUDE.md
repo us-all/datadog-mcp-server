@@ -11,7 +11,7 @@ Custom Datadog MCP (Model Context Protocol) server that gives Claude access to D
 - **Runtime**: Node.js 18+ with TypeScript (strict mode)
 - **Package Manager**: pnpm
 - **MCP SDK**: `@modelcontextprotocol/sdk` (^1.27.1)
-- **Datadog Client**: `@datadog/datadog-api-client` (^1.52.0)
+- **Datadog Client**: `@datadog/datadog-api-client` (^1.56.0)
 - **Validation**: zod
 - **Config**: dotenv
 
@@ -34,7 +34,7 @@ Claude AI → MCP Protocol → index.ts (server) → tools/*.ts → Datadog API 
 
 ### Key Source Files
 
-- `src/index.ts` — MCP server entry point, 120 tool registrations
+- `src/index.ts` — MCP server entry point, 158 tool registrations
 - `src/config.ts` — Environment variable loading (DD_API_KEY, DD_APP_KEY, DD_SITE)
 - `src/client.ts` — Datadog API client initialization using official SDK
 - `src/tools/utils.ts` — `wrapToolHandler` error handling wrapper for all tools
@@ -48,7 +48,7 @@ Each tool file follows the same pattern:
 3. Transform response to a readable format
 4. Handler is wrapped with `wrapToolHandler()` in index.ts for error handling
 
-### Tool Categories (120 tools)
+### Tool Categories (158 tools)
 
 | File | Tools |
 |------|-------|
@@ -84,6 +84,8 @@ Each tool file follows the same pattern:
 | `spans-metrics.ts` | `list-spans-metrics`, `get-spans-metric`, `create-spans-metric`, `update-spans-metric`, `delete-spans-metric` |
 | `slo-corrections.ts` | `list-slo-corrections`, `get-slo-correction`, `create-slo-correction`, `update-slo-correction`, `delete-slo-correction` |
 | `apm-retention-filters.ts` | `list-apm-retention-filters`, `get-apm-retention-filter`, `create-apm-retention-filter`, `update-apm-retention-filter`, `delete-apm-retention-filter` |
+| `status-pages.ts` | `list-status-pages`, `get-status-page`, `create-status-page`, `update-status-page`, `delete-status-page`, `publish-status-page`, `unpublish-status-page`, `list-status-page-components`, `get-status-page-component`, `create-status-page-component`, `update-status-page-component`, `delete-status-page-component`, `list-status-page-degradations`, `get-status-page-degradation`, `create-status-page-degradation`, `update-status-page-degradation`, `delete-status-page-degradation`, `list-status-page-maintenances`, `get-status-page-maintenance`, `create-status-page-maintenance`, `update-status-page-maintenance` |
+| `fleet.ts` | `list-fleet-agents`, `get-fleet-agent-info`, `list-fleet-agent-versions`, `list-fleet-clusters`, `list-fleet-tracers`, `list-fleet-deployments`, `get-fleet-deployment`, `create-fleet-deployment-configure`, `create-fleet-deployment-upgrade`, `cancel-fleet-deployment`, `list-fleet-schedules`, `get-fleet-schedule`, `create-fleet-schedule`, `update-fleet-schedule`, `delete-fleet-schedule`, `trigger-fleet-schedule`, `list-fleet-instrumented-pods` |
 
 ## Environment Variables
 

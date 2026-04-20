@@ -86,6 +86,18 @@ const EXPECTED_TOOLS = [
   "list-slo-corrections", "get-slo-correction", "create-slo-correction", "update-slo-correction", "delete-slo-correction",
   // APM Retention Filters (5)
   "list-apm-retention-filters", "get-apm-retention-filter", "create-apm-retention-filter", "update-apm-retention-filter", "delete-apm-retention-filter",
+  // Status Pages (21)
+  "list-status-pages", "get-status-page", "create-status-page", "update-status-page", "delete-status-page",
+  "publish-status-page", "unpublish-status-page",
+  "list-status-page-components", "get-status-page-component", "create-status-page-component", "update-status-page-component", "delete-status-page-component",
+  "list-status-page-degradations", "get-status-page-degradation", "create-status-page-degradation", "update-status-page-degradation", "delete-status-page-degradation",
+  "list-status-page-maintenances", "get-status-page-maintenance", "create-status-page-maintenance", "update-status-page-maintenance",
+  // Fleet Automation (17)
+  "list-fleet-agents", "get-fleet-agent-info", "list-fleet-agent-versions",
+  "list-fleet-clusters", "list-fleet-tracers",
+  "list-fleet-deployments", "get-fleet-deployment", "create-fleet-deployment-configure", "create-fleet-deployment-upgrade", "cancel-fleet-deployment",
+  "list-fleet-schedules", "get-fleet-schedule", "create-fleet-schedule", "update-fleet-schedule", "delete-fleet-schedule", "trigger-fleet-schedule",
+  "list-fleet-instrumented-pods",
 ];
 
 describe("tool registration", () => {
@@ -94,8 +106,8 @@ describe("tool registration", () => {
     await import("../../src/index.js");
   });
 
-  it("registers exactly 120 tools", () => {
-    expect(toolCalls).toHaveLength(120);
+  it("registers exactly 158 tools", () => {
+    expect(toolCalls).toHaveLength(158);
   });
 
   it("registers all expected tool names", () => {

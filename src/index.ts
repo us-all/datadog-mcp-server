@@ -134,6 +134,7 @@ import {
 } from "./tools/fleet.js";
 
 import { registry, searchToolsSchema, searchTools, type Category } from "./tool-registry.js";
+import { registerResources } from "./resources.js";
 
 validateConfig();
 
@@ -1389,6 +1390,9 @@ tool(
   searchToolsSchema.shape,
   wrapToolHandler(searchTools),
 );
+
+// --- MCP Resources (dd:// URI scheme) ---
+registerResources(server);
 
 // Start server
 async function main() {

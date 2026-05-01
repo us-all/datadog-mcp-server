@@ -1,5 +1,5 @@
 import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { monitorsApi, dashboardsApi, slosApi, incidentsApi } from "./client.js";
+import { monitorsApi, dashboardsApi, slosApi, incidentsApi, hostsApi } from "./client.js";
 
 /**
  * MCP Resources for hot Datadog entities.
@@ -74,6 +74,22 @@ export function registerResources(server: McpServer): void {
     },
     async (uri, vars) => {
       const data = await incidentsApi.getIncident({ incidentId: String(vars.id) });
+      return asJson(uri.toString(), data);
+    },
+  );
+
+  // Host search by name: dd://host/{name}
+  server.registerResource(
+    "host",
+    new ResourceTemplate("dd://host/{name}", { list: undefined }),
+    {
+      title: "Datadog Host",
+      description: "Host metadata, tags, and infra status by hostname",
+      mimeType: "application/json",
+    },
+    async (uri, vars) => {
+      const name = decodeURIComponent(String(vars.name));
+      const data = await hostsApi.listHosts({ filter: `host:${name}`, count: 1 });
       return asJson(uri.toString(), data);
     },
   );

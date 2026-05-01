@@ -98,7 +98,22 @@ export const getTableSchema = z.object({
 });
 ```
 
-Real-world impact: a 8KB `get-table` response with all columns drops to ~200 bytes when projecting only `name,description,columns.*.name,columns.*.dataType`. **~95% response token reduction**.
+**⚠ Schemas must opt in.** Even with auto-apply wired in `wrapToolHandler`, the MCP SDK validates input against each tool's zod schema and drops unknown fields *before* the handler sees them. So `params.extractFields` is `undefined` unless the tool's schema declares it. Either add the field per tool, or use `.passthrough()` if you want it implicit:
+
+```ts
+export const listHostsSchema = z.object({
+  count: z.coerce.number().optional(),
+  // ...
+}).passthrough();   // ← extractFields will pass through to wrapToolHandler
+```
+
+Real-world impact (live measurement, datadog v1.11.1):
+
+| Tool | Default | With extractFields | Reduction |
+|------|---------|--------------------|-----------|
+| `get-monitors` (5 monitors) | 594 tokens | 148 tokens | **−75%** |
+| `get-monitors` (20 monitors) | 3,108 tokens | 622 tokens | **−80%** |
+| `list-hosts` (10 hosts, schema not declared) | 3,965 tokens | 3,965 tokens | 0% (SDK drops unknown field) |
 
 ### 4. MCP Resources for hot entities
 

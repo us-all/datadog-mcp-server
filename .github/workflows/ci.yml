@@ -27,18 +27,17 @@ jobs:
       - name: Run tests (Node 20+)
         if: matrix.node-version >= 20
         run: pnpm run test
-      - name: Token stats (regression guard, Node 22 only)
-        if: matrix.node-version == 22
-        run: pnpm run token-stats
-        env:
-          TOKEN_BUDGET: 30000
-        continue-on-error: false
         env:
           DD_CIVISIBILITY_AGENTLESS_ENABLED: "true"
           DD_API_KEY: ${{ secrets.DD_API_KEY }}
           DD_SITE: us5.datadoghq.com
           JOB_ID: ${{ job.check_run_id }}
           NODE_OPTIONS: "--import dd-trace/register.js -r dd-trace/ci/init"
+      - name: Token stats (regression guard, Node 22 only)
+        if: matrix.node-version == 22
+        run: pnpm run token-stats
+        env:
+          TOKEN_BUDGET: 30000
 
   secret-scan:
     runs-on: ubuntu-latest

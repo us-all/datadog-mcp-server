@@ -1,34 +1,37 @@
 # Datadog MCP Server
 
-A comprehensive [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for Datadog. Gives AI assistants like Claude direct access to your Datadog monitoring data — metrics, logs, APM traces, RUM, monitors, dashboards, and more.
+A comprehensive [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for Datadog. **158 tools** across the full Datadog API surface — metrics, logs, APM/RUM, monitors, dashboards, incidents, security signals, status pages, fleet automation, and more.
 
 [한국어](./README_KO.md)
 
-## Why This Server?
+## When to use this vs Datadog's official MCP
 
-The existing community MCP server only covers basic operations. This project provides full Datadog API coverage:
+Datadog announced an official MCP server (Bits AI MCP, GA 2026-03-09). The two are complementary:
 
-| Feature | Community MCP | This Server |
-|---------|:---:|:---:|
-| Time-series metric queries (CPU, memory, IOPS, etc.) | - | ✓ |
-| APM / Trace search | - | ✓ |
-| RUM event search & aggregation | - | ✓ |
-| Monitor / Dashboard CRUD | - | ✓ |
-| Synthetics test management | - | ✓ |
-| Downtime management | - | ✓ |
-| Security signals | - | ✓ |
-| On-Call schedules | - | ✓ |
-| Usage / Account management | - | ✓ |
-| CI/CD Visibility | - | ✓ |
-| Error Tracking | - | ✓ |
-| Case Management | - | ✓ |
-| Network Device Monitoring | - | ✓ |
-| DORA Metrics | - | ✓ |
-| Software Catalog | - | ✓ |
-| Containers & Processes | - | ✓ |
-| Audit Logs | - | ✓ |
-| RUM Application / Metrics / Retention management | - | ✓ |
-| **Total tools** | **6** | **81** |
+| | Official Datadog MCP | `@us-all/datadog-mcp` (this) |
+|--|----------------------|------------------------------|
+| Tool count | 16+ core toolsets (APM, Errors, DBM, Security, LLM Obs.) | **158 tools** across full API surface |
+| Deployment | Remote (managed by Datadog, no local server) | **Self-host** stdio (npx / Docker / npm) |
+| Auth | Datadog SSO | API + APP key |
+| Sites | Public Datadog sites | **Any site incl. internal/sovereign**, US5 default |
+| Best for | Quick AI agent setup with Datadog managed UX | Self-hosted setups, internal sites, full API CRUD, dev/CI sandboxes |
+
+Use the official Bits AI MCP for fast managed onboarding and SSO flows. Use this server when you need full API coverage, write/CRUD parity, or self-hosting (e.g. internal sites, isolated networks, ephemeral dev/CI environments).
+
+## Tool Coverage (158)
+
+| Domain | Tools |
+|--------|------:|
+| Status Pages | 21 |
+| Fleet Automation | 17 |
+| RUM (events + apps + metrics + retention) | 27 |
+| Security signals + rules + suppressions | 9 |
+| Synthetics, Logs/Spans Metrics, SLO Corrections | 16 |
+| Incidents, Cases, Error Tracking, Audit | 13 |
+| Monitors, Dashboards, Notebooks, Events | 16 |
+| APM, CI Visibility, DORA, Network Devices | 9 |
+| Metrics, Hosts, SLOs, Downtimes, Containers, Processes | 19 |
+| OnCall, Teams, Users, Services, Bots | 11 |
 
 ## Quick Start
 

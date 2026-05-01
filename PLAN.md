@@ -1,5 +1,107 @@
 # Datadog MCP Server 개발 계획
 
+> **Status (2026-05-01)**: v1.8.0 / 158 tools. Phase 1–5 (initial 43 tools) 완료, 이후 v1.1–1.8에서 +115 tools 확장 완료. 본 문서는 **Phase 1–5 원본 계획**과 **post-v1.8 로드맵**을 함께 담고 있음.
+
+## 진행 현황 요약
+
+| 단계 | 도구 수 | 출시 | 상태 |
+|------|--------:|------|------|
+| Phase 1 (MVP) Metrics·Monitors·Dashboards·Logs·Events·Incidents | 12 | v1.0.0 (2026-02-27) | ✅ |
+| Phase 2 APM·RUM·Hosts | 5 | v1.0.0 | ✅ |
+| Phase 3 SLOs·Synthetics·Downtimes | 9 | v1.0.0 | ✅ |
+| Phase 4 CRUD writes (Monitor/Dashboard/Synthetics) | 12 | v1.0.0 | ✅ |
+| Phase 5 Security·Account·On-Call·Notebooks | 5 | v1.0.0 | ✅ |
+| **Phase 6** Software Catalog·Containers·Processes·Audit·Cases·Errors·CI·Networks·DORA | +20 | v1.1.0 | ✅ |
+| **Phase 7** RUM Apps·Metrics·Retention 풀 CRUD + Incidents 풀 CRUD | +24 | v1.2.0–1.3.0 | ✅ |
+| **Phase 8** Security 확장·Teams·Logs/Spans Metrics·SLO Corrections·APM Retention | +29 | v1.4.0–1.7.0 | ✅ |
+| **Phase 9** Status Pages·Fleet Automation | +38 | v1.8.0 (2026-04-20) | ✅ |
+| **합계** | **158** | | |
+
+## Post-v1.8 로드맵 (2026-Q2~)
+
+### 1. **공식 Datadog MCP 대비 포지셔닝** (P0)
+
+Datadog가 2026-03-09 공식 MCP(Bits AI MCP, GA, remote, 16+ tools)를 출시. 본 프로젝트는 **self-host + full API + write-CRUD parity** 보완재로 포지셔닝.
+
+- README/README_KO에 "When to use this vs official MCP" 비교표 추가 (✅ 2026-05-01)
+- `keywords`/`description`에 "self-hosted", "full coverage" 명시
+
+### 2. **토큰 효율 표준화** (P0, 핵심 차별화)
+
+158개 도구는 LLM 컨텍스트에 큰 부담. 최신 MCP authoring 연구(2026-Q1)에 따르면:
+- 5–7 도구가 정확도 임계점 (RAG-MCP 논문)
+- 30+ 도구 시 Tool Search 권장 (Anthropic 공식)
+- Schema dedup ($ref) 시 40–50% 절감 (SEP-1576)
+
+**구현 항목**:
+- [ ] **카테고리 ENV 토글** — `DD_TOOLS=metrics,monitors,logs` 또는 `DD_DISABLE=fleet,status-pages` 형태로 도구 노출 제한
+- [ ] **응답 필드 프로젝션** — 대형 응답(`get-dashboard`, `get-notebook`, `search-logs`)에 `extractFields` 파라미터 추가, 기본 truncation·요약 모드
+- [ ] **`search-tools` 메타툴** — 158개 중 자연어 매칭만 노출 (progressive disclosure)
+- [ ] **Aggregation 도구** — `get-monitor-summary`(상태+최근 alerts+태그 일괄), `analyze-host-health`(metrics+events+monitors 묶음)
+
+### 3. **테스트 커버리지 확대** (P0)
+
+현재 27 단위 테스트(등록/스키마/utils)에 그침. 158개 핸들러는 사실상 미커버, smoke 5종에만 의존.
+
+- [ ] 카테고리별 핸들러 단위 테스트(SDK 모킹) — 카테고리 1~2 케이스씩 → 200+ 테스트
+- [ ] 에러 redaction·writeGate 분기 회귀
+- [ ] CI에 통합 (vitest + dd-trace 유지)
+
+### 4. **SDK 자동 업그레이드** (P1)
+
+- [ ] Renovate/Dependabot 도입 — `@datadog/datadog-api-client` 주간 PR
+- [ ] `@modelcontextprotocol/sdk` 1.27→1.29 업그레이드 + 1.x 라인 추적
+- [ ] Datadog SDK unstable operations diff 봇 (Fleet 17개 등)
+
+### 5. **보안 재감사** (P1)
+
+OSS 보안 보고서는 v1.0.0 시점. v1.1~1.8에서 38개 모듈 추가됨.
+
+- [ ] 신규 모듈 재감사
+- [ ] **Synthetics SSRF 방어** — write 모드에서 스킴 화이트리스트(https), 사설망/메타데이터 차단, DNS rebinding 방어
+- [ ] SBOM(CycloneDX) 자동 발행
+
+### 6. **신규 카테고리 확장** (P2)
+
+Datadog 2026 신영역 중 미커버:
+- [ ] **LLM Observability** — AI Observability 신규 endpoint
+- [ ] **Cloud Cost Management**
+- [ ] **Database Monitoring (DBM)**
+- [ ] **Workflows / App Builder**
+- [ ] **Cloud SIEM 확장**
+
+각 5–10 도구 → 200+ 도구 도달 가능. 단, 토큰 효율 표준화 선행 후 진행.
+
+### 7. **Streamable HTTP transport** (P2)
+
+stdio 외 streamable HTTP 지원으로 컨테이너/리모트 호스팅, 다중 클라이언트 지원. MCP 2026 roadmap의 Transports Working Group 발전을 따라감.
+
+### 8. **OSS 운영성** (P2)
+
+- [ ] 관측성 — 자체 dd-trace 적용 코드의 dashboard/SLO 템플릿 publish
+- [ ] 사용 통계 (opt-in) — 어떤 도구가 자주 쓰이는지 익명 집계 → 우선순위 결정 인풋
+
+---
+
+## 우선순위 매트릭스 (Top 즉시)
+
+| # | 항목 | 영향 | 노력 | 비고 |
+|---|------|------|------|------|
+| 1 | README pivot (공식 MCP 비교) | High | S | ✅ 2026-05-01 |
+| 2 | 카테고리 ENV 토글 | High | M | LLM 컨텍스트 부담 즉시 완화 |
+| 3 | 핸들러 단위 테스트 매트릭스 | High | L | 158 도구 회귀 안전망 |
+| 4 | extractFields 응답 프로젝션 | High | M | 대형 응답 토큰 절감 |
+| 5 | Renovate + SDK diff 봇 | Med | S | 장기 유지보수 핵심 |
+| 6 | Synthetics SSRF 방어 | Med | M | 보안 잔여 항목 |
+| 7 | search-tools 메타툴 | High | M | progressive disclosure |
+| 8 | 신규 카테고리 (LLM Obs/CCM/DBM) | Med | L | 토큰 효율 선행 후 |
+
+---
+
+## 원본 계획 (Phase 1–5, v1.0.0 시점) — 참고용
+
+> 아래 섹션은 v1.0.0 출시 전 원본 계획서로, 역사적 맥락을 위해 보존.
+
 ## 배경
 
 기존 커뮤니티 MCP 서버(`datadog-mcp-server` by GeLi2001, v1.0.9)를 사용 중이나 다음 한계가 있음:

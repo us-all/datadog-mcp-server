@@ -8,9 +8,15 @@ vi.mock("@modelcontextprotocol/sdk/server/mcp.js", () => ({
     tool(name: string, description: string, ..._args: unknown[]) {
       toolCalls.push({ name, description });
     }
+    registerResource(..._args: unknown[]) {
+      // resources are not counted as tools — no-op for this test
+    }
     connect() {
       return Promise.resolve();
     }
+  },
+  ResourceTemplate: class {
+    constructor(public uriTemplate: string, public _options?: unknown) {}
   },
 }));
 
@@ -106,8 +112,8 @@ describe("tool registration", () => {
     await import("../../src/index.js");
   });
 
-  it("registers exactly 159 tools (158 datadog + 1 search-tools meta)", () => {
-    expect(toolCalls).toHaveLength(159);
+  it("registers exactly 160 tools (158 datadog + 1 analyze-monitor-state + 1 search-tools meta)", () => {
+    expect(toolCalls).toHaveLength(160);
   });
 
   it("registers all expected tool names", () => {

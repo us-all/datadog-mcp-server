@@ -135,6 +135,7 @@ import {
 
 import { registry, searchToolsSchema, searchTools, type Category } from "./tool-registry.js";
 import { registerResources } from "./resources.js";
+import { analyzeMonitorStateSchema, analyzeMonitorState } from "./tools/aggregations.js";
 
 validateConfig();
 
@@ -1379,6 +1380,16 @@ tool(
   "List pods targeted for Single Step Instrumentation (SSI) in a Kubernetes cluster",
   listFleetInstrumentedPodsSchema.shape,
   wrapToolHandler(listFleetInstrumentedPods),
+);
+
+// --- Aggregation tools (round-trip elimination) ---
+currentCategory = "monitors";
+
+tool(
+  "analyze-monitor-state",
+  "Aggregated monitor view: config + current state + recent triggered events + active downtimes in one call. Replaces 3 round-trips of get-monitor + get-events + list-downtimes.",
+  analyzeMonitorStateSchema.shape,
+  wrapToolHandler(analyzeMonitorState),
 );
 
 // --- Meta tools (always enabled) ---

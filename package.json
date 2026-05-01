@@ -1,6 +1,6 @@
 {
   "name": "@us-all/datadog-mcp",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "Datadog MCP server - 158 tools for metrics, monitors, logs, APM, RUM, incidents, CI/CD, status pages, fleet automation, and more",
   "type": "module",
   "main": "dist/index.js",

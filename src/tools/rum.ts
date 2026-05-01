@@ -2,6 +2,9 @@ import { z } from "zod/v4";
 import { v2 } from "@datadog/datadog-api-client";
 import { rumApi } from "../client.js";
 import { assertWriteAllowed } from "./utils.js";
+import { extractFieldsDescription } from "./extract-fields.js";
+
+const ef = z.string().optional().describe(extractFieldsDescription);
 
 export const searchRumEventsSchema = z.object({
   query: z.string().describe("RUM search query. Example: service:my-app @type:error @session.type:user"),
@@ -9,6 +12,7 @@ export const searchRumEventsSchema = z.object({
   to: z.string().describe("End time (ISO 8601). Example: 2026-02-26T23:59:59Z"),
   limit: z.coerce.number().optional().default(50).describe("Max results (default 50, max 1000)"),
   sort: z.enum(["timestamp", "-timestamp"]).optional().default("-timestamp").describe("Sort order: -timestamp (newest first) or timestamp (oldest first)"),
+  extractFields: ef,
 });
 
 export async function searchRumEvents(params: z.infer<typeof searchRumEventsSchema>) {

@@ -1,6 +1,9 @@
 import { z } from "zod/v4";
 import { monitorsApi } from "../client.js";
 import { assertWriteAllowed } from "./utils.js";
+import { extractFieldsDescription } from "./extract-fields.js";
+
+const ef = z.string().optional().describe(extractFieldsDescription);
 
 export const getMonitorsSchema = z.object({
   name: z.string().optional().describe("Filter monitors by name substring. Example: CPU Alert"),
@@ -9,6 +12,7 @@ export const getMonitorsSchema = z.object({
   groupStates: z.string().optional().describe("Filter by group states: all, alert, warn, no data. Example: alert"),
   pageSize: z.coerce.number().optional().default(50).describe("Number of results per page (default 50)"),
   page: z.coerce.number().optional().default(0).describe("Page number (0-based)"),
+  extractFields: ef,
 });
 
 export async function getMonitors(params: z.infer<typeof getMonitorsSchema>) {

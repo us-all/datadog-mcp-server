@@ -2,12 +2,16 @@ import { z } from "zod/v4";
 import { v2 } from "@datadog/datadog-api-client";
 import { incidentsApi } from "../client.js";
 import { assertWriteAllowed } from "./utils.js";
+import { extractFieldsDescription } from "./extract-fields.js";
+
+const ef = z.string().optional().describe(extractFieldsDescription);
 
 // --- List Incidents ---
 
 export const getIncidentsSchema = z.object({
   pageSize: z.coerce.number().optional().default(25).describe("Number of results per page (default 25, max 100)"),
   pageOffset: z.coerce.number().optional().default(0).describe("Pagination offset"),
+  extractFields: ef,
 });
 
 export async function getIncidents(params: z.infer<typeof getIncidentsSchema>) {

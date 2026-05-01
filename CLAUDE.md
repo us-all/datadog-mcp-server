@@ -108,3 +108,21 @@ const body = new v2.LogsAggregateRequest();
 // Wrong (plain object + as any)
 const body = { compute: [...] } as any;  // ObjectSerializer mapping fails
 ```
+
+## 최근 변경사항 (2026-05-01)
+
+- **v1.12.0**: `@us-all/mcp-toolkit ^0.1.0` 마이그레이션 — tool-registry/extract-fields toolkit 위임. ~194 lines 절감.
+- **v1.11.1**: 추가 MCP Resources (`dd://host/{name}`).
+- **v1.11.0**: `analyze-monitor-state` 어그리게이션 도구 — config + state + recent events + downtimes 1 call.
+- **v1.10.0**: MCP Resources (`dd://` URI) — monitor, dashboard, slo, incident.
+- **v1.9.2**: `pnpm token-stats` + CI TOKEN_BUDGET=30000 가드.
+- **v1.9.1**: `extractFields` auto-apply via wrapToolHandler. rum/security/incidents/monitors 핵심 스키마에 명시적 선언.
+- **v1.9.0**: 토큰 효율 표준 (DD_TOOLS / DD_DISABLE 16 카테고리 + search-tools 메타툴).
+- **v1.8.1**: hono >=4.12.14 보안 패치 (GHSA-458j-xx4x-4375).
+- **README**: 158→159 도구 카운트 동기화. "When to use this vs official Datadog Bits AI MCP" 비교표 추가. PLAN.md 재작성.
+
+## 표준 가이드
+
+`@us-all` MCP 작성 표준은 [mcp-toolkit/STANDARD.md](https://github.com/us-all/mcp-toolkit/blob/main/STANDARD.md)에 있음. 이 repo의 STANDARD.md는 redirect.
+
+신규 패턴 진화 시 `@us-all/mcp-toolkit` 한 곳만 업그레이드 → 6 production repo 자동 혜택.

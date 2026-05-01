@@ -1,6 +1,6 @@
 {
   "name": "@us-all/datadog-mcp",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Datadog MCP server - 158 tools for metrics, monitors, logs, APM, RUM, incidents, CI/CD, status pages, fleet automation, and more",
   "type": "module",
   "main": "dist/index.js",
@@ -33,6 +33,11 @@
   "author": "us-all",
   "license": "MIT",
   "packageManager": "pnpm@10.30.2",
+  "pnpm": {
+    "overrides": {
+      "hono": ">=4.12.14"
+    }
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",

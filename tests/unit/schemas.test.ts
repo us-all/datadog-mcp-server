@@ -3,9 +3,9 @@ import { describe, it, expect } from "vitest";
 // Use import.meta.glob for vite-compatible dynamic imports
 const toolModules = import.meta.glob("../../src/tools/*.ts", { eager: true }) as Record<string, Record<string, unknown>>;
 
-// Filter out utils.ts
+// Filter out helper modules (no tool registrations)
 const toolEntries = Object.entries(toolModules).filter(
-  ([path]) => !path.endsWith("utils.ts"),
+  ([path]) => !path.endsWith("utils.ts") && !path.endsWith("extract-fields.ts"),
 );
 
 describe("tool schemas", () => {

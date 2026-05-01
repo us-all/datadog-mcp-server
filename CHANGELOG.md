@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.9.0] - 2026-05-01
+
+### Added
+
+- **Token efficiency patterns** — addresses the 158-tool LLM context bloat (40-60K tokens of schema before any conversation).
+  - `DD_TOOLS` / `DD_DISABLE` env vars: category-based tool toggles (16 categories: metrics, monitors, dashboards, logs, apm, rum, incidents, security, synthetics, ci, infra, fleet, status-pages, oncall, teams, account)
+  - `search-tools` meta-tool (always enabled): natural-language tool discovery across all categories regardless of what's loaded
+  - `extractFields` parameter: response field projection with comma-separated dotted paths + `*` wildcard. Applied to `get-dashboards`, `get-dashboard`, `search-logs`, `search-spans` (highest-token responses)
+- New unit tests: `tests/unit/extract-fields.test.ts` (5 cases), `tests/unit/tool-registry.test.ts` (5 cases)
+
+### Changed
+
+- Total tools: 158 → 159 (+search-tools meta-tool)
+- `src/index.ts` refactored: all `server.tool()` calls now route through `tool()` helper that registers in tool registry and conditionally loads based on category env vars
+
 ## [1.8.1] - 2026-05-01
 
 ### Security

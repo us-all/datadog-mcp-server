@@ -1,5 +1,6 @@
 import { z } from "zod/v4";
 import { spansApi } from "../client.js";
+import { applyExtractFields, extractFieldsDescription } from "./extract-fields.js";
 
 export const searchSpansSchema = z.object({
   query: z.string().describe("Span search query. Example: service:api-server resource_name:GET_/users @duration:>5s"),
@@ -7,6 +8,7 @@ export const searchSpansSchema = z.object({
   to: z.string().describe("End time (ISO 8601 or relative). Example: 2026-02-26T23:59:59Z or now"),
   limit: z.coerce.number().optional().default(50).describe("Max results (default 50, max 1000)"),
   sort: z.enum(["timestamp", "-timestamp"]).optional().default("-timestamp").describe("Sort order: -timestamp (newest first) or timestamp (oldest first)"),
+  extractFields: z.string().optional().describe(extractFieldsDescription),
 });
 
 export async function searchSpans(params: z.infer<typeof searchSpansSchema>) {
@@ -19,7 +21,7 @@ export async function searchSpans(params: z.infer<typeof searchSpansSchema>) {
   });
 
   const spans = response.data ?? [];
-  return {
+  const result = {
     count: spans.length,
     spans: spans.map((s) => ({
       id: s.id,
@@ -39,4 +41,5 @@ export async function searchSpans(params: z.infer<typeof searchSpansSchema>) {
       attributes: s.attributes?.attributes,
     })),
   };
+  return applyExtractFields(result, params.extractFields);
 }

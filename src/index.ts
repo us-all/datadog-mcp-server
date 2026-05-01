@@ -133,6 +133,8 @@ import {
   listFleetInstrumentedPodsSchema, listFleetInstrumentedPods,
 } from "./tools/fleet.js";
 
+import { registry, searchToolsSchema, searchTools, type Category } from "./tool-registry.js";
+
 validateConfig();
 
 const server = new McpServer({
@@ -140,37 +142,49 @@ const server = new McpServer({
   version: "1.8.0",
 });
 
-// --- Metrics ---
+// --- Tool registration with category-based filtering (DD_TOOLS / DD_DISABLE) ---
+let currentCategory: Category = "metrics";
 
-server.tool(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function tool(name: string, description: string, schema: any, handler: any): void {
+  registry.register(name, description, currentCategory);
+  if (registry.isEnabled(currentCategory)) {
+    server.tool(name, description, schema, handler);
+  }
+}
+
+// --- Metrics ---
+currentCategory = "metrics";
+
+tool(
   "query-metrics",
   "Query time-series metric data from Datadog. Supports any Datadog metric query syntax (e.g., avg:system.cpu.user{host:myhost} by {env})",
   queryMetricsSchema.shape,
   wrapToolHandler(queryMetrics),
 );
 
-server.tool(
+tool(
   "get-metrics",
   "Search for available Datadog metrics by name pattern",
   getMetricsSchema.shape,
   wrapToolHandler(getMetrics),
 );
 
-server.tool(
+tool(
   "get-metric-metadata",
   "Get metadata for a specific Datadog metric (type, unit, description)",
   getMetricMetadataSchema.shape,
   wrapToolHandler(getMetricMetadata),
 );
 
-server.tool(
+tool(
   "list-active-metrics",
   "List active metrics from a given time, optionally filtered by host or tag",
   listActiveMetricsSchema.shape,
   wrapToolHandler(listActiveMetrics),
 );
 
-server.tool(
+tool(
   "list-metric-tags",
   "List tags for a specific metric (useful for understanding available groupings and filters)",
   listMetricTagsSchema.shape,
@@ -178,43 +192,44 @@ server.tool(
 );
 
 // --- Monitors ---
+currentCategory = "monitors";
 
-server.tool(
+tool(
   "get-monitors",
   "List Datadog monitors with optional filtering by name, tags, or state",
   getMonitorsSchema.shape,
   wrapToolHandler(getMonitors),
 );
 
-server.tool(
+tool(
   "get-monitor",
   "Get detailed information about a specific Datadog monitor by ID",
   getMonitorSchema.shape,
   wrapToolHandler(getMonitor),
 );
 
-server.tool(
+tool(
   "create-monitor",
   "Create a new Datadog monitor (metric alert, log alert, etc.)",
   createMonitorSchema.shape,
   wrapToolHandler(createMonitor),
 );
 
-server.tool(
+tool(
   "update-monitor",
   "Update an existing Datadog monitor's configuration",
   updateMonitorSchema.shape,
   wrapToolHandler(updateMonitor),
 );
 
-server.tool(
+tool(
   "delete-monitor",
   "Delete a Datadog monitor by ID",
   deleteMonitorSchema.shape,
   wrapToolHandler(deleteMonitor),
 );
 
-server.tool(
+tool(
   "mute-monitor",
   "Mute a Datadog monitor (silence notifications) for a scope and optional duration",
   muteMonitorSchema.shape,
@@ -222,36 +237,37 @@ server.tool(
 );
 
 // --- Dashboards ---
+currentCategory = "dashboards";
 
-server.tool(
+tool(
   "get-dashboards",
   "List all Datadog dashboards",
   getDashboardsSchema.shape,
   wrapToolHandler(getDashboards),
 );
 
-server.tool(
+tool(
   "get-dashboard",
   "Get a specific Datadog dashboard with all widgets and configuration",
   getDashboardSchema.shape,
   wrapToolHandler(getDashboard),
 );
 
-server.tool(
+tool(
   "create-dashboard",
   "Create a new Datadog dashboard with widgets",
   createDashboardSchema.shape,
   wrapToolHandler(createDashboard),
 );
 
-server.tool(
+tool(
   "update-dashboard",
   "Update an existing Datadog dashboard",
   updateDashboardSchema.shape,
   wrapToolHandler(updateDashboard),
 );
 
-server.tool(
+tool(
   "delete-dashboard",
   "Delete a Datadog dashboard by ID",
   deleteDashboardSchema.shape,
@@ -259,22 +275,23 @@ server.tool(
 );
 
 // --- Logs ---
+currentCategory = "logs";
 
-server.tool(
+tool(
   "search-logs",
   "Search Datadog logs by query with time range filtering",
   searchLogsSchema.shape,
   wrapToolHandler(searchLogs),
 );
 
-server.tool(
+tool(
   "aggregate-logs",
   "Aggregate Datadog logs with statistical computations (count, avg, sum, percentiles) and grouping",
   aggregateLogsSchema.shape,
   wrapToolHandler(aggregateLogs),
 );
 
-server.tool(
+tool(
   "send-logs",
   "Send log entries to Datadog",
   sendLogsSchema.shape,
@@ -282,15 +299,16 @@ server.tool(
 );
 
 // --- Events ---
+currentCategory = "logs";
 
-server.tool(
+tool(
   "get-events",
   "Get Datadog events within a time range, optionally filtered by priority, source, or tags",
   getEventsSchema.shape,
   wrapToolHandler(getEvents),
 );
 
-server.tool(
+tool(
   "post-event",
   "Post a custom event to Datadog (supports markdown, @mentions)",
   postEventSchema.shape,
@@ -298,43 +316,44 @@ server.tool(
 );
 
 // --- Incidents ---
+currentCategory = "incidents";
 
-server.tool(
+tool(
   "get-incidents",
   "List Datadog incidents with pagination",
   getIncidentsSchema.shape,
   wrapToolHandler(getIncidents),
 );
 
-server.tool(
+tool(
   "get-incident",
   "Get detailed information about a specific Datadog incident by ID",
   getIncidentSchema.shape,
   wrapToolHandler(getIncident),
 );
 
-server.tool(
+tool(
   "search-incidents",
   "Search Datadog incidents by query (state, severity, title keywords)",
   searchIncidentsSchema.shape,
   wrapToolHandler(searchIncidents),
 );
 
-server.tool(
+tool(
   "create-incident",
   "Create a new Datadog incident with title and customer impact info",
   createIncidentSchema.shape,
   wrapToolHandler(createIncident),
 );
 
-server.tool(
+tool(
   "update-incident",
   "Update a Datadog incident's title, customer impact, or timestamps",
   updateIncidentSchema.shape,
   wrapToolHandler(updateIncident),
 );
 
-server.tool(
+tool(
   "delete-incident",
   "Delete a Datadog incident by ID",
   deleteIncidentSchema.shape,
@@ -342,8 +361,9 @@ server.tool(
 );
 
 // --- APM ---
+currentCategory = "apm";
 
-server.tool(
+tool(
   "search-spans",
   "Search APM spans/traces for performance analysis. Filter by service, resource, status, duration",
   searchSpansSchema.shape,
@@ -351,50 +371,51 @@ server.tool(
 );
 
 // --- RUM ---
+currentCategory = "rum";
 
-server.tool(
+tool(
   "search-rum-events",
   "Search Real User Monitoring events (sessions, views, errors, actions) from mobile/web apps",
   searchRumEventsSchema.shape,
   wrapToolHandler(searchRumEvents),
 );
 
-server.tool(
+tool(
   "aggregate-rum",
   "Aggregate RUM data with statistical computations (count, avg, percentiles) and grouping by fields",
   aggregateRumSchema.shape,
   wrapToolHandler(aggregateRum),
 );
 
-server.tool(
+tool(
   "list-rum-applications",
   "List all RUM applications in your Datadog organization",
   listRumApplicationsSchema.shape,
   wrapToolHandler(listRumApplications),
 );
 
-server.tool(
+tool(
   "get-rum-application",
   "Get detailed information about a specific RUM application by ID",
   getRumApplicationSchema.shape,
   wrapToolHandler(getRumApplication),
 );
 
-server.tool(
+tool(
   "create-rum-application",
   "Create a new RUM application (browser, ios, android, react-native, flutter, etc.)",
   createRumApplicationSchema.shape,
   wrapToolHandler(createRumApplication),
 );
 
-server.tool(
+tool(
   "update-rum-application",
   "Update an existing RUM application's name or type",
   updateRumApplicationSchema.shape,
   wrapToolHandler(updateRumApplication),
 );
 
-server.tool(
+tool(
   "delete-rum-application",
   "Delete a RUM application by ID",
   deleteRumApplicationSchema.shape,
@@ -402,15 +423,16 @@ server.tool(
 );
 
 // --- Hosts ---
+currentCategory = "infra";
 
-server.tool(
+tool(
   "list-hosts",
   "List infrastructure hosts with filtering, sorting, and metadata",
   listHostsSchema.shape,
   wrapToolHandler(listHosts),
 );
 
-server.tool(
+tool(
   "get-host-totals",
   "Get total number of active and up hosts",
   getHostTotalsSchema.shape,
@@ -418,22 +440,23 @@ server.tool(
 );
 
 // --- SLOs ---
+currentCategory = "metrics";
 
-server.tool(
+tool(
   "list-slos",
   "List Service Level Objectives with optional filtering by query, tags, or IDs",
   listSlosSchema.shape,
   wrapToolHandler(listSlos),
 );
 
-server.tool(
+tool(
   "get-slo",
   "Get detailed information about a specific SLO",
   getSloSchema.shape,
   wrapToolHandler(getSlo),
 );
 
-server.tool(
+tool(
   "get-slo-history",
   "Get SLO performance history over a time range (status, error budget, compliance)",
   getSloHistorySchema.shape,
@@ -441,43 +464,44 @@ server.tool(
 );
 
 // --- Synthetics ---
+currentCategory = "synthetics";
 
-server.tool(
+tool(
   "list-synthetics",
   "List all Synthetics monitoring tests (API, Browser, Mobile)",
   listSyntheticsSchema.shape,
   wrapToolHandler(listSynthetics),
 );
 
-server.tool(
+tool(
   "get-synthetics-result",
   "Get latest results for a Synthetics API test by public ID",
   getSyntheticsResultSchema.shape,
   wrapToolHandler(getSyntheticsResult),
 );
 
-server.tool(
+tool(
   "trigger-synthetics",
   "Trigger one or more Synthetics tests on demand",
   triggerSyntheticsSchema.shape,
   wrapToolHandler(triggerSynthetics),
 );
 
-server.tool(
+tool(
   "create-synthetics-test",
   "Create a new Synthetics API test (HTTP, SSL, TCP, DNS, etc.)",
   createSyntheticsTestSchema.shape,
   wrapToolHandler(createSyntheticsTest),
 );
 
-server.tool(
+tool(
   "update-synthetics-test",
   "Update an existing Synthetics API test",
   updateSyntheticsTestSchema.shape,
   wrapToolHandler(updateSyntheticsTest),
 );
 
-server.tool(
+tool(
   "delete-synthetics-test",
   "Delete one or more Synthetics tests by public ID",
   deleteSyntheticsTestSchema.shape,
@@ -485,22 +509,23 @@ server.tool(
 );
 
 // --- Downtimes ---
+currentCategory = "monitors";
 
-server.tool(
+tool(
   "list-downtimes",
   "List scheduled downtimes (monitor mute periods)",
   listDowntimesSchema.shape,
   wrapToolHandler(listDowntimes),
 );
 
-server.tool(
+tool(
   "create-downtime",
   "Create a downtime to mute monitors by scope, monitor ID, or monitor tags",
   createDowntimeSchema.shape,
   wrapToolHandler(createDowntime),
 );
 
-server.tool(
+tool(
   "cancel-downtime",
   "Cancel an active downtime by ID",
   cancelDowntimeSchema.shape,
@@ -508,64 +533,65 @@ server.tool(
 );
 
 // --- Security ---
+currentCategory = "security";
 
-server.tool(
+tool(
   "search-security-signals",
   "Search Datadog security monitoring signals with query filtering",
   searchSecuritySignalsSchema.shape,
   wrapToolHandler(searchSecuritySignals),
 );
 
-server.tool(
+tool(
   "get-security-signal",
   "Get detailed information about a specific security signal by ID",
   getSecuritySignalSchema.shape,
   wrapToolHandler(getSecuritySignal),
 );
 
-server.tool(
+tool(
   "list-security-rules",
   "List security monitoring detection rules with optional search filtering",
   listSecurityRulesSchema.shape,
   wrapToolHandler(listSecurityRules),
 );
 
-server.tool(
+tool(
   "get-security-rule",
   "Get detailed information about a specific security monitoring detection rule",
   getSecurityRuleSchema.shape,
   wrapToolHandler(getSecurityRule),
 );
 
-server.tool(
+tool(
   "delete-security-rule",
   "Delete a security monitoring detection rule by ID",
   deleteSecurityRuleSchema.shape,
   wrapToolHandler(deleteSecurityRule),
 );
 
-server.tool(
+tool(
   "list-security-suppressions",
   "List security monitoring suppression rules",
   listSecuritySuppressionsSchema.shape,
   wrapToolHandler(listSecuritySuppressions),
 );
 
-server.tool(
+tool(
   "get-security-suppression",
   "Get detailed information about a specific security monitoring suppression rule",
   getSecuritySuppressionSchema.shape,
   wrapToolHandler(getSecuritySuppression),
 );
 
-server.tool(
+tool(
   "create-security-suppression",
   "Create a security monitoring suppression rule to suppress signals matching a query",
   createSecuritySuppressionSchema.shape,
   wrapToolHandler(createSecuritySuppression),
 );
 
-server.tool(
+tool(
   "delete-security-suppression",
   "Delete a security monitoring suppression rule by ID",
   deleteSecuritySuppressionSchema.shape,
@@ -573,15 +599,16 @@ server.tool(
 );
 
 // --- Account & Usage ---
+currentCategory = "account";
 
-server.tool(
+tool(
   "get-usage-summary",
   "Get Datadog account usage summary for a billing period (hosts, logs, APM, RUM, etc.)",
   getUsageSummarySchema.shape,
   wrapToolHandler(getUsageSummary),
 );
 
-server.tool(
+tool(
   "list-users",
   "List Datadog organization users with filtering and pagination",
   listUsersSchema.shape,
@@ -589,15 +616,16 @@ server.tool(
 );
 
 // --- Notebooks ---
+currentCategory = "dashboards";
 
-server.tool(
+tool(
   "list-notebooks",
   "List Datadog notebooks with search and filtering",
   listNotebooksSchema.shape,
   wrapToolHandler(listNotebooks),
 );
 
-server.tool(
+tool(
   "get-notebook",
   "Get a specific Datadog notebook with all cells and content",
   getNotebookSchema.shape,
@@ -605,15 +633,16 @@ server.tool(
 );
 
 // --- On-Call ---
+currentCategory = "oncall";
 
-server.tool(
+tool(
   "get-team-oncall",
   "Get current on-call responders for a Datadog team",
   getTeamOnCallSchema.shape,
   wrapToolHandler(getTeamOnCall),
 );
 
-server.tool(
+tool(
   "get-oncall-schedule",
   "Get an on-call schedule by ID with layers and team information",
   getOnCallScheduleSchema.shape,
@@ -621,15 +650,16 @@ server.tool(
 );
 
 // --- Services (Software Catalog) ---
+currentCategory = "apm";
 
-server.tool(
+tool(
   "list-services",
   "List services from Datadog Software Catalog with filtering",
   listServicesSchema.shape,
   wrapToolHandler(listServices),
 );
 
-server.tool(
+tool(
   "get-service-definition",
   "Get a service definition from Datadog Software Catalog by entity ID",
   getServiceDefinitionSchema.shape,
@@ -637,8 +667,9 @@ server.tool(
 );
 
 // --- Containers ---
+currentCategory = "infra";
 
-server.tool(
+tool(
   "list-containers",
   "List infrastructure containers with filtering and pagination",
   listContainersSchema.shape,
@@ -646,8 +677,9 @@ server.tool(
 );
 
 // --- Processes ---
+currentCategory = "infra";
 
-server.tool(
+tool(
   "list-processes",
   "List running processes across infrastructure with search and tag filtering",
   listProcessesSchema.shape,
@@ -655,8 +687,9 @@ server.tool(
 );
 
 // --- Audit Logs ---
+currentCategory = "logs";
 
-server.tool(
+tool(
   "search-audit-logs",
   "Search Datadog audit logs for organization activity tracking (user actions, resource changes)",
   searchAuditLogsSchema.shape,
@@ -664,29 +697,30 @@ server.tool(
 );
 
 // --- Cases ---
+currentCategory = "incidents";
 
-server.tool(
+tool(
   "list-cases",
   "List Datadog Case Management cases with search and filtering",
   listCasesSchema.shape,
   wrapToolHandler(listCases),
 );
 
-server.tool(
+tool(
   "get-case",
   "Get detailed information about a specific case by ID",
   getCaseSchema.shape,
   wrapToolHandler(getCase),
 );
 
-server.tool(
+tool(
   "create-case",
   "Create a new case in Datadog Case Management",
   createCaseSchema.shape,
   wrapToolHandler(createCase),
 );
 
-server.tool(
+tool(
   "update-case-status",
   "Update the status of a Datadog case (OPEN, IN_PROGRESS, CLOSED)",
   updateCaseStatusSchema.shape,
@@ -694,15 +728,16 @@ server.tool(
 );
 
 // --- Error Tracking ---
+currentCategory = "incidents";
 
-server.tool(
+tool(
   "list-error-tracking-issues",
   "List error tracking issues with search, filtering, and sorting",
   listErrorTrackingIssuesSchema.shape,
   wrapToolHandler(listErrorTrackingIssues),
 );
 
-server.tool(
+tool(
   "get-error-tracking-issue",
   "Get detailed information about a specific error tracking issue",
   getErrorTrackingIssueSchema.shape,
@@ -710,29 +745,30 @@ server.tool(
 );
 
 // --- CI/CD Visibility ---
+currentCategory = "ci";
 
-server.tool(
+tool(
   "search-ci-pipelines",
   "Search CI/CD pipeline events (builds, deploys) with query filtering",
   searchCiPipelinesSchema.shape,
   wrapToolHandler(searchCiPipelines),
 );
 
-server.tool(
+tool(
   "aggregate-ci-pipelines",
   "Aggregate CI/CD pipeline data with statistical computations and grouping",
   aggregateCiPipelinesSchema.shape,
   wrapToolHandler(aggregateCiPipelines),
 );
 
-server.tool(
+tool(
   "search-ci-tests",
   "Search CI test events (unit tests, integration tests) with query filtering",
   searchCiTestsSchema.shape,
   wrapToolHandler(searchCiTests),
 );
 
-server.tool(
+tool(
   "aggregate-ci-tests",
   "Aggregate CI test data with statistical computations and grouping",
   aggregateCiTestsSchema.shape,
@@ -740,15 +776,16 @@ server.tool(
 );
 
 // --- Network Devices ---
+currentCategory = "infra";
 
-server.tool(
+tool(
   "list-network-devices",
   "List network devices (routers, switches, firewalls) monitored by Datadog NDM",
   listNetworkDevicesSchema.shape,
   wrapToolHandler(listNetworkDevices),
 );
 
-server.tool(
+tool(
   "get-network-device",
   "Get detailed information about a specific network device by ID",
   getNetworkDeviceSchema.shape,
@@ -756,15 +793,16 @@ server.tool(
 );
 
 // --- DORA Metrics ---
+currentCategory = "ci";
 
-server.tool(
+tool(
   "send-dora-deployment",
   "Send a DORA deployment event for tracking deployment frequency and lead time",
   sendDoraDeploymentSchema.shape,
   wrapToolHandler(sendDoraDeployment),
 );
 
-server.tool(
+tool(
   "send-dora-incident",
   "Send a DORA incident event for tracking change failure rate and MTTR",
   sendDoraIncidentSchema.shape,
@@ -772,36 +810,37 @@ server.tool(
 );
 
 // --- RUM Metrics ---
+currentCategory = "rum";
 
-server.tool(
+tool(
   "list-rum-metrics",
   "List all configured rum-based metrics with their definitions",
   listRumMetricsSchema.shape,
   wrapToolHandler(listRumMetrics),
 );
 
-server.tool(
+tool(
   "get-rum-metric",
   "Get a specific rum-based metric definition by name",
   getRumMetricSchema.shape,
   wrapToolHandler(getRumMetric),
 );
 
-server.tool(
+tool(
   "create-rum-metric",
   "Create a metric based on RUM data (count or distribution, with filters and group-by)",
   createRumMetricSchema.shape,
   wrapToolHandler(createRumMetric),
 );
 
-server.tool(
+tool(
   "update-rum-metric",
   "Update a rum-based metric's filter, group-by, or percentile settings",
   updateRumMetricSchema.shape,
   wrapToolHandler(updateRumMetric),
 );
 
-server.tool(
+tool(
   "delete-rum-metric",
   "Delete a rum-based metric by name",
   deleteRumMetricSchema.shape,
@@ -809,36 +848,37 @@ server.tool(
 );
 
 // --- RUM Retention Filters ---
+currentCategory = "rum";
 
-server.tool(
+tool(
   "list-rum-retention-filters",
   "List RUM retention filters for a RUM application",
   listRumRetentionFiltersSchema.shape,
   wrapToolHandler(listRumRetentionFilters),
 );
 
-server.tool(
+tool(
   "get-rum-retention-filter",
   "Get a specific RUM retention filter by ID",
   getRumRetentionFilterSchema.shape,
   wrapToolHandler(getRumRetentionFilter),
 );
 
-server.tool(
+tool(
   "create-rum-retention-filter",
   "Create a RUM retention filter with event type, sample rate, and query",
   createRumRetentionFilterSchema.shape,
   wrapToolHandler(createRumRetentionFilter),
 );
 
-server.tool(
+tool(
   "update-rum-retention-filter",
   "Update a RUM retention filter's name, event type, sample rate, or query",
   updateRumRetentionFilterSchema.shape,
   wrapToolHandler(updateRumRetentionFilter),
 );
 
-server.tool(
+tool(
   "delete-rum-retention-filter",
   "Delete a RUM retention filter by ID",
   deleteRumRetentionFilterSchema.shape,
@@ -846,43 +886,44 @@ server.tool(
 );
 
 // --- Teams ---
+currentCategory = "teams";
 
-server.tool(
+tool(
   "list-teams",
   "List Datadog teams with optional search filtering and pagination",
   listTeamsSchema.shape,
   wrapToolHandler(listTeams),
 );
 
-server.tool(
+tool(
   "get-team",
   "Get detailed information about a specific Datadog team by ID",
   getTeamSchema.shape,
   wrapToolHandler(getTeam),
 );
 
-server.tool(
+tool(
   "create-team",
   "Create a new Datadog team with name, handle, and description",
   createTeamSchema.shape,
   wrapToolHandler(createTeam),
 );
 
-server.tool(
+tool(
   "update-team",
   "Update a Datadog team's name, handle, or description",
   updateTeamSchema.shape,
   wrapToolHandler(updateTeam),
 );
 
-server.tool(
+tool(
   "delete-team",
   "Delete a Datadog team by ID",
   deleteTeamSchema.shape,
   wrapToolHandler(deleteTeam),
 );
 
-server.tool(
+tool(
   "get-team-members",
   "Get members of a Datadog team with their roles",
   getTeamMembersSchema.shape,
@@ -890,36 +931,37 @@ server.tool(
 );
 
 // --- Logs Metrics ---
+currentCategory = "logs";
 
-server.tool(
+tool(
   "list-logs-metrics",
   "List all configured log-based metrics with their definitions",
   listLogsMetricsSchema.shape,
   wrapToolHandler(listLogsMetrics),
 );
 
-server.tool(
+tool(
   "get-logs-metric",
   "Get a specific log-based metric definition by name",
   getLogsMetricSchema.shape,
   wrapToolHandler(getLogsMetric),
 );
 
-server.tool(
+tool(
   "create-logs-metric",
   "Create a metric based on log data (count or distribution, with filters and group-by)",
   createLogsMetricSchema.shape,
   wrapToolHandler(createLogsMetric),
 );
 
-server.tool(
+tool(
   "update-logs-metric",
   "Update a log-based metric's filter, group-by, or percentile settings",
   updateLogsMetricSchema.shape,
   wrapToolHandler(updateLogsMetric),
 );
 
-server.tool(
+tool(
   "delete-logs-metric",
   "Delete a log-based metric by name",
   deleteLogsMetricSchema.shape,
@@ -927,36 +969,37 @@ server.tool(
 );
 
 // --- Spans Metrics ---
+currentCategory = "apm";
 
-server.tool(
+tool(
   "list-spans-metrics",
   "List all configured span-based metrics with their definitions",
   listSpansMetricsSchema.shape,
   wrapToolHandler(listSpansMetrics),
 );
 
-server.tool(
+tool(
   "get-spans-metric",
   "Get a specific span-based metric definition by name",
   getSpansMetricSchema.shape,
   wrapToolHandler(getSpansMetric),
 );
 
-server.tool(
+tool(
   "create-spans-metric",
   "Create a metric based on APM span data (count or distribution, with filters and group-by)",
   createSpansMetricSchema.shape,
   wrapToolHandler(createSpansMetric),
 );
 
-server.tool(
+tool(
   "update-spans-metric",
   "Update a span-based metric's filter, group-by, or percentile settings",
   updateSpansMetricSchema.shape,
   wrapToolHandler(updateSpansMetric),
 );
 
-server.tool(
+tool(
   "delete-spans-metric",
   "Delete a span-based metric by name",
   deleteSpansMetricSchema.shape,
@@ -964,36 +1007,37 @@ server.tool(
 );
 
 // --- SLO Corrections ---
+currentCategory = "metrics";
 
-server.tool(
+tool(
   "list-slo-corrections",
   "List SLO status corrections (maintenance windows, deployments excluded from SLO calculations)",
   listSloCorrectionsSchema.shape,
   wrapToolHandler(listSloCorrections),
 );
 
-server.tool(
+tool(
   "get-slo-correction",
   "Get detailed information about a specific SLO correction by ID",
   getSloCorrectionsSchema.shape,
   wrapToolHandler(getSloCorrection),
 );
 
-server.tool(
+tool(
   "create-slo-correction",
   "Create an SLO correction to exclude a time period from SLO calculations (maintenance, deployments)",
   createSloCorrectionSchema.shape,
   wrapToolHandler(createSloCorrection),
 );
 
-server.tool(
+tool(
   "update-slo-correction",
   "Update an existing SLO correction's category, time range, or description",
   updateSloCorrectionSchema.shape,
   wrapToolHandler(updateSloCorrection),
 );
 
-server.tool(
+tool(
   "delete-slo-correction",
   "Delete an SLO correction by ID",
   deleteSloCorrectionSchema.shape,
@@ -1001,36 +1045,37 @@ server.tool(
 );
 
 // --- APM Retention Filters ---
+currentCategory = "apm";
 
-server.tool(
+tool(
   "list-apm-retention-filters",
   "List APM retention filters that control which traces are retained for search",
   listApmRetentionFiltersSchema.shape,
   wrapToolHandler(listApmRetentionFilters),
 );
 
-server.tool(
+tool(
   "get-apm-retention-filter",
   "Get detailed information about a specific APM retention filter",
   getApmRetentionFilterSchema.shape,
   wrapToolHandler(getApmRetentionFilter),
 );
 
-server.tool(
+tool(
   "create-apm-retention-filter",
   "Create an APM retention filter with query, sample rate, and enable/disable",
   createApmRetentionFilterSchema.shape,
   wrapToolHandler(createApmRetentionFilter),
 );
 
-server.tool(
+tool(
   "update-apm-retention-filter",
   "Update an APM retention filter's name, query, rate, or enabled state",
   updateApmRetentionFilterSchema.shape,
   wrapToolHandler(updateApmRetentionFilter),
 );
 
-server.tool(
+tool(
   "delete-apm-retention-filter",
   "Delete an APM retention filter by ID",
   deleteApmRetentionFilterSchema.shape,
@@ -1038,8 +1083,9 @@ server.tool(
 );
 
 // --- Monitor Validation ---
+currentCategory = "monitors";
 
-server.tool(
+tool(
   "validate-monitor",
   "Validate a monitor definition without creating it (check query syntax, thresholds, etc.)",
   validateMonitorSchema.shape,
@@ -1047,50 +1093,51 @@ server.tool(
 );
 
 // --- Status Pages ---
+currentCategory = "status-pages";
 
-server.tool(
+tool(
   "list-status-pages",
   "List all Datadog status pages for the organization",
   listStatusPagesSchema.shape,
   wrapToolHandler(listStatusPages),
 );
 
-server.tool(
+tool(
   "get-status-page",
   "Get a specific status page by ID",
   getStatusPageSchema.shape,
   wrapToolHandler(getStatusPage),
 );
 
-server.tool(
+tool(
   "create-status-page",
   "Create a new status page with name, domain prefix, and type (public/internal)",
   createStatusPageSchema.shape,
   wrapToolHandler(createStatusPage),
 );
 
-server.tool(
+tool(
   "update-status-page",
   "Update a status page's name, domain prefix, or subscription settings",
   updateStatusPageSchema.shape,
   wrapToolHandler(updateStatusPage),
 );
 
-server.tool(
+tool(
   "delete-status-page",
   "Delete a status page by ID",
   deleteStatusPageSchema.shape,
   wrapToolHandler(deleteStatusPage),
 );
 
-server.tool(
+tool(
   "publish-status-page",
   "Publish a status page to make it accessible (public internet or internal org)",
   publishStatusPageSchema.shape,
   wrapToolHandler(publishStatusPage),
 );
 
-server.tool(
+tool(
   "unpublish-status-page",
   "Unpublish a status page to remove public/internal access",
   unpublishStatusPageSchema.shape,
@@ -1099,35 +1146,35 @@ server.tool(
 
 // --- Status Page Components ---
 
-server.tool(
+tool(
   "list-status-page-components",
   "List all components for a status page",
   listStatusPageComponentsSchema.shape,
   wrapToolHandler(listStatusPageComponents),
 );
 
-server.tool(
+tool(
   "get-status-page-component",
   "Get a specific component by ID from a status page",
   getStatusPageComponentSchema.shape,
   wrapToolHandler(getStatusPageComponent),
 );
 
-server.tool(
+tool(
   "create-status-page-component",
   "Create a component or group on a status page",
   createStatusPageComponentSchema.shape,
   wrapToolHandler(createStatusPageComponent),
 );
 
-server.tool(
+tool(
   "update-status-page-component",
   "Update a status page component's name or position",
   updateStatusPageComponentSchema.shape,
   wrapToolHandler(updateStatusPageComponent),
 );
 
-server.tool(
+tool(
   "delete-status-page-component",
   "Delete a component from a status page",
   deleteStatusPageComponentSchema.shape,
@@ -1136,35 +1183,35 @@ server.tool(
 
 // --- Status Page Degradations ---
 
-server.tool(
+tool(
   "list-status-page-degradations",
   "List degradation incidents across status pages with optional status/page filtering",
   listStatusPageDegradationsSchema.shape,
   wrapToolHandler(listStatusPageDegradations),
 );
 
-server.tool(
+tool(
   "get-status-page-degradation",
   "Get detailed information about a specific degradation incident",
   getStatusPageDegradationSchema.shape,
   wrapToolHandler(getStatusPageDegradation),
 );
 
-server.tool(
+tool(
   "create-status-page-degradation",
   "Create a degradation incident on a status page with affected components",
   createStatusPageDegradationSchema.shape,
   wrapToolHandler(createStatusPageDegradation),
 );
 
-server.tool(
+tool(
   "update-status-page-degradation",
   "Update a degradation incident's status, title, or affected components",
   updateStatusPageDegradationSchema.shape,
   wrapToolHandler(updateStatusPageDegradation),
 );
 
-server.tool(
+tool(
   "delete-status-page-degradation",
   "Delete a degradation incident from a status page",
   deleteStatusPageDegradationSchema.shape,
@@ -1173,28 +1220,28 @@ server.tool(
 
 // --- Status Page Maintenances ---
 
-server.tool(
+tool(
   "list-status-page-maintenances",
   "List maintenance windows across status pages with optional status/page filtering",
   listStatusPageMaintenancesSchema.shape,
   wrapToolHandler(listStatusPageMaintenances),
 );
 
-server.tool(
+tool(
   "get-status-page-maintenance",
   "Get detailed information about a specific maintenance window",
   getStatusPageMaintenanceSchema.shape,
   wrapToolHandler(getStatusPageMaintenance),
 );
 
-server.tool(
+tool(
   "create-status-page-maintenance",
   "Schedule a maintenance window on a status page with affected components",
   createStatusPageMaintenanceSchema.shape,
   wrapToolHandler(createStatusPageMaintenance),
 );
 
-server.tool(
+tool(
   "update-status-page-maintenance",
   "Update a maintenance window's status, schedule, or affected components",
   updateStatusPageMaintenanceSchema.shape,
@@ -1202,22 +1249,23 @@ server.tool(
 );
 
 // --- Fleet Agents ---
+currentCategory = "fleet";
 
-server.tool(
+tool(
   "list-fleet-agents",
   "List Datadog Agents in the fleet with filtering, sorting, and pagination",
   listFleetAgentsSchema.shape,
   wrapToolHandler(listFleetAgents),
 );
 
-server.tool(
+tool(
   "get-fleet-agent-info",
   "Get detailed info about a specific Datadog Agent including integrations and config",
   getFleetAgentInfoSchema.shape,
   wrapToolHandler(getFleetAgentInfo),
 );
 
-server.tool(
+tool(
   "list-fleet-agent-versions",
   "List all available Datadog Agent versions for deployment",
   listFleetAgentVersionsSchema.shape,
@@ -1226,7 +1274,7 @@ server.tool(
 
 // --- Fleet Clusters ---
 
-server.tool(
+tool(
   "list-fleet-clusters",
   "List Kubernetes clusters with agent versions, node counts, and enabled products",
   listFleetClustersSchema.shape,
@@ -1235,7 +1283,7 @@ server.tool(
 
 // --- Fleet Tracers ---
 
-server.tool(
+tool(
   "list-fleet-tracers",
   "List fleet tracers (telemetry-derived service names) with filtering",
   listFleetTracersSchema.shape,
@@ -1244,35 +1292,35 @@ server.tool(
 
 // --- Fleet Deployments ---
 
-server.tool(
+tool(
   "list-fleet-deployments",
   "List fleet automation deployments with pagination",
   listFleetDeploymentsSchema.shape,
   wrapToolHandler(listFleetDeployments),
 );
 
-server.tool(
+tool(
   "get-fleet-deployment",
   "Get detailed deployment info including per-host status and package versions",
   getFleetDeploymentSchema.shape,
   wrapToolHandler(getFleetDeployment),
 );
 
-server.tool(
+tool(
   "create-fleet-deployment-configure",
   "Create a deployment to apply configuration changes to hosts matching a filter",
   createFleetDeploymentConfigureSchema.shape,
   wrapToolHandler(createFleetDeploymentConfigure),
 );
 
-server.tool(
+tool(
   "create-fleet-deployment-upgrade",
   "Create a deployment to upgrade Datadog Agent packages on matching hosts",
   createFleetDeploymentUpgradeSchema.shape,
   wrapToolHandler(createFleetDeploymentUpgrade),
 );
 
-server.tool(
+tool(
   "cancel-fleet-deployment",
   "Cancel an active fleet deployment and stop pending operations",
   cancelFleetDeploymentSchema.shape,
@@ -1281,42 +1329,42 @@ server.tool(
 
 // --- Fleet Schedules ---
 
-server.tool(
+tool(
   "list-fleet-schedules",
   "List automated fleet upgrade schedules",
   listFleetSchedulesSchema.shape,
   wrapToolHandler(listFleetSchedules),
 );
 
-server.tool(
+tool(
   "get-fleet-schedule",
   "Get detailed information about a specific fleet schedule",
   getFleetScheduleSchema.shape,
   wrapToolHandler(getFleetSchedule),
 );
 
-server.tool(
+tool(
   "create-fleet-schedule",
   "Create an automated schedule for fleet agent upgrades with maintenance windows",
   createFleetScheduleSchema.shape,
   wrapToolHandler(createFleetSchedule),
 );
 
-server.tool(
+tool(
   "update-fleet-schedule",
   "Update a fleet schedule's name, query, recurrence rule, or status",
   updateFleetScheduleSchema.shape,
   wrapToolHandler(updateFleetSchedule),
 );
 
-server.tool(
+tool(
   "delete-fleet-schedule",
   "Delete a fleet upgrade schedule permanently",
   deleteFleetScheduleSchema.shape,
   wrapToolHandler(deleteFleetSchedule),
 );
 
-server.tool(
+tool(
   "trigger-fleet-schedule",
   "Manually trigger a fleet schedule to immediately create a deployment",
   triggerFleetScheduleSchema.shape,
@@ -1325,11 +1373,21 @@ server.tool(
 
 // --- Fleet Instrumented Pods ---
 
-server.tool(
+tool(
   "list-fleet-instrumented-pods",
   "List pods targeted for Single Step Instrumentation (SSI) in a Kubernetes cluster",
   listFleetInstrumentedPodsSchema.shape,
   wrapToolHandler(listFleetInstrumentedPods),
+);
+
+// --- Meta tools (always enabled) ---
+currentCategory = "meta";
+
+tool(
+  "search-tools",
+  "Discover available tools by natural language query. Returns matching tool names + descriptions across all 158+ tools. Use this first to navigate the surface efficiently — call this, then call the specific tool you need.",
+  searchToolsSchema.shape,
+  wrapToolHandler(searchTools),
 );
 
 // Start server

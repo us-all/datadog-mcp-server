@@ -2,6 +2,7 @@ import { z } from "zod/v4";
 import { v2 } from "@datadog/datadog-api-client";
 import { logsApi, logsV1Api } from "../client.js";
 import { assertWriteAllowed } from "./utils.js";
+import { applyExtractFields, extractFieldsDescription } from "./extract-fields.js";
 
 export const searchLogsSchema = z.object({
   query: z.string().describe("Datadog log query. Example: service:web-api status:error @http.status_code:[500 TO 599]"),
@@ -10,6 +11,7 @@ export const searchLogsSchema = z.object({
   limit: z.coerce.number().optional().default(50).describe("Max results (default 50, max 1000)"),
   sort: z.enum(["timestamp", "-timestamp"]).optional().default("-timestamp").describe("Sort order: -timestamp (newest first) or timestamp (oldest first)"),
   indexes: z.array(z.string()).optional().describe("Log indexes to search. Example: [\"main\"]"),
+  extractFields: z.string().optional().describe(extractFieldsDescription),
 });
 
 export async function searchLogs(params: z.infer<typeof searchLogsSchema>) {
@@ -23,7 +25,7 @@ export async function searchLogs(params: z.infer<typeof searchLogsSchema>) {
   });
 
   const logs = response.data ?? [];
-  return {
+  const result = {
     count: logs.length,
     logs: logs.map((log) => ({
       id: log.id,
@@ -36,6 +38,7 @@ export async function searchLogs(params: z.infer<typeof searchLogsSchema>) {
       attributes: log.attributes?.attributes,
     })),
   };
+  return applyExtractFields(result, params.extractFields);
 }
 
 export const aggregateLogsSchema = z.object({

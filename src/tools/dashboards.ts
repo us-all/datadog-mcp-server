@@ -1,11 +1,13 @@
 import { z } from "zod/v4";
 import { dashboardsApi } from "../client.js";
 import { assertWriteAllowed } from "./utils.js";
+import { applyExtractFields, extractFieldsDescription } from "./extract-fields.js";
 
 export const getDashboardsSchema = z.object({
   filterShared: z.boolean().optional().describe("Filter shared dashboards only"),
   count: z.coerce.number().optional().default(100).describe("Number of dashboards to return"),
   start: z.coerce.number().optional().default(0).describe("Pagination offset"),
+  extractFields: z.string().optional().describe(extractFieldsDescription),
 });
 
 export async function getDashboards(params: z.infer<typeof getDashboardsSchema>) {
@@ -16,7 +18,7 @@ export async function getDashboards(params: z.infer<typeof getDashboardsSchema>)
   });
 
   const dashboards = response.dashboards ?? [];
-  return {
+  const result = {
     total: dashboards.length,
     dashboards: dashboards.map((d) => ({
       id: d.id,
@@ -29,10 +31,12 @@ export async function getDashboards(params: z.infer<typeof getDashboardsSchema>)
       modified: d.modifiedAt?.toISOString(),
     })),
   };
+  return applyExtractFields(result, params.extractFields);
 }
 
 export const getDashboardSchema = z.object({
   dashboardId: z.string().describe("Dashboard ID. Example: abc-def-ghi"),
+  extractFields: z.string().optional().describe(extractFieldsDescription),
 });
 
 export async function getDashboard(params: z.infer<typeof getDashboardSchema>) {
@@ -40,7 +44,7 @@ export async function getDashboard(params: z.infer<typeof getDashboardSchema>) {
     dashboardId: params.dashboardId,
   });
 
-  return {
+  const result = {
     id: response.id,
     title: response.title,
     description: response.description,
@@ -56,6 +60,7 @@ export async function getDashboard(params: z.infer<typeof getDashboardSchema>) {
     templateVariables: response.templateVariables,
     notifyList: response.notifyList,
   };
+  return applyExtractFields(result, params.extractFields);
 }
 
 export const createDashboardSchema = z.object({

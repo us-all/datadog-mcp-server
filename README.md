@@ -1,6 +1,8 @@
 # Datadog MCP Server
 
-A comprehensive [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for Datadog. **158 tools** across the full Datadog API surface — metrics, logs, APM/RUM, monitors, dashboards, incidents, security signals, status pages, fleet automation, and more.
+A comprehensive [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for Datadog. **159 tools** across the full Datadog API surface — metrics, logs, APM/RUM, monitors, dashboards, incidents, security signals, status pages, fleet automation, and more.
+
+**Token-efficient by design** — `extractFields` response projection, `DD_TOOLS`/`DD_DISABLE` category toggles, and a `search-tools` meta-tool let you keep LLM context costs low across the 159-tool surface.
 
 [한국어](./README_KO.md)
 
@@ -71,6 +73,29 @@ node dist/index.js
 | `DD_APP_KEY` | Yes | — | Datadog Application key |
 | `DD_SITE` | No | `us5.datadoghq.com` | Datadog site (see below) |
 | `DD_ALLOW_WRITE` | No | `false` | Set to `true` to enable write/mutate operations (create, update, delete) |
+| `DD_TOOLS` | No | — | Comma-separated allowlist of tool categories (e.g. `metrics,monitors,logs`). When set, **only** these load — biggest token saver. Categories: `metrics`, `monitors`, `dashboards`, `logs`, `apm`, `rum`, `incidents`, `security`, `synthetics`, `ci`, `infra`, `fleet`, `status-pages`, `oncall`, `teams`, `account`. |
+| `DD_DISABLE` | No | — | Comma-separated denylist (e.g. `fleet,status-pages`). Ignored when `DD_TOOLS` is set. |
+
+### Token Efficiency
+
+With 159 tools, naive setup loads 40–60K tokens of tool schema into LLM context. Three patterns mitigate:
+
+**1. Category toggles** (biggest win):
+```bash
+DD_TOOLS=metrics,monitors,logs,apm    # observability essentials only
+DD_DISABLE=fleet,status-pages         # exclude infrequent ops
+```
+
+**2. `extractFields` response projection** (on `get-dashboard`, `get-dashboards`, `search-logs`, `search-spans`, `search-rum-events`):
+```jsonc
+get-dashboard { "dashboardId": "abc", "extractFields": "id,title,widgets.*.definition.type" }
+```
+
+**3. `search-tools` meta-tool** (always enabled, even when categories restricted):
+```
+search-tools { "query": "rum events" }
+→ search-rum-events, aggregate-rum, list-rum-applications, ...
+```
 
 ### Supported DD_SITE Values
 

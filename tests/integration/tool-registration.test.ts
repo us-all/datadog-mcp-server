@@ -106,8 +106,8 @@ describe("tool registration", () => {
     await import("../../src/index.js");
   });
 
-  it("registers exactly 158 tools", () => {
-    expect(toolCalls).toHaveLength(158);
+  it("registers exactly 159 tools (158 datadog + 1 search-tools meta)", () => {
+    expect(toolCalls).toHaveLength(159);
   });
 
   it("registers all expected tool names", () => {

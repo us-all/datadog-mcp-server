@@ -1,6 +1,6 @@
 {
   "name": "@us-all/datadog-mcp",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "description": "Datadog MCP server - 158 tools for metrics, monitors, logs, APM, RUM, incidents, CI/CD, status pages, fleet automation, and more",
   "type": "module",
   "main": "dist/index.js",
@@ -45,7 +45,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "presmoke": "pnpm run build",
-    "smoke": "node scripts/smoke-test.mjs"
+    "smoke": "node scripts/smoke-test.mjs",
+    "pretoken-stats": "pnpm run build",
+    "token-stats": "node scripts/measure-tokens.mjs"
   },
   "dependencies": {
     "@datadog/datadog-api-client": "^1.56.0",

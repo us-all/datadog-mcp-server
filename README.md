@@ -1,10 +1,10 @@
 # Datadog MCP Server
 
-[![@us-all standard](https://img.shields.io/badge/built%20to-%40us--all%20MCP%20standard-blue)](./STANDARD.md)
+[![@us-all standard](https://img.shields.io/badge/built%20to-%40us--all%20MCP%20standard-blue)](https://github.com/us-all/mcp-toolkit/blob/main/STANDARD.md)
 
 A comprehensive [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for Datadog. **159 tools** across the full Datadog API surface — metrics, logs, APM/RUM, monitors, dashboards, incidents, security signals, status pages, fleet automation, and more.
 
-> Authored to the [@us-all MCP Standard](./STANDARD.md) — token-efficient by design (category toggles, extractFields auto-apply, search-tools meta-tool, MCP Resources, aggregation tools).
+> Authored to the [@us-all MCP Standard](https://github.com/us-all/mcp-toolkit/blob/main/STANDARD.md) — token-efficient by design (category toggles, extractFields auto-apply, search-tools meta-tool, MCP Resources, aggregation tools).
 
 **Token-efficient by design** — `extractFields` response projection, `DD_TOOLS`/`DD_DISABLE` category toggles, and a `search-tools` meta-tool let you keep LLM context costs low across the 159-tool surface.
 

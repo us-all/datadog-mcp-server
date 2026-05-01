@@ -78,7 +78,17 @@ node dist/index.js
 
 ### Token Efficiency
 
-With 159 tools, naive setup loads 40–60K tokens of tool schema into LLM context. Three patterns mitigate:
+With 159 tools, naive setup loads ~25K tokens of tool schema into LLM context before any conversation begins. Three patterns mitigate.
+
+**Measured impact** (from `tools/list` JSON length, ~4 chars/token):
+
+| Scenario | Tools loaded | Schema tokens | vs default |
+|----------|--------------|---------------|-----------|
+| default (all categories) | 159 | **25,200** | — |
+| typical (`DD_TOOLS=metrics,monitors,logs,apm,dashboards`) | 55 | 9,300 | −63% |
+| narrow (`DD_TOOLS=metrics,monitors`) | 24 | **3,800** | **−85%** |
+
+Three patterns:
 
 **1. Category toggles** (biggest win):
 ```bash

@@ -2,9 +2,9 @@ import { z } from "zod/v4";
 import { metricsApi, metricsV2Api } from "../client.js";
 
 export const queryMetricsSchema = z.object({
-  query: z.string().describe("Datadog metric query string. Example: avg:system.cpu.user{host:myhost} by {env}"),
-  from: z.coerce.number().describe("Start time as Unix epoch seconds. Example: 1740000000"),
-  to: z.coerce.number().describe("End time as Unix epoch seconds. Example: 1740003600"),
+  query: z.string().describe("Datadog metric query. Example: avg:system.cpu.user{host:myhost} by {env}"),
+  from: z.coerce.number().describe("Start time as Unix epoch seconds"),
+  to: z.coerce.number().describe("End time as Unix epoch seconds"),
 });
 
 export async function queryMetrics(params: z.infer<typeof queryMetricsSchema>) {
@@ -38,7 +38,7 @@ export async function queryMetrics(params: z.infer<typeof queryMetricsSchema>) {
 }
 
 export const getMetricsSchema = z.object({
-  q: z.string().describe("Search query to filter metrics by name. Example: system.cpu"),
+  q: z.string().describe("Search query to filter metrics by name (e.g. system.cpu)"),
 });
 
 export async function getMetrics(params: z.infer<typeof getMetricsSchema>) {
@@ -73,9 +73,9 @@ export async function getMetricMetadata(params: z.infer<typeof getMetricMetadata
 }
 
 export const listActiveMetricsSchema = z.object({
-  from: z.coerce.number().describe("Unix epoch seconds — metrics active since this time. Example: 1740000000"),
-  host: z.string().optional().describe("Filter by hostname. Example: i-0123456789abcdef0"),
-  tagFilter: z.string().optional().describe("Filter by tag. Example: env:prod"),
+  from: z.coerce.number().describe("Unix epoch seconds — metrics active since this time"),
+  host: z.string().optional().describe("Filter by hostname"),
+  tagFilter: z.string().optional().describe("Filter by tag (e.g. env:prod)"),
 });
 
 export async function listActiveMetrics(params: z.infer<typeof listActiveMetricsSchema>) {
@@ -93,7 +93,7 @@ export async function listActiveMetrics(params: z.infer<typeof listActiveMetrics
 
 export const listMetricTagsSchema = z.object({
   metricName: z.string().describe("Full metric name. Example: system.cpu.user"),
-  windowSeconds: z.coerce.number().optional().describe("Look-back window in seconds (default: 14400 = 4h, min: 14400). Example: 86400"),
+  windowSeconds: z.coerce.number().optional().describe("Look-back window in seconds (default/min 14400 = 4h)"),
 });
 
 export async function listMetricTags(params: z.infer<typeof listMetricTagsSchema>) {

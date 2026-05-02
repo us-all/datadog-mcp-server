@@ -2,9 +2,13 @@ import { z } from "zod/v4";
 import { v2 } from "@datadog/datadog-api-client";
 import { incidentsApi } from "../client.js";
 import { assertWriteAllowed } from "./utils.js";
-import { extractFieldsDescription } from "./extract-fields.js";
+import { applyExtractFields, extractFieldsDescription } from "./extract-fields.js";
 
 const ef = z.string().optional().describe(extractFieldsDescription);
+
+// Default projection for `get-incident` — drops heavy `fields` blob.
+// Matches the formatIncident output shape.
+const DEFAULT_INCIDENT_FIELDS = "id,title,status,severity,created";
 
 // --- List Incidents ---
 
@@ -31,6 +35,7 @@ export async function getIncidents(params: z.infer<typeof getIncidentsSchema>) {
 
 export const getIncidentSchema = z.object({
   incidentId: z.string().describe("The incident ID to retrieve"),
+  extractFields: ef,
 });
 
 export async function getIncident(params: z.infer<typeof getIncidentSchema>) {
@@ -38,7 +43,12 @@ export async function getIncident(params: z.infer<typeof getIncidentSchema>) {
     incidentId: params.incidentId,
   });
 
-  return formatIncident(response.data!);
+  const result = formatIncident(response.data!);
+
+  // If caller passed extractFields, return raw — wrapToolHandler projects.
+  // Otherwise apply default projection to drop heavy `fields` blob.
+  if (params.extractFields) return result;
+  return applyExtractFields(result, DEFAULT_INCIDENT_FIELDS);
 }
 
 // --- Search Incidents ---
@@ -81,7 +91,7 @@ export async function searchIncidents(params: z.infer<typeof searchIncidentsSche
 export const createIncidentSchema = z.object({
   title: z.string().describe("The title of the incident, summarizing what happened"),
   customerImpacted: z.boolean().describe("Whether the incident caused customer impact"),
-  customerImpactScope: z.string().optional().describe("Summary of the impact customers experienced (required if customerImpacted is true)"),
+  customerImpactScope: z.string().optional().describe("Impact summary (required if customerImpacted is true)"),
 });
 
 export async function createIncident(params: z.infer<typeof createIncidentSchema>) {
@@ -113,8 +123,8 @@ export const updateIncidentSchema = z.object({
   title: z.string().optional().describe("Updated title of the incident"),
   customerImpacted: z.boolean().optional().describe("Whether the incident caused customer impact"),
   customerImpactScope: z.string().optional().describe("Updated summary of customer impact"),
-  customerImpactStart: z.string().optional().describe("ISO 8601 timestamp when customers began being impacted"),
-  customerImpactEnd: z.string().optional().describe("ISO 8601 timestamp when customers were no longer impacted"),
+  customerImpactStart: z.string().optional().describe("ISO 8601 timestamp when customer impact began"),
+  customerImpactEnd: z.string().optional().describe("ISO 8601 timestamp when customer impact ended"),
   detected: z.string().optional().describe("ISO 8601 timestamp when the incident was detected"),
 });
 

@@ -1,15 +1,19 @@
 import { z } from "zod/v4";
 import { monitorsApi } from "../client.js";
 import { assertWriteAllowed } from "./utils.js";
-import { extractFieldsDescription } from "./extract-fields.js";
+import { applyExtractFields, extractFieldsDescription } from "./extract-fields.js";
 
 const ef = z.string().optional().describe(extractFieldsDescription);
 
+// Default projection for fat read tools when caller didn't pass extractFields.
+// Matches the formatter output shape (camelCase, not raw API field names).
+const DEFAULT_MONITOR_FIELDS = "id,name,type,overallState,tags,query";
+
 export const getMonitorsSchema = z.object({
-  name: z.string().optional().describe("Filter monitors by name substring. Example: CPU Alert"),
-  tags: z.string().optional().describe("Comma-separated tags to filter. Example: env:prod,team:backend"),
-  monitorTags: z.string().optional().describe("Comma-separated service/custom tags. Example: service:web-app"),
-  groupStates: z.string().optional().describe("Filter by group states: all, alert, warn, no data. Example: alert"),
+  name: z.string().optional().describe("Filter monitors by name substring"),
+  tags: z.string().optional().describe("Comma-separated tags. Example: env:prod,team:backend"),
+  monitorTags: z.string().optional().describe("Comma-separated service/custom tags"),
+  groupStates: z.string().optional().describe("Filter by group states: all, alert, warn, no data"),
   pageSize: z.coerce.number().optional().default(50).describe("Number of results per page (default 50)"),
   page: z.coerce.number().optional().default(0).describe("Page number (0-based)"),
   extractFields: ef,
@@ -25,7 +29,7 @@ export async function getMonitors(params: z.infer<typeof getMonitorsSchema>) {
     page: params.page,
   });
 
-  return response.map((m) => ({
+  const result = response.map((m) => ({
     id: m.id,
     name: m.name,
     type: m.type,
@@ -37,11 +41,17 @@ export async function getMonitors(params: z.infer<typeof getMonitorsSchema>) {
     modified: m.modified?.toISOString(),
     creator: m.creator?.email,
   }));
+
+  // If caller passed extractFields, return raw — wrapToolHandler projects.
+  // Otherwise apply default projection to keep response lightweight.
+  if (params.extractFields) return result;
+  return applyExtractFields(result, DEFAULT_MONITOR_FIELDS);
 }
 
 export const getMonitorSchema = z.object({
-  monitorId: z.coerce.number().describe("Monitor ID. Example: 12345678"),
-  groupStates: z.string().optional().describe("Filter by group states. Example: alert,warn"),
+  monitorId: z.coerce.number().describe("Monitor ID"),
+  groupStates: z.string().optional().describe("Filter by group states (e.g. alert,warn)"),
+  extractFields: ef,
 });
 
 export async function getMonitor(params: z.infer<typeof getMonitorSchema>) {
@@ -50,7 +60,7 @@ export async function getMonitor(params: z.infer<typeof getMonitorSchema>) {
     groupStates: params.groupStates,
   });
 
-  return {
+  const result = {
     id: response.id,
     name: response.name,
     type: response.type,
@@ -64,15 +74,20 @@ export async function getMonitor(params: z.infer<typeof getMonitorSchema>) {
     creator: response.creator?.email,
     state: response.state,
   };
+
+  // If caller passed extractFields, return raw — wrapToolHandler projects.
+  // Otherwise apply default projection to drop heavy fields (options, state).
+  if (params.extractFields) return result;
+  return applyExtractFields(result, DEFAULT_MONITOR_FIELDS);
 }
 
 export const createMonitorSchema = z.object({
-  name: z.string().describe("Monitor name. Example: High CPU on production"),
-  type: z.string().describe("Monitor type. Example: metric alert, log alert, query alert, service check"),
-  query: z.string().describe("Monitor query string. Example: avg(last_5m):avg:system.cpu.user{env:prod} > 90"),
-  message: z.string().optional().describe("Notification message (supports @mentions). Example: CPU is high @slack-alerts"),
-  tags: z.array(z.string()).optional().describe("Tags for the monitor. Example: [\"env:prod\", \"team:infra\"]"),
-  priority: z.coerce.number().optional().describe("Priority 1-5 (1=highest). Example: 2"),
+  name: z.string().describe("Monitor name"),
+  type: z.string().describe("Monitor type (e.g. metric alert, log alert, query alert, service check)"),
+  query: z.string().describe("Monitor query. Example: avg(last_5m):avg:system.cpu.user{env:prod} > 90"),
+  message: z.string().optional().describe("Notification message (supports @mentions)"),
+  tags: z.array(z.string()).optional().describe("Tags for the monitor"),
+  priority: z.coerce.number().optional().describe("Priority 1-5 (1=highest)"),
   options: z.record(z.string(), z.any()).optional().describe("Advanced monitor options (thresholds, etc.)"),
 });
 
@@ -101,7 +116,7 @@ export async function createMonitor(params: z.infer<typeof createMonitorSchema>)
 }
 
 export const updateMonitorSchema = z.object({
-  monitorId: z.coerce.number().describe("Monitor ID to update. Example: 12345678"),
+  monitorId: z.coerce.number().describe("Monitor ID to update"),
   name: z.string().optional().describe("New monitor name"),
   query: z.string().optional().describe("New query string"),
   message: z.string().optional().describe("New notification message"),
@@ -136,7 +151,7 @@ export async function updateMonitor(params: z.infer<typeof updateMonitorSchema>)
 }
 
 export const deleteMonitorSchema = z.object({
-  monitorId: z.coerce.number().describe("Monitor ID to delete. Example: 12345678"),
+  monitorId: z.coerce.number().describe("Monitor ID to delete"),
   force: z.boolean().optional().describe("Force delete even if referenced by other resources"),
 });
 
@@ -154,8 +169,8 @@ export async function deleteMonitor(params: z.infer<typeof deleteMonitorSchema>)
 
 export const validateMonitorSchema = z.object({
   name: z.string().describe("Monitor name to validate"),
-  type: z.string().describe("Monitor type. Example: metric alert, log alert, query alert"),
-  query: z.string().describe("Monitor query string to validate. Example: avg(last_5m):avg:system.cpu.user{env:prod} > 90"),
+  type: z.string().describe("Monitor type (e.g. metric alert, log alert, query alert)"),
+  query: z.string().describe("Monitor query to validate"),
   message: z.string().optional().describe("Notification message"),
   tags: z.array(z.string()).optional().describe("Tags for the monitor"),
   priority: z.coerce.number().optional().describe("Priority 1-5"),
@@ -185,9 +200,9 @@ export async function validateMonitor(params: z.infer<typeof validateMonitorSche
 }
 
 export const muteMonitorSchema = z.object({
-  monitorId: z.coerce.number().describe("Monitor ID to mute. Example: 12345678"),
-  scope: z.string().optional().describe("Scope to mute. Example: host:myhost or env:staging"),
-  end: z.coerce.number().optional().describe("Unix epoch seconds when mute should end. Example: 1740003600"),
+  monitorId: z.coerce.number().describe("Monitor ID to mute"),
+  scope: z.string().optional().describe("Scope to mute (e.g. host:myhost or env:staging)"),
+  end: z.coerce.number().optional().describe("Unix epoch seconds when mute should end"),
 });
 
 export async function muteMonitor(params: z.infer<typeof muteMonitorSchema>) {

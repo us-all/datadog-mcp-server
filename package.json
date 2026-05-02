@@ -1,6 +1,6 @@
 {
   "name": "@us-all/datadog-mcp",
-  "version": "1.12.1",
+  "version": "1.12.2",
   "description": "Datadog MCP server - 158 tools for metrics, monitors, logs, APM, RUM, incidents, CI/CD, status pages, fleet automation, and more",
   "type": "module",
   "main": "dist/index.js",
@@ -51,10 +51,10 @@
   },
   "dependencies": {
     "@datadog/datadog-api-client": "^1.56.0",
-    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@us-all/mcp-toolkit": "^0.2.0",
-    "dotenv": "^17.3.1",
-    "zod": "^4.3.6"
+    "dotenv": "^17.4.2",
+    "zod": "^4.4.2"
   },
   "devDependencies": {
     "@types/node": "^25.3.1",

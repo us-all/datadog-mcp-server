@@ -43,8 +43,8 @@ export const aggregateRumSchema = z.object({
   from: z.string().describe("Start time (ISO 8601). Example: 2026-02-26T00:00:00Z"),
   to: z.string().describe("End time (ISO 8601). Example: 2026-02-26T23:59:59Z"),
   aggregation: z.enum(["count", "cardinality", "avg", "sum", "min", "max", "pc75", "pc90", "pc95", "pc98", "pc99"]).describe("Aggregation function. Example: count or avg"),
-  metric: z.string().optional().describe("Metric field for non-count aggregations. Example: @view.loading_time or @action.loading_time"),
-  groupBy: z.string().optional().describe("Field to group by. Example: @application.id or @view.url_path or @geo.country"),
+  metric: z.string().optional().describe("Metric field for non-count aggregations (e.g. @view.loading_time)"),
+  groupBy: z.string().optional().describe("Field to group by (e.g. @application.id, @view.url_path)"),
 });
 
 export async function aggregateRum(params: z.infer<typeof aggregateRumSchema>) {
@@ -103,7 +103,7 @@ export async function listRumApplications() {
 }
 
 export const getRumApplicationSchema = z.object({
-  id: z.string().describe("RUM application ID. Example: abc123def456"),
+  id: z.string().describe("RUM application ID"),
 });
 
 export async function getRumApplication(params: z.infer<typeof getRumApplicationSchema>) {
@@ -126,7 +126,7 @@ export async function getRumApplication(params: z.infer<typeof getRumApplication
 }
 
 export const createRumApplicationSchema = z.object({
-  name: z.string().describe("Name of the RUM application. Example: My Web App"),
+  name: z.string().describe("Name of the RUM application"),
   type: z.enum(["browser", "ios", "android", "react-native", "flutter", "roku", "electron", "unity", "kotlin-multiplatform"])
     .optional().default("browser")
     .describe("Type of the RUM application. Default: browser"),

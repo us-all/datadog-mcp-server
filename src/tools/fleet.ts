@@ -34,7 +34,7 @@ export async function listFleetAgents(params: z.infer<typeof listFleetAgentsSche
 }
 
 export const getFleetAgentInfoSchema = z.object({
-  agentKey: z.string().describe("The unique identifier (agent key) for the Datadog Agent"),
+  agentKey: z.string().describe("Agent key (unique Datadog Agent identifier)"),
 });
 
 export async function getFleetAgentInfo(params: z.infer<typeof getFleetAgentInfoSchema>) {
@@ -140,7 +140,7 @@ export async function listFleetDeployments(params: z.infer<typeof listFleetDeplo
 }
 
 export const getFleetDeploymentSchema = z.object({
-  deploymentId: z.string().describe("The unique identifier of the deployment"),
+  deploymentId: z.string().describe("Deployment ID"),
   limit: z.coerce.number().optional().default(50).describe("Max number of hosts per page (max 100)"),
   page: z.coerce.number().optional().default(0).describe("Page index for host pagination (0-based)"),
 });

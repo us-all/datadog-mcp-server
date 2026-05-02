@@ -3,6 +3,10 @@ import { dashboardsApi } from "../client.js";
 import { assertWriteAllowed } from "./utils.js";
 import { applyExtractFields, extractFieldsDescription } from "./extract-fields.js";
 
+// Default projection for `get-dashboard` — drops heavy `widgets` array.
+// Matches the formatter output shape (camelCase).
+const DEFAULT_DASHBOARD_FIELDS = "id,title,description,layoutType,url,author,created,modified";
+
 export const getDashboardsSchema = z.object({
   filterShared: z.boolean().optional().describe("Filter shared dashboards only"),
   count: z.coerce.number().optional().default(100).describe("Number of dashboards to return"),
@@ -31,7 +35,8 @@ export async function getDashboards(params: z.infer<typeof getDashboardsSchema>)
       modified: d.modifiedAt?.toISOString(),
     })),
   };
-  return applyExtractFields(result, params.extractFields);
+  // wrapToolHandler will project when extractFields is set.
+  return result;
 }
 
 export const getDashboardSchema = z.object({
@@ -60,7 +65,11 @@ export async function getDashboard(params: z.infer<typeof getDashboardSchema>) {
     templateVariables: response.templateVariables,
     notifyList: response.notifyList,
   };
-  return applyExtractFields(result, params.extractFields);
+
+  // If caller passed extractFields, return raw — wrapToolHandler projects.
+  // Otherwise apply default projection to drop heavy `widgets` array.
+  if (params.extractFields) return result;
+  return applyExtractFields(result, DEFAULT_DASHBOARD_FIELDS);
 }
 
 export const createDashboardSchema = z.object({

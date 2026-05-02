@@ -1,38 +1,5 @@
+import { createWrapToolHandler } from "@us-all/mcp-toolkit";
 import { config } from "../config.js";
-import { applyExtractFields } from "./extract-fields.js";
-
-const SENSITIVE_PATTERNS = [
-  /DD_API_KEY/i,
-  /DD_APP_KEY/i,
-  /api[_-]?key/i,
-  /app[_-]?key/i,
-  /authorization/i,
-  /bearer\s+\S+/i,
-];
-
-function sanitize(text: string): string {
-  let result = text;
-  for (const pattern of SENSITIVE_PATTERNS) {
-    result = result.replace(pattern, "[REDACTED]");
-  }
-  return result;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function hasNumericProp(obj: object, key: string): obj is Record<string, unknown> & Record<typeof key, number> {
-  return key in obj && typeof (obj as Record<string, unknown>)[key] === "number";
-}
-
-function hasStringProp(obj: object, key: string): obj is Record<string, unknown> & Record<typeof key, string> {
-  return key in obj && typeof (obj as Record<string, unknown>)[key] === "string";
-}
-
-function hasProp(obj: object, key: string): boolean {
-  return key in obj && (obj as Record<string, unknown>)[key] != null;
-}
 
 export class WriteBlockedError extends Error {
   constructor() {
@@ -47,62 +14,53 @@ export function assertWriteAllowed(): void {
   }
 }
 
-function extractDatadogError(body: unknown): unknown {
+export function extractDatadogError(body: unknown): unknown {
   try {
     const parsed = typeof body === "string" ? JSON.parse(body) : body;
-    if (isRecord(parsed)) {
-      if (parsed.errors != null) return parsed.errors;
-      if (typeof parsed.message === "string") return parsed.message;
+    if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+      const rec = parsed as Record<string, unknown>;
+      if (rec.errors != null) return rec.errors;
+      if (typeof rec.message === "string") return rec.message;
     }
-    const str = typeof body === "string" ? body : JSON.stringify(body);
-    return sanitize(str);
+    return typeof body === "string" ? body : JSON.stringify(body);
   } catch {
-    return sanitize(String(body));
+    return String(body);
   }
 }
 
-export function wrapToolHandler<T>(fn: (params: T) => Promise<unknown>) {
-  return async (params: T) => {
-    try {
-      const result = await fn(params);
-      const expr = (params as Record<string, unknown> | undefined)?.extractFields;
-      const projected = typeof expr === "string" ? applyExtractFields(result, expr) : result;
-      return {
-        content: [{ type: "text" as const, text: JSON.stringify(projected, null, 2) }],
-      };
-    } catch (error) {
-      if (error instanceof WriteBlockedError) {
-        return {
-          content: [{ type: "text" as const, text: error.message }],
-          isError: true,
+export const wrapToolHandler = createWrapToolHandler({
+  redactionPatterns: [/DD_API_KEY/i, /DD_APP_KEY/i],
+  errorExtractors: [
+    {
+      match: (error) => error instanceof WriteBlockedError,
+      extract: (error) => ({ kind: "passthrough", text: (error as Error).message }),
+    },
+    {
+      match: (error) => {
+        if (!(error instanceof Error)) return false;
+        const rec = error as unknown as Record<string, unknown>;
+        return (
+          typeof rec.code === "number" ||
+          typeof rec.body === "string" ||
+          typeof rec.requestId === "string"
+        );
+      },
+      extract: (error) => {
+        const err = error as Error & Record<string, unknown>;
+        const data: Record<string, unknown> & { message: string } = {
+          message: err.message,
         };
-      }
-
-      const structured: Record<string, unknown> = {
-        message: "Unknown error",
-      };
-
-      if (error instanceof Error) {
-        structured.message = sanitize(error.message);
-
-        // Datadog SDK ApiException exposes .code (HTTP status) and .body
-        if (hasNumericProp(error, "code")) {
-          structured.status = error.code;
+        if (typeof err.code === "number") {
+          data.status = err.code;
         }
-        if (hasProp(error, "body")) {
-          structured.datadogError = extractDatadogError((error as unknown as Record<string, unknown>).body);
+        if (err.body != null) {
+          data.datadogError = extractDatadogError(err.body);
         }
-        if (hasStringProp(error, "requestId")) {
-          structured.requestId = error.requestId;
+        if (typeof err.requestId === "string") {
+          data.requestId = err.requestId;
         }
-      } else {
-        structured.message = sanitize(String(error));
-      }
-
-      return {
-        content: [{ type: "text" as const, text: JSON.stringify(structured, null, 2) }],
-        isError: true,
-      };
-    }
-  };
-}
+        return { kind: "structured", data };
+      },
+    },
+  ],
+});

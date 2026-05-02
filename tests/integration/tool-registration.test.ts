@@ -11,6 +11,9 @@ vi.mock("@modelcontextprotocol/sdk/server/mcp.js", () => ({
     registerResource(..._args: unknown[]) {
       // resources are not counted as tools — no-op for this test
     }
+    registerPrompt(..._args: unknown[]) {
+      // prompts are not counted as tools — no-op for this test
+    }
     connect() {
       return Promise.resolve();
     }

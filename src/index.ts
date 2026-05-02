@@ -135,6 +135,7 @@ import {
 
 import { registry, searchToolsSchema, searchTools, type Category } from "./tool-registry.js";
 import { registerResources } from "./resources.js";
+import { registerPrompts } from "./prompts.js";
 import { analyzeMonitorStateSchema, analyzeMonitorState } from "./tools/aggregations.js";
 
 validateConfig();
@@ -1404,6 +1405,9 @@ tool(
 
 // --- MCP Resources (dd:// URI scheme) ---
 registerResources(server);
+
+// --- MCP Prompts (workflow templates) ---
+registerPrompts(server);
 
 // Start server
 async function main() {

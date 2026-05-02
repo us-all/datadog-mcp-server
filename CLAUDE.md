@@ -109,9 +109,10 @@ const body = new v2.LogsAggregateRequest();
 const body = { compute: [...] } as any;  // ObjectSerializer mapping fails
 ```
 
-## 최근 변경사항 (2026-05-01)
+## 최근 변경사항
 
-- **v1.12.0**: `@us-all/mcp-toolkit ^0.1.0` 마이그레이션 — tool-registry/extract-fields toolkit 위임. ~194 lines 절감.
+- **v1.12.1** (2026-05-02): `@us-all/mcp-toolkit ^0.2.0` 채택 — 로컬 `sanitize` / `wrapToolHandler` 본문 제거, `createWrapToolHandler` factory로 위임. `redactionPatterns`(DD_API_KEY/DD_APP_KEY)와 `errorExtractors`(WriteBlockedError → passthrough, Datadog ApiException duck-typed → structured)만 명시. utils.ts 108→66 lines.
+- **v1.12.0** (2026-05-01): `@us-all/mcp-toolkit ^0.1.0` 마이그레이션 — tool-registry/extract-fields toolkit 위임. ~194 lines 절감.
 - **v1.11.1**: 추가 MCP Resources (`dd://host/{name}`).
 - **v1.11.0**: `analyze-monitor-state` 어그리게이션 도구 — config + state + recent events + downtimes 1 call.
 - **v1.10.0**: MCP Resources (`dd://` URI) — monitor, dashboard, slo, incident.

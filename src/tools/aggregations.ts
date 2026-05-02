@@ -1,8 +1,12 @@
 import { z } from "zod/v4";
 import { monitorsApi, eventsApi, downtimesApi, slosApi, sloCorrectionsApi } from "../client.js";
-import { extractFieldsDescription } from "./extract-fields.js";
+import { applyExtractFields, extractFieldsDescription } from "./extract-fields.js";
 
 const ef = z.string().optional().describe(extractFieldsDescription);
+
+// Match get-monitor's slim default projection so the embedded `monitor`
+// in analyze-monitor-state has the same shape as a direct get-monitor call.
+const SLIM_MONITOR_FIELDS = "id,name,type,overallState,tags,query";
 
 /**
  * Aggregation tools — round-trip elimination.
@@ -42,7 +46,13 @@ export async function analyzeMonitorState(params: z.infer<typeof analyzeMonitorS
       : Promise.resolve(null),
   ]);
 
-  const monitor = monitorR.status === "fulfilled" ? monitorR.value : null;
+  const monitorRaw = monitorR.status === "fulfilled" ? monitorR.value : null;
+  // Capture overallState/type from raw monitor before slimming for the summary block.
+  const monitorState = (monitorRaw as { overallState?: string } | null)?.overallState ?? "unknown";
+  const monitorType = (monitorRaw as { type?: string } | null)?.type ?? null;
+  // Slim the embedded monitor so analyze-monitor-state and get-monitor agree on shape.
+  // Caller can pass extractFields="*" to keep full payload (wrapToolHandler then projects).
+  const monitor = monitorRaw ? applyExtractFields(monitorRaw, SLIM_MONITOR_FIELDS) : null;
   const allEvents = eventsR.status === "fulfilled" && eventsR.value ? eventsR.value : null;
   const allDowntimes = downtimesR.status === "fulfilled" && downtimesR.value ? downtimesR.value : null;
 
@@ -58,8 +68,8 @@ export async function analyzeMonitorState(params: z.infer<typeof analyzeMonitorS
     recentEvents: allEvents,
     activeDowntimes: downtimes,
     summary: {
-      monitorState: (monitor as { overallState?: string } | null)?.overallState ?? "unknown",
-      monitorType: (monitor as { type?: string } | null)?.type ?? null,
+      monitorState,
+      monitorType,
       eventsHoursBack: hoursBack,
       eventsCount: Array.isArray((allEvents as { events?: unknown[] } | null)?.events)
         ? (allEvents as { events: unknown[] }).events.length

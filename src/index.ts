@@ -38,7 +38,7 @@ import {
   deleteRumApplicationSchema, deleteRumApplication,
 } from "./tools/rum.js";
 import { listHostsSchema, listHosts, getHostTotalsSchema, getHostTotals } from "./tools/hosts.js";
-import { listSlosSchema, listSlos, getSloSchema, getSlo, getSloHistorySchema, getSloHistory } from "./tools/slos.js";
+import { listSlosSchema, listSlos, getSloSchema, getSlo, getSloHistorySchema, getSloHistory, createSloSchema, createSlo, updateSloSchema, updateSlo, deleteSloSchema, deleteSlo } from "./tools/slos.js";
 import {
   listSyntheticsSchema, listSynthetics, getSyntheticsResultSchema, getSyntheticsResult,
   triggerSyntheticsSchema, triggerSynthetics, createSyntheticsTestSchema, createSyntheticsTest,
@@ -467,6 +467,27 @@ tool(
   "Get SLO performance history over a time range (status, error budget, compliance)",
   getSloHistorySchema.shape,
   wrapToolHandler(getSloHistory),
+);
+
+tool(
+  "create-slo",
+  "Create a new Service Level Objective (monitor-based, metric-based, or time-slice). Write-gated.",
+  createSloSchema.shape,
+  wrapToolHandler(createSlo),
+);
+
+tool(
+  "update-slo",
+  "Update an existing SLO's name, description, thresholds, monitorIds, or tags. Fetches current SLO first to merge unspecified fields. Write-gated.",
+  updateSloSchema.shape,
+  wrapToolHandler(updateSlo),
+);
+
+tool(
+  "delete-slo",
+  "Delete an SLO by ID. Pass force='true' to delete even if linked to dashboards. Write-gated.",
+  deleteSloSchema.shape,
+  wrapToolHandler(deleteSlo),
 );
 
 // --- Synthetics ---

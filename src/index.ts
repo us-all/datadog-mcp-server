@@ -136,7 +136,10 @@ import {
 import { registry, searchToolsSchema, searchTools, type Category } from "./tool-registry.js";
 import { registerResources } from "./resources.js";
 import { registerPrompts } from "./prompts.js";
-import { analyzeMonitorStateSchema, analyzeMonitorState } from "./tools/aggregations.js";
+import {
+  analyzeMonitorStateSchema, analyzeMonitorState,
+  sloComplianceSnapshotSchema, sloComplianceSnapshot,
+} from "./tools/aggregations.js";
 
 validateConfig();
 
@@ -1391,6 +1394,13 @@ tool(
   "Aggregated monitor view: config + current state + recent triggered events + active downtimes in one call. Replaces 3 round-trips of get-monitor + get-events + list-downtimes.",
   analyzeMonitorStateSchema.shape,
   wrapToolHandler(analyzeMonitorState),
+);
+
+tool(
+  "slo-compliance-snapshot",
+  "Aggregated SLO health: config + history-window SLI + active corrections + each linked monitor's current state in one call. Computes errorBudgetRemainingPct and status (compliant | at-risk | breached). Replaces 3-5 round-trips of get-slo + get-slo-history + list-slo-corrections + get-monitor (per linked monitor). Uses Promise.allSettled — partial failures populate caveats[] instead of crashing.",
+  sloComplianceSnapshotSchema.shape,
+  wrapToolHandler(sloComplianceSnapshot),
 );
 
 // --- Meta tools (always enabled) ---

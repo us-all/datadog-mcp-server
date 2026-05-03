@@ -1,4 +1,5 @@
 import { z } from "zod/v4";
+import { aggregate } from "@us-all/mcp-toolkit";
 import { monitorsApi, eventsApi, downtimesApi, slosApi, sloCorrectionsApi } from "../client.js";
 import { applyExtractFields, extractFieldsDescription } from "./extract-fields.js";
 
@@ -38,23 +39,25 @@ export async function analyzeMonitorState(params: z.infer<typeof analyzeMonitorS
   const now = Math.floor(Date.now() / 1000);
   const since = now - hoursBack * 3600;
 
-  const [monitorR, eventsR, downtimesR] = await Promise.allSettled([
-    monitorsApi.getMonitor({ monitorId, groupStates: "all" }),
-    eventsApi.listEvents({ start: since, end: now, tags: `monitor:${monitorId}` }).catch(() => null),
-    includeDowntimes
-      ? downtimesApi.listDowntimes({ currentOnly: true })
-      : Promise.resolve(null),
-  ]);
+  const caveats: string[] = [];
 
-  const monitorRaw = monitorR.status === "fulfilled" ? monitorR.value : null;
+  const { getMonitor: monitorRaw, listEvents: allEvents, listDowntimes: allDowntimes } = await aggregate(
+    {
+      getMonitor: () => monitorsApi.getMonitor({ monitorId, groupStates: "all" }),
+      listEvents: () => eventsApi.listEvents({ start: since, end: now, tags: `monitor:${monitorId}` }),
+      listDowntimes: includeDowntimes
+        ? () => downtimesApi.listDowntimes({ currentOnly: true })
+        : () => Promise.resolve(null),
+    },
+    caveats,
+  );
+
   // Capture overallState/type from raw monitor before slimming for the summary block.
   const monitorState = (monitorRaw as { overallState?: string } | null)?.overallState ?? "unknown";
   const monitorType = (monitorRaw as { type?: string } | null)?.type ?? null;
   // Slim the embedded monitor so analyze-monitor-state and get-monitor agree on shape.
   // Caller can pass extractFields="*" to keep full payload (wrapToolHandler then projects).
   const monitor = monitorRaw ? applyExtractFields(monitorRaw, SLIM_MONITOR_FIELDS) : null;
-  const allEvents = eventsR.status === "fulfilled" && eventsR.value ? eventsR.value : null;
-  const allDowntimes = downtimesR.status === "fulfilled" && downtimesR.value ? downtimesR.value : null;
 
   // Filter downtimes to those scoped to this monitor
   const downtimes = allDowntimes && Array.isArray((allDowntimes as { data?: unknown[] }).data)
@@ -76,6 +79,7 @@ export async function analyzeMonitorState(params: z.infer<typeof analyzeMonitorS
         : 0,
       activeDowntimesCount: downtimes?.length ?? 0,
     },
+    caveats,
   };
 }
 
@@ -97,26 +101,19 @@ export async function sloComplianceSnapshot(params: z.infer<typeof sloCompliance
   const fromTs = now - historyDays * 86400;
   const toTs = now;
 
-  const [sloR, historyR, correctionsR] = await Promise.allSettled([
-    slosApi.getSLO({ sloId }),
-    slosApi.getSLOHistory({ sloId, fromTs, toTs }),
-    // list-slo-corrections has no server-side SLO filter; fetch a page and filter client-side.
-    sloCorrectionsApi.listSLOCorrection({ limit: 1000 }),
-  ]);
+  const { getSlo, getSloHistory, listCorrections } = await aggregate(
+    {
+      getSlo: () => slosApi.getSLO({ sloId }),
+      getSloHistory: () => slosApi.getSLOHistory({ sloId, fromTs, toTs }),
+      // list-slo-corrections has no server-side SLO filter; fetch a page and filter client-side.
+      listCorrections: () => sloCorrectionsApi.listSLOCorrection({ limit: 1000 }),
+    },
+    caveats,
+  );
 
-  if (sloR.status === "rejected") {
-    caveats.push(`get-slo failed: ${reasonMessage(sloR.reason)}`);
-  }
-  if (historyR.status === "rejected") {
-    caveats.push(`get-slo-history failed: ${reasonMessage(historyR.reason)}`);
-  }
-  if (correctionsR.status === "rejected") {
-    caveats.push(`list-slo-corrections failed: ${reasonMessage(correctionsR.reason)}`);
-  }
-
-  const sloData = sloR.status === "fulfilled" ? sloR.value.data : null;
-  const historyData = historyR.status === "fulfilled" ? historyR.value.data : null;
-  const correctionsAll = correctionsR.status === "fulfilled" ? (correctionsR.value.data ?? []) : [];
+  const sloData = getSlo?.data ?? null;
+  const historyData = getSloHistory?.data ?? null;
+  const correctionsAll = listCorrections?.data ?? [];
 
   const monitorIds: number[] = Array.isArray(sloData?.monitorIds) ? (sloData!.monitorIds as number[]) : [];
 

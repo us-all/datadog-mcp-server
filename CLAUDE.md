@@ -111,6 +111,7 @@ const body = { compute: [...] } as any;  // ObjectSerializer mapping fails
 
 ## 최근 변경사항
 
+- **v1.16.2** (2026-05-03): `@us-all/mcp-toolkit ^1.0.0` 핀 업데이트. toolkit API freeze (semver 1.x 보장 시작) — 코드 변경 0줄, 23/23 테스트 통과.
 - **v1.16.1** (2026-05-03): Wave 5 — `analyze-monitor-state`의 embedded `monitor` 필드를 `get-monitor`의 slim 6-field default(id/name/type/overallState/tags/query)에 정렬. monitorState/monitorType은 slim 전 summary 블록에 보존.
 - **v1.16.0** (2026-05-03): SLO CRUD 추가 (`create-slo`, `update-slo`, `delete-slo`) — v1.15.0 검증 중 발견된 audit gap. 도구 159→164.
 - **v1.15.0** (2026-05-02): `slo-compliance-snapshot` 어그리게이션 — slo + history + corrections + monitor states 1 call. 상태 compliant/at-risk/breached, errorBudgetRemainingPct.

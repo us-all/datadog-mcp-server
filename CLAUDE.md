@@ -111,6 +111,7 @@ const body = { compute: [...] } as any;  // ObjectSerializer mapping fails
 
 ## 최근 변경사항
 
+- **v1.16.4** (2026-05-03): `serverInfo.version`이 `"1.8.0"`에 박혀있던 것을 `package.json`에서 런타임 로드. initialize handshake에서 보고하는 server version이 실제 패키지 버전과 일치.
 - **v1.16.3** (2026-05-03): `@us-all/mcp-toolkit ^1.1.0` 채택 + `aggregate()` 헬퍼로 두 어그리게이션 도구(`analyze-monitor-state`, `slo-compliance-snapshot`) 마이그레이션. `Promise.allSettled` + 라벨링된 `caveats.push` 보일러플레이트 통합. `analyze-monitor-state`는 이전엔 caveats 노출 없었음 — 추가됨(추가 필드, 비파괴). caveats 라벨 텍스트 변경 (예: `get-slo failed:` → `getSlo failed:`).
 - **v1.16.2** (2026-05-03): `@us-all/mcp-toolkit ^1.0.0` 핀 업데이트. toolkit API freeze (semver 1.x 보장 시작) — 코드 변경 0줄, 23/23 테스트 통과.
 - **v1.16.1** (2026-05-03): Wave 5 — `analyze-monitor-state`의 embedded `monitor` 필드를 `get-monitor`의 slim 6-field default(id/name/type/overallState/tags/query)에 정렬. monitorState/monitorType은 slim 전 summary 블록에 보존.

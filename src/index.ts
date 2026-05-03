@@ -1,8 +1,14 @@
 #!/usr/bin/env node
 
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { validateConfig } from "./config.js";
+
+const pkgPath = join(dirname(fileURLToPath(import.meta.url)), "..", "package.json");
+const { version: pkgVersion } = JSON.parse(readFileSync(pkgPath, "utf-8")) as { version: string };
 import { wrapToolHandler } from "./tools/utils.js";
 
 // Tool imports
@@ -145,7 +151,7 @@ validateConfig();
 
 const server = new McpServer({
   name: "datadog",
-  version: "1.8.0",
+  version: pkgVersion,
 });
 
 // --- Tool registration with category-based filtering (DD_TOOLS / DD_DISABLE) ---

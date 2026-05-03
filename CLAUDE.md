@@ -111,6 +111,12 @@ const body = { compute: [...] } as any;  // ObjectSerializer mapping fails
 
 ## 최근 변경사항
 
+- **v1.16.1** (2026-05-03): Wave 5 — `analyze-monitor-state`의 embedded `monitor` 필드를 `get-monitor`의 slim 6-field default(id/name/type/overallState/tags/query)에 정렬. monitorState/monitorType은 slim 전 summary 블록에 보존.
+- **v1.16.0** (2026-05-03): SLO CRUD 추가 (`create-slo`, `update-slo`, `delete-slo`) — v1.15.0 검증 중 발견된 audit gap. 도구 159→164.
+- **v1.15.0** (2026-05-02): `slo-compliance-snapshot` 어그리게이션 — slo + history + corrections + monitor states 1 call. 상태 compliant/at-risk/breached, errorBudgetRemainingPct.
+- **v1.14.0** (2026-05-02): Wave 3 Resources — `dd://service/{name}`, `dd://team/{id}`(team+members 합본), `dd://synthetics/{testId}`.
+- **v1.13.0** (2026-05-02): MCP Prompts 4개 — `triage-incident`, `audit-monitor-noise`, `analyze-rum-error-spike`, `investigate-slow-trace`.
+- **v1.12.2** (2026-05-02): Wave 1 — describe trim 25, 의존성 bumps, fat-read 3개에 default extractFields(get-monitor/incident/dashboard).
 - **v1.12.1** (2026-05-02): `@us-all/mcp-toolkit ^0.2.0` 채택 — 로컬 `sanitize` / `wrapToolHandler` 본문 제거, `createWrapToolHandler` factory로 위임. `redactionPatterns`(DD_API_KEY/DD_APP_KEY)와 `errorExtractors`(WriteBlockedError → passthrough, Datadog ApiException duck-typed → structured)만 명시. utils.ts 108→66 lines.
 - **v1.12.0** (2026-05-01): `@us-all/mcp-toolkit ^0.1.0` 마이그레이션 — tool-registry/extract-fields toolkit 위임. ~194 lines 절감.
 - **v1.11.1**: 추가 MCP Resources (`dd://host/{name}`).

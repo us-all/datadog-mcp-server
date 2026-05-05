@@ -16,6 +16,8 @@
 - **Fleet Automation** — 17 tools across deployments, schedules, and instrumented pods. Only this server.
 - **Status Pages** — 21 tools for full status-page lifecycle (components, degradations, maintenances). Only this server.
 - **Token-efficient by design** — `extractFields` projection, `DD_TOOLS`/`DD_DISABLE` 16-category toggles, and a `search-tools` meta-tool keep LLM context low across 159 tools.
+- **Apps SDK card** — `slo-compliance-snapshot` renders as a visual card on ChatGPT clients via `_meta["openai/outputTemplate"]`. Claude clients receive the same JSON content (non-breaking).
+- **stdio + Streamable HTTP** — defaults to stdio (Claude Desktop / Code). Set `MCP_TRANSPORT=http` for ChatGPT Apps SDK or remote clients (Bearer auth via `MCP_HTTP_TOKEN`).
 
 ## Try this — 5 prompts
 
@@ -101,8 +103,15 @@ node dist/index.js
 | `DD_ALLOW_WRITE` | ❌ | `false` | Set `true` to enable mutations (create/update/delete) |
 | `DD_TOOLS` | ❌ | — | Comma-sep allowlist of categories. Only these load — biggest token saver. |
 | `DD_DISABLE` | ❌ | — | Comma-sep denylist. Ignored when `DD_TOOLS` is set. |
+| `MCP_TRANSPORT` | ❌ | `stdio` | `http` to enable Streamable HTTP transport |
+| `MCP_HTTP_TOKEN` | conditional | — | Bearer token. Required when `MCP_TRANSPORT=http` |
+| `MCP_HTTP_PORT` | ❌ | `3000` | HTTP listen port |
+| `MCP_HTTP_HOST` | ❌ | `127.0.0.1` | HTTP bind host (DNS rebinding protection auto-enabled for localhost) |
+| `MCP_HTTP_SKIP_AUTH` | ❌ | `false` | Skip Bearer auth — e.g. behind a reverse proxy that handles it |
 
 **Categories** (16): `metrics`, `monitors`, `dashboards`, `logs`, `apm`, `rum`, `incidents`, `security`, `synthetics`, `ci`, `infra`, `fleet`, `status-pages`, `oncall`, `teams`, `account`.
+
+When `MCP_TRANSPORT=http`: `POST /mcp` (Bearer-auth JSON-RPC) + `GET /health` (public liveness).
 
 **Sites**:
 

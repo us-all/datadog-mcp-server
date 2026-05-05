@@ -1,6 +1,6 @@
 {
   "name": "@us-all/datadog-mcp",
-  "version": "1.17.0",
+  "version": "1.18.0",
   "description": "Datadog MCP server - 158 tools for metrics, monitors, logs, APM, RUM, incidents, CI/CD, status pages, fleet automation, and more",
   "type": "module",
   "main": "dist/index.js",
@@ -39,7 +39,7 @@
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node -e \"require('fs').cpSync('src/ui','dist/ui',{recursive:true})\"",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "test": "vitest run",

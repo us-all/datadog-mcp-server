@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import {
   monitorsApi,
@@ -9,6 +12,9 @@ import {
   teamsApi,
   syntheticsApi,
 } from "./client.js";
+
+const UI_DIR = join(dirname(fileURLToPath(import.meta.url)), "ui");
+const SLO_SNAPSHOT_HTML = readFileSync(join(UI_DIR, "slo-compliance-snapshot.html"), "utf-8");
 
 /**
  * MCP Resources for hot Datadog entities.
@@ -200,5 +206,29 @@ export function registerResources(server: McpServer): void {
       const data = await syntheticsApi.getAPITest({ publicId: testId });
       return asJson(uri.toString(), data);
     },
+  );
+
+  // --- Apps SDK UI templates (ui:// scheme) ---
+  // Rendered by ChatGPT / Apps SDK clients via _meta["openai/outputTemplate"].
+  // Claude clients ignore this resource (only fetched when explicitly addressed).
+  server.registerResource(
+    "slo-compliance-snapshot-card",
+    "ui://widget/slo-compliance-snapshot.html",
+    {
+      title: "SLO Compliance Snapshot card",
+      description: "Apps SDK UI template rendered with slo-compliance-snapshot tool output",
+      mimeType: "text/html+skybridge",
+      _meta: {
+        "openai/outputTemplate": "ui://widget/slo-compliance-snapshot.html",
+        "ui.resourceUri": "ui://widget/slo-compliance-snapshot.html",
+      },
+    },
+    async (uri) => ({
+      contents: [{
+        uri: uri.toString(),
+        mimeType: "text/html+skybridge",
+        text: SLO_SNAPSHOT_HTML,
+      }],
+    }),
   );
 }

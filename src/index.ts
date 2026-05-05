@@ -1423,11 +1423,35 @@ tool(
   wrapToolHandler(analyzeMonitorState),
 );
 
+// Card-aware wrapper: runs through wrapToolHandler for redaction/error handling,
+// then injects `structuredContent` + `_meta["openai/outputTemplate"]` on success
+// so Apps SDK clients (ChatGPT) render the result via the registered ui:// template.
+// Claude/non-Apps clients ignore _meta and use the text content as before.
+const SLO_CARD_URI = "ui://widget/slo-compliance-snapshot.html";
+const wrappedSloSnapshot = wrapToolHandler(sloComplianceSnapshot);
+async function sloComplianceSnapshotWithCard(args: Parameters<typeof wrappedSloSnapshot>[0]) {
+  const result = await wrappedSloSnapshot(args);
+  if (result.isError) return result;
+  try {
+    const structured = JSON.parse(result.content[0].text);
+    return {
+      ...result,
+      structuredContent: structured,
+      _meta: {
+        "openai/outputTemplate": SLO_CARD_URI,
+        "ui.resourceUri": SLO_CARD_URI,
+      },
+    };
+  } catch {
+    return result;
+  }
+}
+
 tool(
   "slo-compliance-snapshot",
-  "Aggregated SLO health: config + history-window SLI + active corrections + each linked monitor's current state in one call. Computes errorBudgetRemainingPct and status (compliant | at-risk | breached). Replaces 3-5 round-trips of get-slo + get-slo-history + list-slo-corrections + get-monitor (per linked monitor). Uses Promise.allSettled — partial failures populate caveats[] instead of crashing.",
+  "Aggregated SLO health: config + history-window SLI + active corrections + each linked monitor's current state in one call. Computes errorBudgetRemainingPct and status (compliant | at-risk | breached). Replaces 3-5 round-trips of get-slo + get-slo-history + list-slo-corrections + get-monitor (per linked monitor). Uses Promise.allSettled — partial failures populate caveats[] instead of crashing. Renders an Apps SDK card on ChatGPT clients (Claude clients receive the same JSON text).",
   sloComplianceSnapshotSchema.shape,
-  wrapToolHandler(sloComplianceSnapshot),
+  sloComplianceSnapshotWithCard,
 );
 
 // --- Meta tools (always enabled) ---

@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { startMcpServer } from "@us-all/mcp-toolkit/runtime";
 import { validateConfig } from "./config.js";
 
 const pkgPath = join(dirname(fileURLToPath(import.meta.url)), "..", "package.json");
@@ -1446,14 +1446,7 @@ registerResources(server);
 // --- MCP Prompts (workflow templates) ---
 registerPrompts(server);
 
-// Start server
-async function main() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error("Datadog MCP server running on stdio");
-}
-
-main().catch((error) => {
+startMcpServer(server).catch((error) => {
   console.error("Fatal error:", error);
   process.exit(1);
 });

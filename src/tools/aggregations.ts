@@ -1,6 +1,7 @@
 import { z } from "zod/v4";
+import { v2 } from "@datadog/datadog-api-client";
 import { aggregate } from "@us-all/mcp-toolkit";
-import { monitorsApi, eventsApi, downtimesApi, slosApi, sloCorrectionsApi } from "../client.js";
+import { monitorsApi, eventsApi, downtimesApi, slosApi, sloCorrectionsApi, incidentsApi, logsApi } from "../client.js";
 import { applyExtractFields, extractFieldsDescription } from "./extract-fields.js";
 
 const ef = z.string().optional().describe(extractFieldsDescription);
@@ -196,4 +197,189 @@ function reasonMessage(reason: unknown): string {
   } catch {
     return "unknown error";
   }
+}
+
+// --- incident-triage-snapshot ---
+
+export const incidentTriageSnapshotSchema = z.object({
+  incidentId: z.string().describe("Incident ID. Use list-incidents or search-incidents to find one."),
+  lookbackMinutes: z.coerce.number().int().min(5).max(720).optional().default(60)
+    .describe("Minutes before incident creation to scan for related signals (default 60, max 720)"),
+  service: z.string().optional()
+    .describe("Override the service tag scan. By default, derived from incident.fields.services[0]."),
+  includeLogSpike: z.boolean().optional().default(true)
+    .describe("Run an aggregate-logs spike detection over the window for the incident's service"),
+  includeSimilar: z.boolean().optional().default(true)
+    .describe("Search for incidents on the same service in the last 14 days"),
+  extractFields: ef,
+});
+
+interface IncidentAttrs {
+  title?: string;
+  customerImpacted?: boolean;
+  customerImpactScope?: string;
+  fields?: Record<string, { value?: string | number | string[]; type?: string }>;
+  severity?: string;
+  state?: string;
+  created?: string | Date;
+  resolved?: string | Date | null;
+}
+
+function readField(fields: IncidentAttrs["fields"], key: string): string | string[] | null {
+  const f = fields?.[key];
+  if (!f) return null;
+  const v = f.value;
+  if (Array.isArray(v)) return v as string[];
+  if (typeof v === "string" || typeof v === "number") return String(v);
+  return null;
+}
+
+function firstString(v: string | string[] | null): string | null {
+  if (Array.isArray(v)) return v[0] ?? null;
+  return v;
+}
+
+export async function incidentTriageSnapshot(params: z.infer<typeof incidentTriageSnapshotSchema>) {
+  const { incidentId, lookbackMinutes, includeLogSpike, includeSimilar } = params;
+
+  const caveats: string[] = [];
+
+  const incidentResp = await incidentsApi
+    .getIncident({ incidentId })
+    .catch((err: unknown) => {
+      caveats.push(`get-incident failed: ${reasonMessage(err)}`);
+      return null;
+    });
+
+  const data = incidentResp?.data;
+  const attrs = (data?.attributes ?? {}) as IncidentAttrs;
+  const fields = attrs.fields ?? {};
+
+  const service = params.service ?? firstString(readField(fields, "services"));
+  const team = firstString(readField(fields, "teams"));
+
+  const createdMs = attrs.created ? new Date(attrs.created).getTime() : Date.now();
+  const resolvedMs = attrs.resolved ? new Date(attrs.resolved).getTime() : null;
+
+  const fromMs = createdMs - lookbackMinutes * 60_000;
+  const toMs = resolvedMs ?? Date.now();
+
+  const fromSec = Math.floor(fromMs / 1000);
+  const toSec = Math.floor(toMs / 1000);
+  const fromIso = new Date(fromMs).toISOString();
+  const toIso = new Date(toMs).toISOString();
+
+  // Tag filter for events: prefer service, fall back to team.
+  const eventTagFilter = service ? `service:${service}` : team ? `team:${team}` : undefined;
+
+  const since14d = Math.floor(Date.now() / 1000) - 14 * 86400;
+
+  const { listEvents, similar, logSpike } = await aggregate(
+    {
+      listEvents: () =>
+        eventsApi.listEvents({ start: fromSec, end: toSec, tags: eventTagFilter }),
+      similar: includeSimilar && service
+        ? () =>
+            incidentsApi.searchIncidents({
+              query: `services:${service}`,
+              pageSize: 10,
+              sort: "-created" as v2.IncidentSearchSortOrder,
+            })
+        : () => Promise.resolve(null),
+      logSpike: includeLogSpike && service
+        ? () => {
+            const compute = new v2.LogsCompute();
+            compute.aggregation = "count" as v2.LogsAggregationFunction;
+            compute.type = "total" as v2.LogsComputeType;
+            const filter = new v2.LogsQueryFilter();
+            filter.query = `service:${service} status:error`;
+            filter.from = fromIso;
+            filter.to = toIso;
+            const body = new v2.LogsAggregateRequest();
+            body.compute = [compute];
+            body.filter = filter;
+            const groupBy = new v2.LogsGroupBy();
+            groupBy.facet = "@timestamp";
+            groupBy.limit = 50;
+            body.groupBy = [groupBy];
+            return logsApi.aggregateLogs({ body });
+          }
+        : () => Promise.resolve(null),
+    },
+    caveats,
+  );
+
+  // Drop the noise from the incident's heavy `fields` blob; surface only what
+  // a triage view needs. Caller can pass extractFields="*" to keep everything.
+  const incident = data
+    ? {
+        id: data.id,
+        title: attrs.title ?? null,
+        severity: firstString(readField(fields, "severity")) ?? attrs.severity ?? null,
+        state: firstString(readField(fields, "state")) ?? attrs.state ?? null,
+        customerImpacted: attrs.customerImpacted ?? null,
+        customerImpactScope: attrs.customerImpactScope ?? null,
+        services: readField(fields, "services") ?? null,
+        teams: readField(fields, "teams") ?? null,
+        created: attrs.created ?? null,
+        resolved: attrs.resolved ?? null,
+      }
+    : null;
+
+  // Trim similar incidents to the high-signal fields and exclude the current one.
+  const similarRaw = (similar as { data?: Array<{ id?: string; attributes?: IncidentAttrs }> } | null)?.data ?? [];
+  const similarIncidents = similarRaw
+    .filter((i) => i.id !== incidentId)
+    .filter((i) => {
+      // 14d window — datadog search doesn't always honor age, filter client-side.
+      const c = i.attributes?.created ? new Date(i.attributes.created).getTime() : 0;
+      return c / 1000 >= since14d;
+    })
+    .slice(0, 5)
+    .map((i) => ({
+      id: i.id,
+      title: i.attributes?.title ?? null,
+      created: i.attributes?.created ?? null,
+      resolved: i.attributes?.resolved ?? null,
+      severity: firstString(readField(i.attributes?.fields, "severity")) ?? null,
+    }));
+
+  // Distill the log-spike response into pass/fail + peak.
+  const buckets = (logSpike as { data?: { buckets?: Array<{ computes?: Record<string, number>; by?: Record<string, string> }> } } | null)?.data?.buckets ?? [];
+  const peak = buckets.reduce<{ ts?: string; count: number }>(
+    (acc, b) => {
+      const c = Number(b.computes?.c0 ?? b.computes?.["count"] ?? 0);
+      return c > acc.count ? { ts: b.by?.["@timestamp"], count: c } : acc;
+    },
+    { count: 0 },
+  );
+  const total = buckets.reduce((sum, b) => sum + Number(b.computes?.c0 ?? b.computes?.["count"] ?? 0), 0);
+  const avg = buckets.length ? total / buckets.length : 0;
+  // Heuristic spike: peak >= 3× the average and >= 5 errors in the window.
+  const hasSpike = peak.count >= 5 && avg > 0 && peak.count >= avg * 3;
+
+  const eventsArray = (listEvents as { events?: unknown[] } | null)?.events ?? [];
+
+  const durationMin = resolvedMs ? Math.round((resolvedMs - createdMs) / 60_000) : null;
+
+  return {
+    incident,
+    window: { fromTs: fromSec, toTs: toSec, lookbackMinutes },
+    serviceUnderTriage: service,
+    events: eventsArray,
+    similarIncidents,
+    logSpike: includeLogSpike && service
+      ? { service, hasSpike, peakCount: peak.count, peakTs: peak.ts ?? null, totalErrors: total, bucketCount: buckets.length }
+      : null,
+    summary: {
+      severity: incident?.severity,
+      state: incident?.state,
+      durationMin,
+      eventsCount: eventsArray.length,
+      similarCount: similarIncidents.length,
+      logSpikeDetected: hasSpike,
+      service,
+    },
+    caveats,
+  };
 }

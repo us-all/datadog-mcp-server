@@ -145,6 +145,7 @@ import { registerPrompts } from "./prompts.js";
 import {
   analyzeMonitorStateSchema, analyzeMonitorState,
   sloComplianceSnapshotSchema, sloComplianceSnapshot,
+  incidentTriageSnapshotSchema, incidentTriageSnapshot,
 } from "./tools/aggregations.js";
 
 validateConfig();
@@ -1452,6 +1453,15 @@ tool(
   "Aggregated SLO health: config + history-window SLI + active corrections + each linked monitor's current state in one call. Computes errorBudgetRemainingPct and status (compliant | at-risk | breached). Replaces 3-5 round-trips of get-slo + get-slo-history + list-slo-corrections + get-monitor (per linked monitor). Uses Promise.allSettled — partial failures populate caveats[] instead of crashing. Renders an Apps SDK card on ChatGPT clients (Claude clients receive the same JSON text).",
   sloComplianceSnapshotSchema.shape,
   sloComplianceSnapshotWithCard,
+);
+
+currentCategory = "incidents";
+
+tool(
+  "incident-triage-snapshot",
+  "Aggregated incident triage: get-incident + get-events (lookback window) + search-incidents (similar on same service, last 14d) + aggregate-logs (error spike on incident's service) in one call. Replaces the 5-step `triage-incident` Prompt orchestration with a single structured response (incident metadata, related events, similar past incidents, log-spike heuristic, and a summary block with severity/duration/spike flag). Uses Promise.allSettled — per-fetcher failures populate caveats[].",
+  incidentTriageSnapshotSchema.shape,
+  wrapToolHandler(incidentTriageSnapshot),
 );
 
 // --- Meta tools (always enabled) ---

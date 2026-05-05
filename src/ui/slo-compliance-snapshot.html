@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>SLO Compliance Snapshot</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #fff; --fg: #1f2328; --muted: #57606a; --border: #d0d7de;
+    --ok: #1a7f37; --warn: #bf8700; --err: #cf222e;
+    --pill-ok: #dafbe1; --pill-warn: #fff8c5; --pill-err: #ffebe9; --pill-unk: #eaeef2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0d1117; --fg: #c9d1d9; --muted: #8b949e; --border: #30363d;
+      --ok: #3fb950; --warn: #d29922; --err: #f85149;
+      --pill-ok: #033a16; --pill-warn: #3a2700; --pill-err: #3a0d12; --pill-unk: #21262d; }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    color: var(--fg); background: var(--bg); padding: 16px; }
+  h1 { font-size: 15px; margin: 0 0 4px; font-weight: 600; }
+  .meta { color: var(--muted); font-size: 12px; margin-bottom: 14px; }
+  .row { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; margin-bottom: 12px; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .pill.compliant { background: var(--pill-ok); color: var(--ok); }
+  .pill.at-risk { background: var(--pill-warn); color: var(--warn); }
+  .pill.breached { background: var(--pill-err); color: var(--err); }
+  .pill.unknown { background: var(--pill-unk); color: var(--muted); }
+  .stat { display: flex; flex-direction: column; min-width: 110px; }
+  .stat .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .stat .value { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .bar { height: 6px; background: var(--pill-unk); border-radius: 3px; overflow: hidden; margin-top: 6px; }
+  .bar > span { display: block; height: 100%; background: var(--ok); transition: width .2s; }
+  .bar.warn > span { background: var(--warn); } .bar.err > span { background: var(--err); }
+  section { border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; margin-top: 10px; }
+  section h2 { font-size: 12px; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+  .monitors li, .corrections li, .caveats li { list-style: none; padding: 4px 0; border-bottom: 1px solid var(--border); display: flex; gap: 8px; align-items: baseline; font-size: 12px; }
+  .monitors li:last-child, .corrections li:last-child, .caveats li:last-child { border-bottom: none; }
+  ul { padding: 0; margin: 0; }
+  .mon-state { font-size: 10px; padding: 1px 6px; border-radius: 8px; text-transform: uppercase; }
+  .mon-state.OK, .mon-state.ok { background: var(--pill-ok); color: var(--ok); }
+  .mon-state.Alert, .mon-state.alert { background: var(--pill-err); color: var(--err); }
+  .mon-state.Warn, .mon-state.warn { background: var(--pill-warn); color: var(--warn); }
+  .mon-state.unknown { background: var(--pill-unk); color: var(--muted); }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  .empty { color: var(--muted); font-size: 12px; font-style: italic; }
+</style>
+</head>
+<body>
+<div id="app">Loading…</div>
+<script>
+(function(){
+  function pct(v){ return v == null ? '—' : v.toFixed(2) + '%'; }
+  function escape(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
+  function render(d) {
+    if (!d) return '<p class="empty">No data.</p>';
+    const status = d.status || 'unknown';
+    const eb = typeof d.errorBudgetRemainingPct === 'number' ? d.errorBudgetRemainingPct : null;
+    const ebClamped = eb == null ? 0 : Math.max(0, Math.min(100, eb));
+    const ebClass = status === 'breached' ? 'err' : status === 'at-risk' ? 'warn' : '';
+    const slo = d.slo || {};
+    const hist = d.history || {};
+    const monitors = Array.isArray(d.monitors) ? d.monitors : [];
+    const corrections = Array.isArray(d.corrections) ? d.corrections : [];
+    const caveats = Array.isArray(d.caveats) ? d.caveats : [];
+
+    const monItems = monitors.length === 0 ? '<li class="empty">No linked monitors.</li>' :
+      monitors.map(m => `<li>
+        <span class="mono">#${escape(m.id)}</span>
+        <span style="flex:1">${escape(m.name || '(unnamed)')}</span>
+        <span class="mon-state ${escape(m.overallState || 'unknown')}">${escape(m.overallState || 'unknown')}</span>
+      </li>`).join('');
+
+    const corrItems = corrections.length === 0 ? '<li class="empty">No active corrections.</li>' :
+      corrections.map(c => `<li>
+        <span class="mono">${escape(c.id)}</span>
+        <span style="flex:1">${escape(c.category || '')}${c.description ? ' — ' + escape(c.description) : ''}</span>
+      </li>`).join('');
+
+    const cavItems = caveats.length === 0 ? '' :
+      `<section><h2>Caveats</h2><ul class="caveats">${caveats.map(c => `<li>${escape(c)}</li>`).join('')}</ul></section>`;
+
+    return `
+      <h1>${escape(slo.name || 'SLO')}</h1>
+      <div class="meta mono">${escape(slo.id || '')} · ${escape(slo.type || '')}</div>
+      <div class="row">
+        <span class="pill ${escape(status)}">${escape(status)}</span>
+        <div class="stat">
+          <span class="label">SLI</span>
+          <span class="value">${pct(hist.sliValue)}</span>
+        </div>
+        <div class="stat">
+          <span class="label">Target</span>
+          <span class="value">${pct(slo.target)}</span>
+        </div>
+        <div class="stat" style="flex:1; min-width:160px">
+          <span class="label">Error budget remaining</span>
+          <span class="value">${eb == null ? '—' : eb.toFixed(1) + '%'}</span>
+          <div class="bar ${ebClass}"><span style="width:${ebClamped}%"></span></div>
+        </div>
+      </div>
+      <section>
+        <h2>Linked monitors (${monitors.length})</h2>
+        <ul class="monitors">${monItems}</ul>
+      </section>
+      <section>
+        <h2>Active corrections (${corrections.length})</h2>
+        <ul class="corrections">${corrItems}</ul>
+      </section>
+      ${cavItems}
+    `;
+  }
+  function update(){ document.getElementById('app').innerHTML = render(window.openai && window.openai.toolOutput); }
+  update();
+  window.addEventListener('openai:set_globals', update);
+})();
+</script>
+</body>
+</html>

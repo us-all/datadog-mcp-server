@@ -108,7 +108,7 @@ const EXPECTED_TOOLS = [
   "list-fleet-schedules", "get-fleet-schedule", "create-fleet-schedule", "update-fleet-schedule", "delete-fleet-schedule", "trigger-fleet-schedule",
   "list-fleet-instrumented-pods",
   // Aggregations (2)
-  "analyze-monitor-state", "slo-compliance-snapshot",
+  "analyze-monitor-state", "slo-compliance-snapshot", "incident-triage-snapshot",
 ];
 
 describe("tool registration", () => {
@@ -117,8 +117,8 @@ describe("tool registration", () => {
     await import("../../src/index.js");
   });
 
-  it("registers exactly 164 tools (161 datadog + 2 aggregations + 1 search-tools meta)", () => {
-    expect(toolCalls).toHaveLength(164);
+  it("registers exactly 165 tools (161 datadog + 3 aggregations + 1 search-tools meta)", () => {
+    expect(toolCalls).toHaveLength(165);
   });
 
   it("registers all expected tool names", () => {

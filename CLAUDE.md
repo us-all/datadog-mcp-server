@@ -111,6 +111,7 @@ const body = { compute: [...] } as any;  // ObjectSerializer mapping fails
 
 ## 최근 변경사항
 
+- **v1.18.1** (2026-05-05): `@us-all/mcp-toolkit ^1.2.1` 핀 업데이트 — 자동 cascade. 코드 변경 0줄.
 - **v1.18.0** (2026-05-05): Apps SDK UI 카드 — `slo-compliance-snapshot` 도구 결과를 `_meta["openai/outputTemplate"]` 통해 ChatGPT/Apps SDK 클라이언트에서 카드로 렌더. 새 리소스 `ui://widget/slo-compliance-snapshot.html` (`text/html+skybridge`), 도구 응답에 `structuredContent` + `_meta` 추가. Claude 클라이언트는 `_meta`를 무시하고 기존 텍스트 응답 그대로 사용 — non-breaking. 빌드 시 `src/ui/*.html`을 `dist/ui/`로 자동 복사.
 - **v1.17.0** (2026-05-05): `startMcpServer` 채택 — toolkit v1.2.0의 런타임 헬퍼로 stdio 부트스트랩 12라인을 1줄로 교체. `MCP_TRANSPORT=http`로 Streamable HTTP transport 옵트인 가능 (기본 stdio). `MCP_HTTP_TOKEN` Bearer 인증, `/mcp` JSON-RPC + `/health` 엔드포인트. 기존 stdio 사용자 영향 0.
 - **v1.16.5** (2026-05-05): `@us-all/mcp-toolkit ^1.2.0` 핀 업데이트 — 자동 cascade. 코드 변경 0줄.

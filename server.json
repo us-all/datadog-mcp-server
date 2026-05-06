@@ -1,0 +1,52 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.us-all/datadog",
+  "description": "Datadog MCP server - 165 tools for metrics, monitors, logs, APM, RUM, incidents, CI/CD, status pages, fleet automation, and more",
+  "repository": {
+    "url": "https://github.com/us-all/datadog-mcp-server",
+    "source": "github"
+  },
+  "version": "1.19.1",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@us-all/datadog-mcp",
+      "version": "1.19.1",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "DD_API_KEY",
+          "description": "Datadog API key",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "DD_APP_KEY",
+          "description": "Datadog application key",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "DD_SITE",
+          "description": "Datadog site (datadoghq.com, datadoghq.eu, us3.datadoghq.com, etc.)",
+          "default": "datadoghq.com"
+        },
+        {
+          "name": "DD_TOOLS",
+          "description": "Comma-separated category allowlist (e.g. metrics,monitors,logs). Default: all categories enabled."
+        },
+        {
+          "name": "DD_DISABLE",
+          "description": "Comma-separated category disablelist."
+        },
+        {
+          "name": "DD_ALLOW_WRITE",
+          "description": "Set to 'true' to enable write/destructive tools. Default read-only.",
+          "default": "false"
+        }
+      ]
+    }
+  ]
+}

@@ -8,6 +8,7 @@
 [![downloads](https://img.shields.io/npm/dm/@us-all/datadog-mcp)](https://www.npmjs.com/package/@us-all/datadog-mcp)
 [![tools](https://img.shields.io/badge/tools-159-blue)](#full-tool-reference)
 [![@us-all standard](https://img.shields.io/badge/built%20to-%40us--all%20MCP%20standard-blue)](https://github.com/us-all/mcp-toolkit/blob/main/STANDARD.md)
+[![Glama MCP server](https://glama.ai/mcp/servers/us-all/datadog-mcp-server/badges/score.svg)](https://glama.ai/mcp/servers/us-all/datadog-mcp-server)
 
 ## What it does that others don't
 

@@ -2,11 +2,11 @@
 
 > **The Datadog MCP that answers _"why is this happening?"_ — not just _"what's the value?"_**
 >
-> Aggregation tools that fold 5–7 sequential API calls into one structured response. Full SLO CRUD. Fleet automation. The widest Datadog API coverage in any MCP — **159 tools** built on the [@us-all MCP standard](https://github.com/us-all/mcp-toolkit/blob/main/STANDARD.md).
+> Aggregation tools that fold 5–7 sequential API calls into one structured response. Full SLO CRUD. Fleet automation. The widest Datadog API coverage in any MCP — **165 tools** built on the [@us-all MCP standard](https://github.com/us-all/mcp-toolkit/blob/main/STANDARD.md).
 
 [![npm](https://img.shields.io/npm/v/@us-all/datadog-mcp)](https://www.npmjs.com/package/@us-all/datadog-mcp)
 [![downloads](https://img.shields.io/npm/dm/@us-all/datadog-mcp)](https://www.npmjs.com/package/@us-all/datadog-mcp)
-[![tools](https://img.shields.io/badge/tools-159-blue)](#full-tool-reference)
+[![tools](https://img.shields.io/badge/tools-165-blue)](#full-tool-reference)
 [![@us-all standard](https://img.shields.io/badge/built%20to-%40us--all%20MCP%20standard-blue)](https://github.com/us-all/mcp-toolkit/blob/main/STANDARD.md)
 [![Glama MCP server](https://glama.ai/mcp/servers/us-all/datadog-mcp-server/badges/score.svg)](https://glama.ai/mcp/servers/us-all/datadog-mcp-server)
 
@@ -16,7 +16,7 @@
 - **Full SLO CRUD** — create, update, delete SLOs (and their corrections). The official Bits AI MCP and community alternatives are read-only on SLOs.
 - **Fleet Automation** — 17 tools across deployments, schedules, and instrumented pods. Only this server.
 - **Status Pages** — 21 tools for full status-page lifecycle (components, degradations, maintenances). Only this server.
-- **Token-efficient by design** — `extractFields` projection, `DD_TOOLS`/`DD_DISABLE` 16-category toggles, and a `search-tools` meta-tool keep LLM context low across 159 tools.
+- **Token-efficient by design** — `extractFields` projection, `DD_TOOLS`/`DD_DISABLE` 16-category toggles, and a `search-tools` meta-tool keep LLM context low across 165 tools.
 - **Apps SDK card** — `slo-compliance-snapshot` renders as a visual card on ChatGPT clients via `_meta["openai/outputTemplate"]`. Claude clients receive the same JSON content (non-breaking).
 - **stdio + Streamable HTTP** — defaults to stdio (Claude Desktop / Code). Set `MCP_TRANSPORT=http` for ChatGPT Apps SDK or remote clients (Bearer auth via `MCP_HTTP_TOKEN`).
 
@@ -36,7 +36,7 @@ Datadog's official MCP (Bits AI MCP, GA 2026-03-09) is **complementary**, not a 
 
 | | Official Datadog MCP | `@us-all/datadog-mcp` (this) |
 |--|----------------------|------------------------------|
-| Tool count | 16+ core toolsets | **159 tools** across full API surface |
+| Tool count | 16+ core toolsets | **165 tools** across full API surface |
 | Deployment | Remote (managed by Datadog) | **Self-host** stdio (npx / Docker / npm) |
 | Auth | Datadog SSO | API + APP key |
 | Sites | Public Datadog sites | **Any site, incl. internal/sovereign**; US5 default |
@@ -130,7 +130,7 @@ Naive setup loads ~25K tokens of tool schema before any conversation. Three knob
 
 | Scenario | Tools | Schema tokens | vs default |
 |----------|------:|--------------:|-----------:|
-| default (all categories) | 159 | 25,200 | — |
+| default (all categories) | 165 | 25,200 | — |
 | typical (`DD_TOOLS=metrics,monitors,logs,apm,dashboards`) | 55 | 9,300 | −63% |
 | narrow (`DD_TOOLS=metrics,monitors`) | 24 | **3,800** | **−85%** |
 
@@ -159,7 +159,7 @@ Read-only entities by URI: `dd://monitor/{id}`, `dd://dashboard/{id}`, `dd://slo
 
 ## Tool reference
 
-159 tools across 16 categories. Use the `search-tools` meta-tool to discover at runtime; the full list is collapsed below.
+165 tools across 16 categories. Use the `search-tools` meta-tool to discover at runtime; the full list is collapsed below.
 
 | Domain | Tools |
 |--------|------:|
@@ -279,7 +279,7 @@ Built on [`@us-all/mcp-toolkit`](https://github.com/us-all/mcp-toolkit):
 
 ## Tech stack
 
-Node.js 18+ • TypeScript strict ESM • pnpm • `@modelcontextprotocol/sdk` • `@datadog/datadog-api-client` (official) • zod • dotenv • vitest + dd-trace.
+Node.js 22+ • TypeScript strict ESM • pnpm • `@modelcontextprotocol/sdk` • `@datadog/datadog-api-client` (official) • zod • dotenv • vitest + dd-trace.
 
 ## Contributing
 

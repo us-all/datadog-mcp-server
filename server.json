@@ -6,12 +6,12 @@
     "url": "https://github.com/us-all/datadog-mcp-server",
     "source": "github"
   },
-  "version": "1.19.1",
+  "version": "1.19.2",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@us-all/datadog-mcp",
-      "version": "1.19.1",
+      "version": "1.19.2",
       "transport": {
         "type": "stdio"
       },

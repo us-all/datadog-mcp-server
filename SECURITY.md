@@ -10,9 +10,17 @@ To enable write operations, set the environment variable:
 DD_ALLOW_WRITE=true
 ```
 
-### Write-Gated Tools (19)
+### Write-Gated Tools
 
-`create-monitor`, `update-monitor`, `delete-monitor`, `mute-monitor`, `create-dashboard`, `update-dashboard`, `delete-dashboard`, `send-logs`, `post-event`, `trigger-synthetics`, `create-synthetics-test`, `update-synthetics-test`, `delete-synthetics-test`, `create-downtime`, `cancel-downtime`, `create-case`, `update-case-status`, `send-dora-deployment`, `send-dora-incident`
+All Datadog mutations call `assertWriteAllowed()` and require `DD_ALLOW_WRITE=true`.
+This includes monitors, dashboards, logs/events, incidents, synthetics, downtimes,
+security suppressions/rules, cases, SLOs and corrections, RUM/APM/log/span
+metrics or retention filters, status pages, fleet deployment/schedule actions,
+teams, and DORA event submission.
+
+When adding a new tool that creates, updates, deletes, mutes, triggers, publishes,
+or otherwise changes Datadog state, call `assertWriteAllowed()` before the API
+request and add/update a regression test where practical.
 
 ## API Key Best Practices
 

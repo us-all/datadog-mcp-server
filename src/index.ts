@@ -3,7 +3,8 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
+import { z, type ZodRawShape } from "zod";
 import { startMcpServer } from "@us-all/mcp-toolkit/runtime";
 import { validateConfig } from "./config.js";
 
@@ -159,10 +160,14 @@ const server = new McpServer({
 let currentCategory: Category = "metrics";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function tool(name: string, description: string, schema: any, handler: any): void {
+function tool(name: string, description: string, shape: ZodRawShape, handler: any): void {
   registry.register(name, description, currentCategory);
   if (registry.isEnabled(currentCategory)) {
-    server.tool(name, description, schema, handler);
+    server.registerTool(
+      name,
+      { description, inputSchema: z.object(shape) },
+      handler,
+    );
   }
 }
 

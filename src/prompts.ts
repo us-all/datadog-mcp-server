@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 
 // MCP Prompts: pre-built workflow templates that clients can invoke. Each
 // returns a user-facing instruction the LLM should follow, leveraging the
@@ -11,10 +11,10 @@ export function registerPrompts(server: McpServer): void {
     {
       title: "Triage a Datadog incident",
       description: "Pull an incident, correlate events / monitor state changes / log spikes in a window, and produce a triage summary.",
-      argsSchema: {
+      argsSchema: z.object({
         incidentId: z.string().describe("Datadog incident ID to triage"),
         lookbackMinutes: z.string().optional().describe("Look back this many minutes for related signals (default: 60)"),
-      },
+      }),
     },
     ({ incidentId, lookbackMinutes }) => {
       const window = lookbackMinutes ?? "60";
@@ -46,10 +46,10 @@ export function registerPrompts(server: McpServer): void {
     {
       title: "Audit noisy monitors",
       description: "Find the top N noisiest monitors by flap rate and recommend which to mute or tune.",
-      argsSchema: {
+      argsSchema: z.object({
         tagFilter: z.string().optional().describe("Optional tag filter for get-monitors, e.g. 'team:platform' or 'env:prod'"),
         topN: z.string().optional().describe("How many noisy monitors to return (default: 10)"),
-      },
+      }),
     },
     ({ tagFilter, topN }) => {
       const n = topN ?? "10";
@@ -81,10 +81,10 @@ export function registerPrompts(server: McpServer): void {
     {
       title: "Analyze a RUM error spike",
       description: "Confirm a RUM error spike, group by error message and view, and report top patterns + impacted users.",
-      argsSchema: {
+      argsSchema: z.object({
         applicationId: z.string().describe("RUM application ID to investigate"),
         sinceMinutes: z.string().optional().describe("Look back this many minutes (default: 30)"),
-      },
+      }),
     },
     ({ applicationId, sinceMinutes }) => {
       const window = sinceMinutes ?? "30";
@@ -114,10 +114,10 @@ export function registerPrompts(server: McpServer): void {
     {
       title: "Investigate slow traces for a service",
       description: "Find the slowest spans for a service and break down where the time is spent.",
-      argsSchema: {
+      argsSchema: z.object({
         serviceName: z.string().describe("APM service name to investigate"),
         latencyP99Threshold: z.string().optional().describe("Duration threshold in ms — only consider spans slower than this (default: 1000)"),
-      },
+      }),
     },
     ({ serviceName, latencyP99Threshold }) => {
       const thresholdMs = latencyP99Threshold ?? "1000";

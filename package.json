@@ -54,9 +54,11 @@
     "token-stats": "node scripts/measure-tokens.mjs"
   },
   "dependencies": {
+    "@cfworker/json-schema": "^4.1.1",
     "@datadog/datadog-api-client": "^1.57.0",
-    "@modelcontextprotocol/sdk": "^1.29.0",
-    "@us-all/mcp-toolkit": "^1.2.3",
+    "@modelcontextprotocol/node": "2.0.0-alpha.2",
+    "@modelcontextprotocol/server": "2.0.0-alpha.2",
+    "@us-all/mcp-toolkit": "file:../mcp-toolkit",
     "dotenv": "^17.4.2",
     "zod": "^4.4.2"
   },

@@ -3,10 +3,10 @@ import { describe, it, expect, vi, beforeAll } from "vitest";
 const toolCalls: { name: string; description: string }[] = [];
 
 // Mock McpServer to capture tool registrations
-vi.mock("@modelcontextprotocol/sdk/server/mcp.js", () => ({
+vi.mock("@modelcontextprotocol/server", () => ({
   McpServer: class {
-    tool(name: string, description: string, ..._args: unknown[]) {
-      toolCalls.push({ name, description });
+    registerTool(name: string, config: { description: string }, _handler: unknown) {
+      toolCalls.push({ name, description: config.description });
     }
     registerResource(..._args: unknown[]) {
       // resources are not counted as tools — no-op for this test
@@ -21,11 +21,11 @@ vi.mock("@modelcontextprotocol/sdk/server/mcp.js", () => ({
   ResourceTemplate: class {
     constructor(public uriTemplate: string, public _options?: unknown) {}
   },
+  StdioServerTransport: class {},
 }));
 
-// Mock StdioServerTransport
-vi.mock("@modelcontextprotocol/sdk/server/stdio.js", () => ({
-  StdioServerTransport: class {},
+vi.mock("@modelcontextprotocol/node", () => ({
+  NodeStreamableHTTPServerTransport: class {},
 }));
 
 const EXPECTED_TOOLS = [

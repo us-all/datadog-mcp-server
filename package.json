@@ -1,6 +1,6 @@
 {
   "name": "@us-all/datadog-mcp",
-  "version": "1.19.3",
+  "version": "1.19.4",
   "mcpName": "io.github.us-all/datadog",
   "description": "Datadog MCP server - 165 tools for metrics, monitors, logs, APM, RUM, incidents, CI/CD, status pages, fleet automation, and more",
   "type": "module",
@@ -37,7 +37,9 @@
   "packageManager": "pnpm@10.30.2",
   "pnpm": {
     "overrides": {
-      "hono": ">=4.12.14"
+      "hono": "^4.12.18",
+      "fast-uri": "^3.1.2",
+      "ip-address": "^10.1.1"
     }
   },
   "scripts": {
@@ -54,7 +56,7 @@
   "dependencies": {
     "@datadog/datadog-api-client": "^1.57.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@us-all/mcp-toolkit": "^1.2.2",
+    "@us-all/mcp-toolkit": "^1.2.3",
     "dotenv": "^17.4.2",
     "zod": "^4.4.2"
   },

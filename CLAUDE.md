@@ -111,6 +111,7 @@ const body = { compute: [...] } as any;  // ObjectSerializer mapping fails
 
 ## 최근 변경사항
 
+- **v1.19.4** (2026-05-15): `@us-all/mcp-toolkit ^1.2.3` 핀 업데이트 — 자동 cascade. 코드 변경 0줄.
 - **v1.19.3** (2026-05-15): `@datadog/datadog-api-client` ^1.56.0 → ^1.57.0 (caret 범위 내 minor 흡수, breaking 없음) + `@us-all/mcp-toolkit` ^1.2.1 → ^1.2.2 dep 핀. 코드 변경 0줄, 23/23 vitest 통과.
 - **v1.19.1** (2026-05-06): MCP Server Registry 발행 — `mcpName: "io.github.us-all/datadog"` 추가 + 루트 `server.json` (npm 패키지 + stdio transport + 6개 환경변수 메타데이터). 코드 변경 0줄. registry.modelcontextprotocol.io에서 검색 가능.
 - **v1.19.0** (2026-05-05): 신규 `incident-triage-snapshot` 어그리게이션 도구 — `triage-incident` Prompt(워크플로우 5단계)을 단일 호출 구조 응답으로 압축. `get-incident` + `get-events`(lookback 윈도우) + `search-incidents`(같은 service, 14일) + `aggregate-logs`(error spike 휴리스틱: peak ≥ 3× avg & ≥ 5 errors) 4-fan-out. incident.fields에서 services/teams 자동 추출, durationMin 계산, 같은 사고 ID 자가 필터링. Promise.allSettled — 부분 실패 caveats[]. 도구 164→165 (+1 aggregation).

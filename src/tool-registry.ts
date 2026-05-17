@@ -14,6 +14,7 @@ export const CATEGORIES = [
   "ci",
   "infra",
   "fleet",
+  "workflows",
   "status-pages",
   "oncall",
   "teams",

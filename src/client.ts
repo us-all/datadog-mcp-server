@@ -82,3 +82,4 @@ export const spansMetricsApi = new v2.SpansMetricsApi(configuration);
 export const apmRetentionFiltersApi = new v2.APMRetentionFiltersApi(configuration);
 export const statusPagesApi = new v2.StatusPagesApi(configuration);
 export const fleetAutomationApi = new v2.FleetAutomationApi(configuration);
+export const workflowAutomationApi = new v2.WorkflowAutomationApi(configuration);

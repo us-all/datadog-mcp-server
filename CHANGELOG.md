@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.0] - 2026-05-17
+
+### Added
+
+- **Workflow Automation tools (3)** — `get-workflow`, `list-workflow-instances`, `get-workflow-instance` under new `workflows` category. Surfaces step-level input/output/error from workflow runs (debugging `STEP_ERROR` cases such as Slack interactive message timeouts). Requires `workflows_read` scope on the application key. Total tool count 165 → 168.
+
 ## [1.11.0] - 2026-05-01
 
 ### Added

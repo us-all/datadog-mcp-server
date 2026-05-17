@@ -138,6 +138,11 @@ import {
   deleteFleetScheduleSchema, deleteFleetSchedule, triggerFleetScheduleSchema, triggerFleetSchedule,
   listFleetInstrumentedPodsSchema, listFleetInstrumentedPods,
 } from "./tools/fleet.js";
+import {
+  getWorkflowSchema, getWorkflow,
+  listWorkflowInstancesSchema, listWorkflowInstances,
+  getWorkflowInstanceSchema, getWorkflowInstance,
+} from "./tools/workflows.js";
 
 import { registry, searchToolsSchema, searchTools, type Category } from "./tool-registry.js";
 import { registerResources } from "./resources.js";
@@ -1412,6 +1417,30 @@ tool(
   "List pods targeted for Single Step Instrumentation (SSI) in a Kubernetes cluster",
   listFleetInstrumentedPodsSchema.shape,
   wrapToolHandler(listFleetInstrumentedPods),
+);
+
+// --- Workflow Automation ---
+currentCategory = "workflows";
+
+tool(
+  "get-workflow",
+  "Get a Datadog workflow definition by ID (steps, triggers, conditions). The workflow UUID is in the UI URL at /workflow/<UUID>.",
+  getWorkflowSchema.shape,
+  wrapToolHandler(getWorkflow),
+);
+
+tool(
+  "list-workflow-instances",
+  "List run instances (executions) for a workflow. Returns instance IDs to drill into with get-workflow-instance for step-level state and errors.",
+  listWorkflowInstancesSchema.shape,
+  wrapToolHandler(listWorkflowInstances),
+);
+
+tool(
+  "get-workflow-instance",
+  "Get full run details for a single workflow instance — step-by-step input, output, status, and error. Use this to debug failed runs (e.g., a Slack alert says 'Workflow X failed at step Y').",
+  getWorkflowInstanceSchema.shape,
+  wrapToolHandler(getWorkflowInstance),
 );
 
 // --- Aggregation tools (round-trip elimination) ---

@@ -111,6 +111,7 @@ const body = { compute: [...] } as any;  // ObjectSerializer mapping fails
 
 ## 최근 변경사항
 
+- **v1.21.1** (2026-06-19): `@us-all/mcp-toolkit ^1.3.0` 핀 업데이트 — 자동 cascade. 코드 변경 0줄.
 - **v1.21.0** (2026-06-19): `@datadog/datadog-api-client` ^1.57.0 → ^1.59.0 마이그레이션. **BREAKING (dead endpoints)**: SDK 1.59가 `listFleetClusters`/`listFleetInstrumentedPods` 메서드 및 관련 모델 전체를 삭제 → 이를 백킹하던 `list-fleet-clusters`, `list-fleet-instrumented-pods` 두 도구 제거 (라이브 호출도 `is not a function`으로 이미 비동작, 실질 기능 손실 0). `create-status-page`의 `enabled` 속성 제거 (1.59에서 attribute 삭제, `subscriptionsEnabled`는 별개로 유지). 도구 168→166 (datadog 164→162). 유지된 fleet 도구(agents/versions/deployments/schedules)는 prod Datadog에서 1.59 런타임 라이브 검증 통과. 23/23 vitest.
 - **v1.19.3** (2026-05-15): `@datadog/datadog-api-client` ^1.56.0 → ^1.57.0 (caret 범위 내 minor 흡수, breaking 없음) + `@us-all/mcp-toolkit` ^1.2.1 → ^1.2.2 dep 핀. 코드 변경 0줄, 23/23 vitest 통과.
 - **v1.19.1** (2026-05-06): MCP Server Registry 발행 — `mcpName: "io.github.us-all/datadog"` 추가 + 루트 `server.json` (npm 패키지 + stdio transport + 6개 환경변수 메타데이터). 코드 변경 0줄. registry.modelcontextprotocol.io에서 검색 가능.

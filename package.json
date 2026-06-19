@@ -1,6 +1,6 @@
 {
   "name": "@us-all/datadog-mcp",
-  "version": "1.21.0",
+  "version": "1.21.1",
   "mcpName": "io.github.us-all/datadog",
   "description": "Datadog MCP server - 165 tools for metrics, monitors, logs, APM, RUM, incidents, CI/CD, status pages, fleet automation, and more",
   "type": "module",
@@ -56,7 +56,7 @@
   "dependencies": {
     "@datadog/datadog-api-client": "^1.59.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@us-all/mcp-toolkit": "^1.2.3",
+    "@us-all/mcp-toolkit": "^1.3.0",
     "dotenv": "^17.4.2",
     "zod": "^4.4.2"
   },

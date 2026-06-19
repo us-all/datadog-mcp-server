@@ -127,7 +127,6 @@ import {
 import {
   listFleetAgentsSchema, listFleetAgents, getFleetAgentInfoSchema, getFleetAgentInfo,
   listFleetAgentVersionsSchema, listFleetAgentVersions,
-  listFleetClustersSchema, listFleetClusters,
   listFleetTracersSchema, listFleetTracers,
   listFleetDeploymentsSchema, listFleetDeployments, getFleetDeploymentSchema, getFleetDeployment,
   createFleetDeploymentConfigureSchema, createFleetDeploymentConfigure,
@@ -136,7 +135,6 @@ import {
   listFleetSchedulesSchema, listFleetSchedules, getFleetScheduleSchema, getFleetSchedule,
   createFleetScheduleSchema, createFleetSchedule, updateFleetScheduleSchema, updateFleetSchedule,
   deleteFleetScheduleSchema, deleteFleetSchedule, triggerFleetScheduleSchema, triggerFleetSchedule,
-  listFleetInstrumentedPodsSchema, listFleetInstrumentedPods,
 } from "./tools/fleet.js";
 import {
   getWorkflowSchema, getWorkflow,
@@ -1311,15 +1309,6 @@ tool(
   wrapToolHandler(listFleetAgentVersions),
 );
 
-// --- Fleet Clusters ---
-
-tool(
-  "list-fleet-clusters",
-  "List Kubernetes clusters with agent versions, node counts, and enabled products",
-  listFleetClustersSchema.shape,
-  wrapToolHandler(listFleetClusters),
-);
-
 // --- Fleet Tracers ---
 
 tool(
@@ -1408,15 +1397,6 @@ tool(
   "Manually trigger a fleet schedule to immediately create a deployment",
   triggerFleetScheduleSchema.shape,
   wrapToolHandler(triggerFleetSchedule),
-);
-
-// --- Fleet Instrumented Pods ---
-
-tool(
-  "list-fleet-instrumented-pods",
-  "List pods targeted for Single Step Instrumentation (SSI) in a Kubernetes cluster",
-  listFleetInstrumentedPodsSchema.shape,
-  wrapToolHandler(listFleetInstrumentedPods),
 );
 
 // --- Workflow Automation ---

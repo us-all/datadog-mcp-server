@@ -42,7 +42,6 @@ export const createStatusPageSchema = z.object({
   domainPrefix: z.string().describe("Unique domain prefix for the status page URL"),
   type: z.enum(["public", "internal"]).describe("Page type: public (internet-accessible) or internal (org-only)"),
   visualizationType: z.enum(["component_list"]).describe("Visualization type (currently only 'component_list')"),
-  enabled: z.boolean().optional().default(false).describe("Whether the page is enabled on creation"),
   subscriptionsEnabled: z.boolean().optional().describe("Whether email subscriptions are enabled"),
 });
 
@@ -54,7 +53,6 @@ export async function createStatusPage(params: z.infer<typeof createStatusPageSc
   attributes.domainPrefix = params.domainPrefix;
   attributes.type = params.type as v2.CreateStatusPageRequestDataAttributesType;
   attributes.visualizationType = params.visualizationType as v2.CreateStatusPageRequestDataAttributesVisualizationType;
-  attributes.enabled = params.enabled!;
   if (params.subscriptionsEnabled !== undefined) attributes.subscriptionsEnabled = params.subscriptionsEnabled;
 
   const data = new v2.CreateStatusPageRequestData();

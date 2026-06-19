@@ -101,12 +101,11 @@ const EXPECTED_TOOLS = [
   "list-status-page-components", "get-status-page-component", "create-status-page-component", "update-status-page-component", "delete-status-page-component",
   "list-status-page-degradations", "get-status-page-degradation", "create-status-page-degradation", "update-status-page-degradation", "delete-status-page-degradation",
   "list-status-page-maintenances", "get-status-page-maintenance", "create-status-page-maintenance", "update-status-page-maintenance",
-  // Fleet Automation (17)
+  // Fleet Automation (15)
   "list-fleet-agents", "get-fleet-agent-info", "list-fleet-agent-versions",
-  "list-fleet-clusters", "list-fleet-tracers",
+  "list-fleet-tracers",
   "list-fleet-deployments", "get-fleet-deployment", "create-fleet-deployment-configure", "create-fleet-deployment-upgrade", "cancel-fleet-deployment",
   "list-fleet-schedules", "get-fleet-schedule", "create-fleet-schedule", "update-fleet-schedule", "delete-fleet-schedule", "trigger-fleet-schedule",
-  "list-fleet-instrumented-pods",
   // Workflow Automation (3)
   "get-workflow", "list-workflow-instances", "get-workflow-instance",
   // Aggregations (2)
@@ -119,8 +118,8 @@ describe("tool registration", () => {
     await import("../../src/index.js");
   });
 
-  it("registers exactly 168 tools (164 datadog + 3 aggregations + 1 search-tools meta)", () => {
-    expect(toolCalls).toHaveLength(168);
+  it("registers exactly 166 tools (162 datadog + 3 aggregations + 1 search-tools meta)", () => {
+    expect(toolCalls).toHaveLength(166);
   });
 
   it("registers all expected tool names", () => {

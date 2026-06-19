@@ -2,11 +2,11 @@
 
 > **The Datadog MCP that answers _"why is this happening?"_ — not just _"what's the value?"_**
 >
-> Aggregation tools that fold 5–7 sequential API calls into one structured response. Full SLO CRUD. Fleet automation. The widest Datadog API coverage in any MCP — **165 tools** built on the [@us-all MCP standard](https://github.com/us-all/mcp-toolkit/blob/main/STANDARD.md).
+> Aggregation tools that fold 5–7 sequential API calls into one structured response. Full SLO CRUD. Fleet automation. The widest Datadog API coverage in any MCP — **163 tools** built on the [@us-all MCP standard](https://github.com/us-all/mcp-toolkit/blob/main/STANDARD.md).
 
 [![npm](https://img.shields.io/npm/v/@us-all/datadog-mcp)](https://www.npmjs.com/package/@us-all/datadog-mcp)
 [![downloads](https://img.shields.io/npm/dm/@us-all/datadog-mcp)](https://www.npmjs.com/package/@us-all/datadog-mcp)
-[![tools](https://img.shields.io/badge/tools-165-blue)](#full-tool-reference)
+[![tools](https://img.shields.io/badge/tools-163-blue)](#full-tool-reference)
 [![@us-all standard](https://img.shields.io/badge/built%20to-%40us--all%20MCP%20standard-blue)](https://github.com/us-all/mcp-toolkit/blob/main/STANDARD.md)
 [![Glama MCP server](https://glama.ai/mcp/servers/us-all/datadog-mcp-server/badges/score.svg)](https://glama.ai/mcp/servers/us-all/datadog-mcp-server)
 
@@ -14,9 +14,9 @@
 
 - **Aggregation tools** — `analyze-monitor-state` and `slo-compliance-snapshot` collapse 5–7 sequential API calls into one structured response with a `caveats` array for partial failures. No other Datadog MCP ships this pattern.
 - **Full SLO CRUD** — create, update, delete SLOs (and their corrections). The official Bits AI MCP and community alternatives are read-only on SLOs.
-- **Fleet Automation** — 17 tools across deployments, schedules, and instrumented pods. Only this server.
+- **Fleet Automation** — 15 tools across deployments and schedules. Only this server.
 - **Status Pages** — 21 tools for full status-page lifecycle (components, degradations, maintenances). Only this server.
-- **Token-efficient by design** — `extractFields` projection, `DD_TOOLS`/`DD_DISABLE` 16-category toggles, and a `search-tools` meta-tool keep LLM context low across 165 tools.
+- **Token-efficient by design** — `extractFields` projection, `DD_TOOLS`/`DD_DISABLE` 16-category toggles, and a `search-tools` meta-tool keep LLM context low across 163 tools.
 - **Apps SDK card** — `slo-compliance-snapshot` renders as a visual card on ChatGPT clients via `_meta["openai/outputTemplate"]`. Claude clients receive the same JSON content (non-breaking).
 - **stdio + Streamable HTTP** — defaults to stdio (Claude Desktop / Code). Set `MCP_TRANSPORT=http` for ChatGPT Apps SDK or remote clients (Bearer auth via `MCP_HTTP_TOKEN`).
 
@@ -36,12 +36,12 @@ Datadog's official MCP (Bits AI MCP, GA 2026-03-09) is **complementary**, not a 
 
 | | Official Datadog MCP | `@us-all/datadog-mcp` (this) |
 |--|----------------------|------------------------------|
-| Tool count | 16+ core toolsets | **165 tools** across full API surface |
+| Tool count | 16+ core toolsets | **163 tools** across full API surface |
 | Deployment | Remote (managed by Datadog) | **Self-host** stdio (npx / Docker / npm) |
 | Auth | Datadog SSO | API + APP key |
 | Sites | Public Datadog sites | **Any site, incl. internal/sovereign**; US5 default |
 | SLO writes | ❌ | ✅ create/update/delete SLOs + corrections |
-| Fleet automation | ❌ | ✅ 17 tools |
+| Fleet automation | ❌ | ✅ 15 tools |
 | Status pages | ❌ | ✅ 21 tools |
 | Aggregation tools | ❌ | ✅ `analyze-monitor-state`, `slo-compliance-snapshot` |
 | MCP Prompts | ❌ | ✅ 4 (`triage-incident`, `audit-monitor-noise`, `analyze-rum-error-spike`, `investigate-slow-trace`) |
@@ -130,7 +130,7 @@ Naive setup loads ~25K tokens of tool schema before any conversation. Three knob
 
 | Scenario | Tools | Schema tokens | vs default |
 |----------|------:|--------------:|-----------:|
-| default (all categories) | 165 | 25,200 | — |
+| default (all categories) | 163 | 25,200 | — |
 | typical (`DD_TOOLS=metrics,monitors,logs,apm,dashboards`) | 55 | 9,300 | −63% |
 | narrow (`DD_TOOLS=metrics,monitors`) | 24 | **3,800** | **−85%** |
 
@@ -159,14 +159,14 @@ Read-only entities by URI: `dd://monitor/{id}`, `dd://dashboard/{id}`, `dd://slo
 
 ## Tool reference
 
-165 tools across 16 categories. Use the `search-tools` meta-tool to discover at runtime; the full list is collapsed below.
+163 tools across 16 categories. Use the `search-tools` meta-tool to discover at runtime; the full list is collapsed below.
 
 | Domain | Tools |
 |--------|------:|
 | Status Pages | 21 |
 | RUM (events + apps + metrics + retention) | 27 |
 | Metrics, Hosts, SLOs, Downtimes, Containers, Processes | 19 |
-| Fleet Automation | 17 |
+| Fleet Automation | 15 |
 | Synthetics, Logs/Spans Metrics, SLO Corrections | 16 |
 | Monitors, Dashboards, Notebooks, Events | 16 |
 | Incidents, Cases, Error Tracking, Audit | 13 |
@@ -254,8 +254,8 @@ Read-only entities by URI: `dd://monitor/{id}`, `dd://dashboard/{id}`, `dd://slo
 ### Status Pages (21)
 Full lifecycle: pages, components, degradations, maintenances. See `src/tools/status-pages.ts`.
 
-### Fleet Automation (17)
-Agents, deployments, schedules, instrumented pods. See `src/tools/fleet.ts`.
+### Fleet Automation (15)
+Agents, deployments, schedules. See `src/tools/fleet.ts`.
 
 ### Audit (1)
 `search-audit-logs`

@@ -11,7 +11,7 @@ Custom Datadog MCP (Model Context Protocol) server that gives Claude access to D
 - **Runtime**: Node.js 18+ with TypeScript (strict mode)
 - **Package Manager**: pnpm
 - **MCP SDK**: `@modelcontextprotocol/sdk` (^1.27.1)
-- **Datadog Client**: `@datadog/datadog-api-client` (^1.57.0)
+- **Datadog Client**: `@datadog/datadog-api-client` (^1.59.0)
 - **Validation**: zod
 - **Config**: dotenv
 
@@ -34,7 +34,7 @@ Claude AI → MCP Protocol → index.ts (server) → tools/*.ts → Datadog API 
 
 ### Key Source Files
 
-- `src/index.ts` — MCP server entry point, 158 tool registrations
+- `src/index.ts` — MCP server entry point, 156 tool registrations
 - `src/config.ts` — Environment variable loading (DD_API_KEY, DD_APP_KEY, DD_SITE)
 - `src/client.ts` — Datadog API client initialization using official SDK
 - `src/tools/utils.ts` — `wrapToolHandler` error handling wrapper for all tools
@@ -48,7 +48,7 @@ Each tool file follows the same pattern:
 3. Transform response to a readable format
 4. Handler is wrapped with `wrapToolHandler()` in index.ts for error handling
 
-### Tool Categories (158 tools)
+### Tool Categories (156 tools)
 
 | File | Tools |
 |------|-------|
@@ -85,7 +85,7 @@ Each tool file follows the same pattern:
 | `slo-corrections.ts` | `list-slo-corrections`, `get-slo-correction`, `create-slo-correction`, `update-slo-correction`, `delete-slo-correction` |
 | `apm-retention-filters.ts` | `list-apm-retention-filters`, `get-apm-retention-filter`, `create-apm-retention-filter`, `update-apm-retention-filter`, `delete-apm-retention-filter` |
 | `status-pages.ts` | `list-status-pages`, `get-status-page`, `create-status-page`, `update-status-page`, `delete-status-page`, `publish-status-page`, `unpublish-status-page`, `list-status-page-components`, `get-status-page-component`, `create-status-page-component`, `update-status-page-component`, `delete-status-page-component`, `list-status-page-degradations`, `get-status-page-degradation`, `create-status-page-degradation`, `update-status-page-degradation`, `delete-status-page-degradation`, `list-status-page-maintenances`, `get-status-page-maintenance`, `create-status-page-maintenance`, `update-status-page-maintenance` |
-| `fleet.ts` | `list-fleet-agents`, `get-fleet-agent-info`, `list-fleet-agent-versions`, `list-fleet-clusters`, `list-fleet-tracers`, `list-fleet-deployments`, `get-fleet-deployment`, `create-fleet-deployment-configure`, `create-fleet-deployment-upgrade`, `cancel-fleet-deployment`, `list-fleet-schedules`, `get-fleet-schedule`, `create-fleet-schedule`, `update-fleet-schedule`, `delete-fleet-schedule`, `trigger-fleet-schedule`, `list-fleet-instrumented-pods` |
+| `fleet.ts` | `list-fleet-agents`, `get-fleet-agent-info`, `list-fleet-agent-versions`, `list-fleet-tracers`, `list-fleet-deployments`, `get-fleet-deployment`, `create-fleet-deployment-configure`, `create-fleet-deployment-upgrade`, `cancel-fleet-deployment`, `list-fleet-schedules`, `get-fleet-schedule`, `create-fleet-schedule`, `update-fleet-schedule`, `delete-fleet-schedule`, `trigger-fleet-schedule` |
 
 ## Environment Variables
 
@@ -111,6 +111,7 @@ const body = { compute: [...] } as any;  // ObjectSerializer mapping fails
 
 ## 최근 변경사항
 
+- **v1.21.0** (2026-06-19): `@datadog/datadog-api-client` ^1.57.0 → ^1.59.0 마이그레이션. **BREAKING (dead endpoints)**: SDK 1.59가 `listFleetClusters`/`listFleetInstrumentedPods` 메서드 및 관련 모델 전체를 삭제 → 이를 백킹하던 `list-fleet-clusters`, `list-fleet-instrumented-pods` 두 도구 제거 (라이브 호출도 `is not a function`으로 이미 비동작, 실질 기능 손실 0). `create-status-page`의 `enabled` 속성 제거 (1.59에서 attribute 삭제, `subscriptionsEnabled`는 별개로 유지). 도구 168→166 (datadog 164→162). 유지된 fleet 도구(agents/versions/deployments/schedules)는 prod Datadog에서 1.59 런타임 라이브 검증 통과. 23/23 vitest.
 - **v1.19.3** (2026-05-15): `@datadog/datadog-api-client` ^1.56.0 → ^1.57.0 (caret 범위 내 minor 흡수, breaking 없음) + `@us-all/mcp-toolkit` ^1.2.1 → ^1.2.2 dep 핀. 코드 변경 0줄, 23/23 vitest 통과.
 - **v1.19.1** (2026-05-06): MCP Server Registry 발행 — `mcpName: "io.github.us-all/datadog"` 추가 + 루트 `server.json` (npm 패키지 + stdio transport + 6개 환경변수 메타데이터). 코드 변경 0줄. registry.modelcontextprotocol.io에서 검색 가능.
 - **v1.19.0** (2026-05-05): 신규 `incident-triage-snapshot` 어그리게이션 도구 — `triage-incident` Prompt(워크플로우 5단계)을 단일 호출 구조 응답으로 압축. `get-incident` + `get-events`(lookback 윈도우) + `search-incidents`(같은 service, 14일) + `aggregate-logs`(error spike 휴리스틱: peak ≥ 3× avg & ≥ 5 errors) 4-fan-out. incident.fields에서 services/teams 자동 추출, durationMin 계산, 같은 사고 ID 자가 필터링. Promise.allSettled — 부분 실패 caveats[]. 도구 164→165 (+1 aggregation).

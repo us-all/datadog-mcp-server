@@ -71,28 +71,6 @@ export async function listFleetAgentVersions(_params: z.infer<typeof listFleetAg
 // Fleet Clusters
 // ============================================================
 
-export const listFleetClustersSchema = z.object({
-  pageNumber: z.coerce.number().optional().default(0).describe("Page number (0-based)"),
-  pageSize: z.coerce.number().optional().default(50).describe("Number of results per page (max 100)"),
-  filter: z.string().optional().describe("Filter string for narrowing cluster results"),
-  tags: z.string().optional().describe("Comma-separated list of tags to filter clusters"),
-});
-
-export async function listFleetClusters(params: z.infer<typeof listFleetClustersSchema>) {
-  const response = await fleetAutomationApi.listFleetClusters({
-    pageNumber: params.pageNumber,
-    pageSize: params.pageSize,
-    filter: params.filter,
-    tags: params.tags,
-  });
-
-  const clusters = (response.data as any)?.attributes?.clusters ?? [];
-  return {
-    count: clusters.length,
-    clusters: clusters.map(formatCluster),
-  };
-}
-
 // ============================================================
 // Fleet Tracers
 // ============================================================
@@ -357,33 +335,6 @@ export async function triggerFleetSchedule(params: z.infer<typeof triggerFleetSc
 }
 
 // ============================================================
-// Fleet Instrumented Pods
-// ============================================================
-
-export const listFleetInstrumentedPodsSchema = z.object({
-  clusterName: z.string().describe("The Kubernetes cluster name"),
-});
-
-export async function listFleetInstrumentedPods(params: z.infer<typeof listFleetInstrumentedPodsSchema>) {
-  const response = await fleetAutomationApi.listFleetInstrumentedPods({
-    clusterName: params.clusterName,
-  });
-
-  const groups = (response.data as any)?.attributes?.groups ?? [];
-  return {
-    count: groups.length,
-    groups: groups.map((g: any) => ({
-      namespace: g.namespace,
-      kubeOwnerrefKind: g.kubeOwnerrefKind,
-      kubeOwnerrefName: g.kubeOwnerrefName,
-      podCount: g.podCount,
-      podNames: g.podNames,
-      appliedTargetName: g.appliedTargetName,
-      libInjectionAnnotations: g.libInjectionAnnotations,
-    })),
-  };
-}
-
 // ============================================================
 // Helpers
 // ============================================================
@@ -404,22 +355,6 @@ function formatAgent(agent: any) {
     firstSeenAt: agent.firstSeenAt,
     lastRestartAt: agent.lastRestartAt,
     tags: agent.tags,
-  };
-}
-
-function formatCluster(cluster: any) {
-  return {
-    clusterName: cluster.clusterName,
-    nodeCount: cluster.nodeCount,
-    agentVersions: cluster.agentVersions,
-    cloudProviders: cluster.cloudProviders,
-    enabledProducts: cluster.enabledProducts,
-    envs: cluster.envs,
-    services: cluster.services,
-    teams: cluster.teams,
-    firstSeenAt: cluster.firstSeenAt,
-    nodeCountByStatus: cluster.nodeCountByStatus,
-    podCountByState: cluster.podCountByState,
   };
 }
 

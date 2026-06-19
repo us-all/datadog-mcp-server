@@ -1,6 +1,6 @@
 {
   "name": "@us-all/datadog-mcp",
-  "version": "1.20.3",
+  "version": "1.21.0",
   "mcpName": "io.github.us-all/datadog",
   "description": "Datadog MCP server - 165 tools for metrics, monitors, logs, APM, RUM, incidents, CI/CD, status pages, fleet automation, and more",
   "type": "module",
@@ -54,7 +54,7 @@
     "token-stats": "node scripts/measure-tokens.mjs"
   },
   "dependencies": {
-    "@datadog/datadog-api-client": "^1.57.0",
+    "@datadog/datadog-api-client": "^1.59.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@us-all/mcp-toolkit": "^1.2.3",
     "dotenv": "^17.4.2",
@@ -64,7 +64,7 @@
     "@types/node": "^25.3.1",
     "dd-trace": "^5.92.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.1",
-    "vite": "^8.0.16"
+    "vite": "^8.0.16",
+    "vitest": "^4.1.1"
   }
 }

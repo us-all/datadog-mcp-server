@@ -1,12 +1,13 @@
 import { describe, it, expect, vi, beforeAll } from "vitest";
 
-const toolCalls: { name: string; description: string }[] = [];
+const toolCalls: { name: string; description: string; annotations?: any }[] = [];
 
 // Mock McpServer to capture tool registrations
 vi.mock("@modelcontextprotocol/sdk/server/mcp.js", () => ({
   McpServer: class {
     tool(name: string, description: string, ..._args: unknown[]) {
-      toolCalls.push({ name, description });
+      // signature: tool(name, description, schema, annotations, handler)
+      toolCalls.push({ name, description, annotations: _args[1] as any });
     }
     registerResource(..._args: unknown[]) {
       // resources are not counted as tools — no-op for this test
@@ -120,6 +121,20 @@ describe("tool registration", () => {
 
   it("registers exactly 166 tools (162 datadog + 3 aggregations + 1 search-tools meta)", () => {
     expect(toolCalls).toHaveLength(166);
+  });
+
+  it("applies inferred annotations to every tool (read/write/destructive hints)", () => {
+    const byName = new Map(toolCalls.map((t) => [t.name, t.annotations]));
+    // every tool carries annotations with openWorldHint
+    expect(toolCalls.every((t) => t.annotations?.openWorldHint === true)).toBe(true);
+    // read tool
+    expect(byName.get("get-monitors")?.readOnlyHint).toBe(true);
+    // write, non-destructive
+    expect(byName.get("create-monitor")?.readOnlyHint).toBe(false);
+    expect(byName.get("create-monitor")?.destructiveHint).toBeUndefined();
+    // destructive write
+    expect(byName.get("delete-monitor")?.readOnlyHint).toBe(false);
+    expect(byName.get("delete-monitor")?.destructiveHint).toBe(true);
   });
 
   it("registers all expected tool names", () => {
